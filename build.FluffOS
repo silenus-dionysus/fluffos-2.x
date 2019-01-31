@@ -204,6 +204,7 @@ else
     gcc comptest.c
     if test $? -eq 0; then
         CC="gcc"
+        CXX="g++ -fpermissive"
         if test "${DEBUG-x}" = "x"; then
             OPTIMIZE=${OPTIMIZE-"-O3"}
         fi
@@ -426,7 +427,7 @@ echo INSTALL_DIR=$INSTALL_DIR >>Makefile.tmp
 echo OPTIMIZE=$OPTIMIZE >>Makefile.tmp
 echo CPP=$CPP >>Makefile.tmp
 echo CFLAGS=$CFLAGS >>Makefile.tmp
-echo CC=$CC >>Makefile.tmp
+echo CXX=$CXX >>Makefile.tmp
 echo YACC=$YACC >>Makefile.tmp
 echo RANLIB=$RANLIB >>Makefile.tmp
 echo A=a >>Makefile.tmp
