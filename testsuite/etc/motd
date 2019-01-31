@@ -1,0 +1,12 @@
+The only commands in this little mudlib are:
+
+	dest, update, ed, eval, efun, rm, say, who, quit, and shutdown.
+
+All of update, dest, ed, and rm require full pathnames as arguments.
+
+More commands:
+tests : run a series test to validate driver function.
+speed : run a benchmark.
+crasher: calling efun with random argument, attempt to crash driver.
+
+Have fun.
