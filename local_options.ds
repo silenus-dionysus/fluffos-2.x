@@ -181,7 +181,7 @@
  * Compat status: Easy to support, and also on the "It's a bug!  No, it's
  * a feature!" religious war list.
  */
-#undef NONINTERACTIVE_STDERR_WRITE
+#define NONINTERACTIVE_STDERR_WRITE
 
 /* NO_LIGHT: define this to disable the set_light() and driver maintenance
  *   of light levels in objects.  You can simulate it via LPC if you want...
@@ -311,13 +311,13 @@
  * the mud_status() efun.  If this is off, mud_status() and memory_info()
  * ignore allocated strings, but string operations run faster.
  */
-#define STRING_STATS
+#undef STRING_STATS
 
 /*
  * Similarly for arrays ...
  */
-#define ARRAY_STATS
-#define CLASS_STATS
+#undef ARRAY_STATS
+#undef CLASS_STATS
 /* LOG_CATCHES: define this to cause errors that are catch()'d to be
  *   sent to the debug log anyway.
  *
@@ -368,7 +368,7 @@
  *   config files by default.  If you don't wish to use this define, you may
  *   always specify a full path to the config file when starting the driver.
  */
-#define CONFIG_FILE_DIR "/."
+#define CONFIG_FILE_DIR "./"
 
 /* DEFAULT_PRAGMAS:  This should be a sum of pragmas you want to always
  * be on, i.e.
@@ -396,7 +396,8 @@
  * PRAGMA_ERROR_CONTEXT:include some text telling where on the line a
  *                      compilation error occured.
  */
-#define 0
+// #define DEFAULT_PRAGMAS PRAGMA_WARNINGS + PRAGMA_STRICT_TYPES + PRAGMA_ERROR_CONTEXT
+#define DEFAULT_PRAGMAS 0
 
 /* supress warnings about unused arguments; only warn about unused local
  * variables.  Makes older code (where argument names were required) compile
@@ -599,13 +600,13 @@
 /* PACKAGE_MATRIX: determines whether or not the 3d graphics efuns (for floats)
  *   are included - see packages/matrix.spec for a list.
  */
-#undef PACKAGE_MATRIX
+#define PACKAGE_MATRIX
 
 /* PACKAGE_MUDLIB_STATS: define this to enable domain and author stats
  *   maintenance by the driver.  These mudlib stats are more domain
  *   based than user based, and replaces the traditional wiz_list stats.
  */
-#undef PACKAGE_MUDLIB_STATS
+#define PACKAGE_MUDLIB_STATS
 
 /* PACKAGE_SOCKETS: define this to enable the socket efunctions.  This
  *   causes HAS_SOCKETS to be defined for all LPC objects.
@@ -620,11 +621,13 @@
 /* PACKAGE_EXTERNAL: Allows the driver to exec() commands specified in the
  * config file.
  */
-#define PACKAGE_EXTERNAL
+#undef PACKAGE_EXTERNAL
 
 /* NUM_EXTERNAL_CMDS: the number of external commands supported */
 #ifdef PACKAGE_EXTERNAL
 #define NUM_EXTERNAL_CMDS 100
+#else
+#define NUM_EXTERNAL_CMDS 0
 #endif
 
 /* PACKAGE_DB: efuns for external database access using msql */
@@ -711,7 +714,7 @@
  *   comm.c's add_message(). Instead of blindly making this value larger,
  *   your mudlib should be coded to not send huge strings to users.
  */
-#define LARGEST_PRINTABLE_STRING 8192
+#define LARGEST_PRINTABLE_STRING 32768
 
 /* MESSAGE_BUFFER_SIZE: determines the size of the buffer for output that
  *   is sent to users.
@@ -732,7 +735,7 @@
  * 14      16384           256k
  * 16      65536             1M
  */
-#define APPLY_CACHE_BITS 20
+#define APPLY_CACHE_BITS 11
 
 /* CACHE_STATS: define this if you want call_other (apply_low) cache
  * statistics.  Causes HAS_CACHE_STATS to be defined in all LPC objects.
@@ -742,7 +745,7 @@
 /* TRACE: define this to enable the trace() and traceprefix() efuns.
  *   (keeping this undefined will cause the driver to run faster).
  */
-#define TRACE
+#undef TRACE
 
 /* RUNTIME_LOADING: On systems which support it, it allows LPC->C compilation
  * 'on the fly' without having to recompile the driver.
@@ -796,10 +799,10 @@
  *   global variables per object.  The maximum value is 65536.  There is
  *   a marginal memory increase for a value over 256.
  */
-#define CFG_MAX_GLOBAL_VARIABLES        65536
+#define CFG_MAX_GLOBAL_VARIABLES        256
 
 #define CFG_EVALUATOR_STACK_SIZE        3000
-#define CFG_COMPILER_STACK_SIZE         600
+#define CFG_COMPILER_STACK_SIZE         600000
 #define CFG_MAX_CALL_DEPTH              150
 /* This must be one of 4, 16, 64, 256, 1024, 4096 */
 #define CFG_LIVING_HASH_SIZE            256
@@ -840,13 +843,13 @@
  * will only get flushed if get_char() is not called from the first get_char()'s
  * LPC callback handler.
  */
-#undef GET_CHAR_IS_BUFFERED
+#define GET_CHAR_IS_BUFFERED
 
 /* PACKAGE_COMPRESS: Enable MCCP support and compressed save files
    SAVE_GZ_EXTENSION: save extension for compressed files
  */
-#define HAVE_ZLIB
-#define PACKAGE_COMPRESS
+#undef HAVE_ZLIB
+#undef PACKAGE_COMPRESS
 #define SAVE_GZ_EXTENSION ".o.gz"
 
 /* CALL_OTHER_TYPE_CHECK: enable type checking for call_other()
@@ -866,16 +869,16 @@
 /* USE_ICONV: Use iconv to translate input and output from/to the users char
  * encoding
  */
-#define USE_ICONV
+#undef USE_ICONV
 
 /* WOMBLES: don't allow spaces between start/end of array/mapping/functional token chars so ({1,2,3}) still works, but ( { 1 , 2 , 3 } ) doesn't and ({ 1 , 2 , 3 }) does.*/
-#define WOMBLES
+#undef WOMBLES
 
 /* ALLOW_INHERIT_AFTER_FUNCTION: allow inheriting after functions have been defined (this includes prototypes). This caused crashes in v22.2a but it may have been fixed since */
 #define ALLOW_INHERIT_AFTER_FUNCTION
 
 /*PACKAGE_ASYNC: adds some efuns for asyncronous IO */
-#define PACKAGE_ASYNC
+#undef PACKAGE_ASYNC
 
 /*PACKAGE_SHA1: adds a function to calculate the sha1 hash of a string sha1(string).  Use PACKAGE_CRYPTO instead if possible. */
 #undef PACKAGE_SHA1
@@ -896,7 +899,7 @@
  *   The intent is to allow the inspection of things that are difficult
  *   to inspect from inside the mud.
  */
-#define HAS_CONSOLE
+#undef HAS_CONSOLE
 
 /* IPV6: Use IP version 6 instead of 4, for most people the only difference 
  * will be that numerical IP addresses get ::ffff: added in front.*/
@@ -911,7 +914,9 @@
 /* use struct keyword for lpc structs */
 #undef STRUCT_STRUCT
 
-/* use POSIX timers for eval_cost */
-#define POSIX_TIMERS
+#undef POSIX_TIMERS
+
+// #define PACKAGE_DSLIB
+
 #endif
 
