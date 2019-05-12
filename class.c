@@ -6,7 +6,9 @@ int num_classes;
 int total_class_size;
 #endif
 
-void dealloc_class (array_t * p) {
+Class globalClass;
+
+void Class::dealloc_class (array_t * p) {
 	int i;
 
 #ifdef CLASS_STATS
@@ -18,7 +20,7 @@ void dealloc_class (array_t * p) {
 	FREE((char *) p);
 }
 
-void free_class (array_t * p)
+void Class::free_class (array_t * p)
 {
 	if (--(p->ref) > 0)
 		return;
@@ -26,7 +28,7 @@ void free_class (array_t * p)
 	dealloc_class(p);
 }
 
-array_t *allocate_class (class_def_t * cld, int has_values) {
+array_t *Class::allocate_class (class_def_t * cld, int has_values) {
 	array_t *p;
 	int n = cld->size;
 	if(!n)
@@ -51,7 +53,7 @@ array_t *allocate_class (class_def_t * cld, int has_values) {
 	return p;
 }
 
-array_t *allocate_class_by_size (int size) {
+array_t *Class::allocate_class_by_size (int size) {
 	array_t *p;
 
 #ifdef CLASS_STATS
@@ -68,7 +70,7 @@ array_t *allocate_class_by_size (int size) {
 	return p;
 }
 
-array_t *allocate_empty_class_by_size (int size) {
+array_t *Class::allocate_empty_class_by_size (int size) {
 	array_t *p;
 
 #ifdef CLASS_STATS

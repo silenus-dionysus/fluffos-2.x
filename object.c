@@ -832,7 +832,7 @@ restore_class (char ** str, svalue_t * ret)
     if (save_svalue_depth) size = sizes[save_svalue_depth-1];
     else if ((size = restore_size((const char **)str,0)) < 0) return ROB_CLASS_ERROR;
 
-    v = allocate_class_by_size(size); /* after this point we have to clean up
+    v = globalClass.allocate_class_by_size(size); /* after this point we have to clean up
                                          or we'll leak */
     sv = v->item;
 
@@ -902,7 +902,7 @@ restore_class (char ** str, svalue_t * ret)
  generic_error:
     err = ROB_CLASS_ERROR;
  error:
-    free_class(v);
+    globalClass.free_class(v);
     return err;
 }
 

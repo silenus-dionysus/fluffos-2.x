@@ -483,7 +483,7 @@ INLINE void int_free_svalue (svalue_t * v, const char * tag)
         dealloc_object(v->u.ob, "free_svalue");
         break;
       case T_CLASS:
-        dealloc_class(v->u.arr);
+        globalClass.dealloc_class(v->u.arr);
         break;
       case T_ARRAY:
         if (v->u.arr != &the_null_array)
@@ -2800,7 +2800,7 @@ eval_instruction (char * p)
       {
         array_t *cl;
 
-        cl = allocate_class(&current_prog->classes[EXTRACT_UCHAR(pc++)], 1);
+        cl = globalClass.allocate_class(&current_prog->classes[EXTRACT_UCHAR(pc++)], 1);
         push_refed_class(cl);
       }
       break;
@@ -2808,7 +2808,7 @@ eval_instruction (char * p)
       {
         array_t *cl;
 
-        cl = allocate_class(&current_prog->classes[EXTRACT_UCHAR(pc++)], 0);
+        cl = globalClass.allocate_class(&current_prog->classes[EXTRACT_UCHAR(pc++)], 0);
         push_refed_class(cl);
       }
       break;
@@ -3154,7 +3154,7 @@ eval_instruction (char * p)
           assign_svalue(&arr->item[i], &const0u);
         }
         assign_svalue_no_free(sp, &arr->item[i]);
-        free_class(arr);
+        globalClass.free_class(arr);
 
         break;
       }
@@ -3173,7 +3173,7 @@ eval_instruction (char * p)
         lv_owner_type = T_CLASS;
         lv_owner = (refed_t *)arr;
 #endif
-        free_class(arr);
+        globalClass.free_class(arr);
         break;
       }
     case F_INDEX:

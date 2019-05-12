@@ -140,8 +140,8 @@ f_eq()
     case T_CLASS:
         {
             i = (sp-1)->u.arr == sp->u.arr;
-            free_class((sp--)->u.arr);
-            free_class(sp->u.arr);
+            globalClass.free_class((sp--)->u.arr);
+            globalClass.free_class(sp->u.arr);
             break;
         }
     
@@ -501,8 +501,8 @@ f_ne()
     case T_CLASS:
         {
             i = (sp-1)->u.arr != sp->u.arr;
-            free_class((sp--)->u.arr);
-            free_class(sp->u.arr);
+            globalClass.free_class((sp--)->u.arr);
+            globalClass.free_class(sp->u.arr);
             break;
         }
 

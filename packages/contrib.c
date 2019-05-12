@@ -221,7 +221,7 @@ static array_t *deep_copy_class (array_t * arg) {
 	array_t *vec;
 	int i;
 
-	vec = allocate_empty_class_by_size(arg->size);
+	vec = globalClass.allocate_empty_class_by_size(arg->size);
 	for (i = 0; i < arg->size; i++)
 		deep_copy_svalue(&arg->item[i], &vec->item[i]);
 

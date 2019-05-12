@@ -428,7 +428,7 @@ void
 f_classp (void)
 {
     if (sp->type == T_CLASS) {
-        free_class(sp->u.arr);
+        globalClass.free_class(sp->u.arr);
         *sp = const1;
     } else {
         free_svalue(sp, "f_classp");
@@ -3090,7 +3090,7 @@ f_sizeof (void)
     switch (sp->type) {
     case T_CLASS:
         i = sp->u.arr->size;
-        free_class(sp->u.arr);
+        globalClass.free_class(sp->u.arr);
         break;
     case T_ARRAY:
         i = sp->u.arr->size;
