@@ -120,7 +120,7 @@ void dumpstat (const char * tfn)
     int display_hidden;
 #endif
 
-    fn = check_valid_path(tfn, current_object, "dumpallobj", 1);
+    fn = globalFile.check_valid_path(tfn, current_object, "dumpallobj", 1);
     if (!fn) {
         error("Invalid path '/%s' for writing.\n", tfn);
         return;

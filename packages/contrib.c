@@ -1479,7 +1479,7 @@ static int file_length (const char * file)
 	char buf[2049];
 	char *p, *newp;
 
-	file = check_valid_path(file, current_object, "file_size", 0);
+	file = globalFile.check_valid_path(file, current_object, "file_size", 0);
 
 	if (!file) return -1;
 	if (stat(file, &st) == -1)

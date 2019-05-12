@@ -499,7 +499,7 @@ f_cp (void)
 {
     int i;
 
-    i = copy_file(sp[-1].u.string, sp[0].u.string);
+    i = globalFile.copy_file(sp[-1].u.string, sp[0].u.string);
     free_string_svalue(sp--);
     free_string_svalue(sp);
     put_number(i);
@@ -929,7 +929,7 @@ f_file_name (void)
 void
 f_file_size (void)
 {
-    LPC_INT i = file_size(sp->u.string);
+    LPC_INT i = globalFile.file_size(sp->u.string);
     free_string_svalue(sp);
     put_number(i);
 }
@@ -1114,7 +1114,7 @@ f_get_dir (void)
 {
     array_t *vec;
 
-    vec = get_dir((sp - 1)->u.string, sp->u.number);
+    vec = globalFile.get_dir((sp - 1)->u.string, sp->u.number);
     free_string_svalue(--sp);
     if (vec) { put_array(vec); }
     else *sp = const0;
@@ -1396,7 +1396,7 @@ f_link (void)
     push_svalue(arg);
     ret = apply_master_ob(APPLY_VALID_LINK, 2);
     if (MASTER_APPROVED(ret))
-        i = do_rename((sp - 1)->u.string, sp->u.string, F_LINK);
+        i = globalFile.do_rename((sp - 1)->u.string, sp->u.string, F_LINK);
     else
         i = 0;
     (--sp)->type = T_NUMBER;
@@ -1766,7 +1766,7 @@ f_mkdir (void)
 {
     const char *path;
 
-    path = check_valid_path(sp->u.string, current_object, "mkdir", 1);
+    path = globalFile.check_valid_path(sp->u.string, current_object, "mkdir", 1);
     if (!path || OS_mkdir(path, 0770) == -1) {
         free_string_svalue(sp);
         *sp = const0;
@@ -2231,7 +2231,7 @@ f_read_bytes (void)
     if (num_arg == 3) {
         len = arg[2].u.number;
     }
-    str = read_bytes(arg[0].u.string, start, len, &rlen);
+    str = globalFile.read_bytes(arg[0].u.string, start, len, &rlen);
     pop_n_elems(num_arg);
     if (str == 0)
         push_number(0);
@@ -2258,7 +2258,7 @@ f_read_buffer (void)
     }
     if (arg[0].type == T_STRING) {
         from_file = 1;          /* new line */
-        str = read_bytes(arg[0].u.string, start, len, &rlen);
+        str = globalFile.read_bytes(arg[0].u.string, start, len, &rlen);
     } else {                    /* T_BUFFER */
         str = read_buffer(arg[0].u.buf, start, len, &rlen);
     }
@@ -2294,7 +2294,7 @@ f_read_file (void)
         start = (sp--)->u.number;
     else start = 0;
 
-    str = read_file(sp->u.string, start, len);
+    str = globalFile.read_file(sp->u.string, start, len);
     free_string_svalue(sp);
     if (!str) *sp = const0;
     else { sp->subtype = STRING_MALLOC; sp->u.string = str; }
@@ -2410,7 +2410,7 @@ f_rename (void)
 {
     int i;
 
-    i = do_rename((sp - 1)->u.string, sp->u.string, F_RENAME);
+    i = globalFile.do_rename((sp - 1)->u.string, sp->u.string, F_RENAME);
     free_string_svalue(sp--);
     free_string_svalue(sp);
     put_number(i);
@@ -2767,7 +2767,7 @@ f_rm (void)
 {
     int i;
 
-    i = remove_file(sp->u.string);
+    i = globalFile.remove_file(sp->u.string);
     free_string_svalue(sp);
     put_number(i);
 }
@@ -2779,7 +2779,7 @@ f_rmdir (void)
 {
     const char *path;
 
-    path = check_valid_path(sp->u.string, current_object, "rmdir", 1);
+    path = globalFile.check_valid_path(sp->u.string, current_object, "rmdir", 1);
     if (!path || rmdir(path) == -1) {
         free_string_svalue(sp);
         *sp = const0;
@@ -3177,7 +3177,7 @@ f_stat (void)
     array_t *v;
     object_t *ob;
 
-    path = check_valid_path((--sp)->u.string, current_object, "stat", 0);
+    path = globalFile.check_valid_path((--sp)->u.string, current_object, "stat", 0);
     if (!path) {
         free_string_svalue(sp);
         *sp = const0;
@@ -3203,7 +3203,7 @@ f_stat (void)
             return;
         }
     }
-    v = get_dir(sp->u.string, (sp+1)->u.number);
+    v = globalFile.get_dir(sp->u.string, (sp+1)->u.number);
     free_string_svalue(sp);
     if (v) { put_array(v); }
     else *sp = const0;
@@ -3711,7 +3711,7 @@ f_write_bytes (void)
             netint = htonl(sp->u.number);       /* convert to network
                                                  * byte-order */
             netbuf = (char *) &netint;
-            i = write_bytes((sp - 2)->u.string, (sp - 1)->u.number, netbuf,
+            i = globalFile.write_bytes((sp - 2)->u.string, (sp - 1)->u.number, netbuf,
                             sizeof(int));
             break;
         }
@@ -3719,7 +3719,7 @@ f_write_bytes (void)
 #ifndef NO_BUFFER_TYPE
         case T_BUFFER:
         {
-            i = write_bytes((sp - 2)->u.string, (sp - 1)->u.number,
+            i = globalFile.write_bytes((sp - 2)->u.string, (sp - 1)->u.number,
                             (char *) sp->u.buf->item, sp->u.buf->size);
             break;
         }
@@ -3727,7 +3727,7 @@ f_write_bytes (void)
 
         case T_STRING:
         {
-            i = write_bytes((sp - 2)->u.string, (sp - 1)->u.number,
+            i = globalFile.write_bytes((sp - 2)->u.string, (sp - 1)->u.number,
                             sp->u.string, SVALUE_STRLEN(sp));
             break;
         }
@@ -3804,7 +3804,7 @@ f_write_file (void)
     int flags = 0;
 
     flags = (sp--)->u.number;
-    flags = write_file((sp - 1)->u.string, sp->u.string, flags);
+    flags = globalFile.write_file((sp - 1)->u.string, sp->u.string, flags);
     free_string_svalue(sp--);
     free_string_svalue(sp);
     put_number(flags);
@@ -3818,7 +3818,7 @@ f_dump_file_descriptors (void)
     outbuffer_t out;
 
     outbuf_zero(&out);
-    dump_file_descriptors(&out);
+    globalFile.dump_file_descriptors(&out);
     outbuf_push(&out);
 }
 #endif

@@ -5556,7 +5556,7 @@ void opcdump (const char *tfn)
   }
   strcpy(tbuf, tfn);
   strcpy(tbuf + len, ".efun");
-  fn = check_valid_path(tbuf, current_object, "opcprof", 1);
+  fn = globalFile.check_valid_path(tbuf, current_object, "opcprof", 1);
   if (!fn) {
     error("Invalid path '%s' for writing.\n", tbuf);
     return;
@@ -5574,7 +5574,7 @@ void opcdump (const char *tfn)
 
   strcpy(tbuf, tfn);
   strcpy(tbuf + len, ".eoper");
-  fn = check_valid_path(tbuf, current_object, "opcprof", 1);
+  fn = globalFile.check_valid_path(tbuf, current_object, "opcprof", 1);
   if (!fn) {
     error("Invalid path '%s' for writing.\n", tbuf);
     return;
@@ -5616,7 +5616,7 @@ void opcdump (char * tfn)
   }
   strcpy(tbuf, tfn);
   strcpy(tbuf + len, ".eop-2d");
-  fn = check_valid_path(tbuf, current_object, "opcprof", 1);
+  fn = globalFile.check_valid_path(tbuf, current_object, "opcprof", 1);
   if (!fn) {
     error("Invalid path '%s' for writing.\n", tbuf);
     return;

@@ -2031,7 +2031,7 @@ void yyerror (const char * str)
         lex_fatal = 1;
         return;
     }
-    smart_log(current_file, current_line, str, 0);
+    globalFile.smart_log(current_file, current_line, str, 0);
 #ifdef PACKAGE_MUDLIB_STATS
     add_errors_for_file (current_file, 1);
 #endif
@@ -2041,7 +2041,7 @@ void yyerror (const char * str)
 void yywarn (const char * str) {
     if (!(pragmas & PRAGMA_WARNINGS)) return;
 
-    smart_log(current_file, current_line, str, 1);
+    globalFile.smart_log(current_file, current_line, str, 1);
 }
 
 /*

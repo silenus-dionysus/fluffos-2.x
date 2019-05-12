@@ -376,7 +376,7 @@ object_t *int_load_object (const char * lname, int callcreate)
     struct stat c_st;
     char real_name[400], name[400], actualname[400], obname[400];
 
-    const char *pname = check_valid_path(lname, master_ob, "load_object", 0);
+    const char *pname = globalFile.check_valid_path(lname, master_ob, "load_object", 0);
     if(!pname)
     	error("Read access denied.\n");
     if (++num_objects_this_thread > INHERIT_CHAIN_SIZE)
@@ -413,7 +413,7 @@ object_t *int_load_object (const char * lname, int callcreate)
     /*
      * Check if it's a legal name.
      */
-    if (!legal_path(real_name)) {
+    if (!globalFile.legal_path(real_name)) {
         debug_message("Illegal pathname: /%s\n", real_name);
         error("Illegal path name '/%s'.\n", real_name);
     }

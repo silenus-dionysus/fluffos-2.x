@@ -1532,7 +1532,7 @@ save_object (object_t * ob, const char * file, int save_zeros)
 
     push_malloced_string(name);    /* errors */
 
-    file = check_valid_path(name, ob, "save_object", 1);
+    file = globalFile.check_valid_path(name, ob, "save_object", 1);
     free_string_svalue(sp--);
     if (!file)
         error("Denied write permission in save_object().\n");
@@ -1757,7 +1757,7 @@ int restore_object (object_t * ob, const char * file, int noclear)
 
     push_malloced_string(name);    /* errors */
 
-    file = check_valid_path(name, ob, "restore_object", 0);
+    file = globalFile.check_valid_path(name, ob, "restore_object", 0);
     free_string_svalue(sp--);
     if (!file) error("Denied read permission in restore_object().\n");
 

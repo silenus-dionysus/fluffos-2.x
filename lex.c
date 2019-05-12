@@ -403,7 +403,7 @@ inc_open (char * buf, char * name, int check_local)
 	const char *tmp;
     if (check_local) {
         merge(name, buf);
-        tmp = check_valid_path(buf, master_ob, "include", 0);
+        tmp = globalFile.check_valid_path(buf, master_ob, "include", 0);
         if (tmp && (f = open(tmp, O_RDONLY)) != -1)
             return f;
     }
@@ -416,7 +416,7 @@ inc_open (char * buf, char * name, int check_local)
     }
     for (i = 0; i < inc_list_size; i++) {
         sprintf(buf, "%s/%s", inc_list[i], name);
-        tmp = check_valid_path(buf, master_ob, "include", 0);
+        tmp = globalFile.check_valid_path(buf, master_ob, "include", 0);
         if (tmp && (f = open(tmp, O_RDONLY)) != -1) {
             return f;
         }
@@ -3132,7 +3132,7 @@ void set_inc_list (char * list)
         /*
          * Even make sure that the mud administrator has not made an error.
          */
-        if (!legal_path(p)) {
+        if (!globalFile.legal_path(p)) {
             fprintf(stderr, "'include dirs' must give paths without any '..'\n");
             exit(-1);
         }

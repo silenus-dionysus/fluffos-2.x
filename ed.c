@@ -95,7 +95,7 @@
 /* if you don't want ed, define OLD_ED and remove ed() from func_spec.c */
 #if defined(F_ED) || !defined(OLD_ED)
 
-/**  Global variables  **/
+/**  global variables  **/
 
 static int version = 601;
 
@@ -864,7 +864,7 @@ static char *getfn (int writeflg)
     }
 
     /* valid_read/valid_write done here */
-    file2 = check_valid_path(file, current_editor, "ed_start", writeflg);
+    file2 = globalFile.check_valid_path(file, current_editor, "ed_start", writeflg);
     if (!file2)
         return (NULL);
     strncpy(file, file2, MAXFNAME - 1);
@@ -2386,7 +2386,7 @@ void ed_start (const char * file_arg, const char * write_fn,
      */
     if (file_arg
         && (file_arg =
-            check_valid_path(file_arg, current_editor,
+            globalFile.check_valid_path(file_arg, current_editor,
                              "ed_start", 0))
         && !doread(0, file_arg)) {
         setCurLn(1);
@@ -3062,7 +3062,7 @@ char *object_ed_start (object_t * ob, const char *fname, int restricted,
      */
     if (fname
         && (fname =
-            check_valid_path(fname, current_editor,
+            globalFile.check_valid_path(fname, current_editor,
                              "ed_start", 0))
         && !doread(0, fname)) {
         setCurLn(1);

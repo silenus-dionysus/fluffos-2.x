@@ -15,6 +15,8 @@
 #include <zlib.h>
 #endif
 
+File globalFile; 
+
 int legal_path (const char *);
 
 static int match_string (char *, char *);
@@ -92,7 +94,7 @@ static void encode_stat (svalue_t * vp, int flags, char * str, struct stat * st)
 /* WIN32 should be fixed to do this correctly (i.e. no ifdefs for it) */
 #define MAX_FNAME_SIZE 255
 #define MAX_PATH_LEN   1024
-array_t *get_dir (const char * path, int flags)
+array_t * File::get_dir (const char * path, int flags)
 {
     array_t *v;
     int i, count = 0;
@@ -278,7 +280,7 @@ array_t *get_dir (const char * path, int flags)
     return v;
 }
 
-int remove_file (const char * path)
+int File::remove_file (const char * path)
 {
     path = check_valid_path(path, current_object, "remove_file", 1);
 
@@ -292,7 +294,7 @@ int remove_file (const char * path)
 /*
  * Check that it is an legal path. No '..' are allowed.
  */
-int legal_path (const char * path)
+int File::legal_path (const char * path)
 {
     const char *p;
 
@@ -337,7 +339,7 @@ int legal_path (const char * path)
  * There is an error in a specific file. Ask the MudOS driver to log the
  * message somewhere.
  */
-void smart_log (const char * error_file, int line, const char * what, int flag)
+void File::smart_log (const char * error_file, int line, const char * what, int flag)
 {
     char *buff;
     svalue_t *mret;
@@ -375,7 +377,7 @@ void smart_log (const char * error_file, int line, const char * what, int flag)
 /*
  * Append string to file. Return 0 for failure, otherwise 1.
  */
-int write_file (const char * file, const char * str, int flags)
+int File::write_file (const char * file, const char * str, int flags)
 {
     FILE *f;
 #ifdef PACKAGE_COMPRESS
@@ -424,7 +426,7 @@ int write_file (const char * file, const char * str, int flags)
     return 1;
 }
 
-char *read_file(const char * file, int start, int len) {
+char *File::read_file(const char * file, int start, int len) {
 	struct stat st;
 #ifndef PACKAGE_COMPRESS
 	FILE *f;
@@ -547,7 +549,7 @@ free_str:
 	return 0;
 }
 
-char *read_bytes (const char * file, int start, int len, int * rlen)
+char *File::read_bytes (const char * file, int start, int len, int * rlen)
 {
     struct stat st;
     FILE *fptr;
@@ -607,7 +609,7 @@ char *read_bytes (const char * file, int start, int len, int * rlen)
     return str;
 }
 
-int write_bytes (const char * file, int start, const char * str, int theLength)
+int File::write_bytes (const char * file, int start, const char * str, int theLength)
 {
     struct stat st;
     int size;
@@ -656,7 +658,7 @@ int write_bytes (const char * file, int start, const char * str, int theLength)
     return 1;
 }
 
-int file_size (const char * file)
+int File::file_size (const char * file)
 {
     struct stat st;
     long ret;
@@ -707,7 +709,7 @@ int file_size (const char * file)
  * Otherwise, the returned path is temporarily allocated by apply(), which
  * means it will be deallocated at next apply().
  */
-const char *check_valid_path (const char * path, object_t * call_object, const char * const  call_fun, int writeflg)
+const char *File::check_valid_path (const char * path, object_t * call_object, const char * const  call_fun, int writeflg)
 {
     svalue_t *v;
 
@@ -979,7 +981,7 @@ void mark_file_sv() {
 #endif
 
 #ifdef F_RENAME
-int do_rename (const char * fr, const char * t, int flag)
+int File::do_rename (const char * fr, const char * t, int flag)
 {
     const char *from;
     const char *to;
@@ -1042,7 +1044,7 @@ int do_rename (const char * fr, const char * t, int flag)
 }
 #endif                          /* F_RENAME */
 
-int copy_file (const char * from, const char * to)
+int File::copy_file (const char * from, const char * to)
 {
     char buf[128];
     int from_fd, to_fd;
@@ -1129,7 +1131,7 @@ int copy_file (const char * from, const char * to)
     return 1;
 }
 
-void dump_file_descriptors (outbuffer_t * out)
+void File::dump_file_descriptors (outbuffer_t * out)
 {
     int i;
     dev_t dev;

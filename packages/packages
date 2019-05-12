@@ -1,0 +1,2 @@
+SRC=math.c develop.c matrix.c parser.c contrib.c sockets.c mudlib_stats.c 
+OBJ=math.$(O) develop.$(O) matrix.$(O) parser.$(O) contrib.$(O) sockets.$(O) mudlib_stats.$(O) 

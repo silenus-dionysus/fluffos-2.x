@@ -74,7 +74,7 @@ dump_prog (program_t * prog, const char * fn, int flags)
     int i, j;
     int num_funcs_total;
 
-    fname = check_valid_path(fn, current_object, "dumpallobj", 1);
+    fname = globalFile.check_valid_path(fn, current_object, "dumpallobj", 1);
 
     if (!fname) {
         error("Invalid path '%s' for writing.\n", fn);
