@@ -303,7 +303,7 @@ int validate_shadowing (object_t * ob)
     error("Illegal to shadow 'nomask' function \"%s\".\n", fun);
 
   push_object(ob);
-  ret = apply_master_ob(APPLY_VALID_SHADOW, 1);
+  ret = globalMaster.apply_master_ob(APPLY_VALID_SHADOW, 1);
   if (!(ob->flags & O_DESTRUCTED) && MASTER_APPROVED(ret)) {
     return 1;
   }
@@ -1204,7 +1204,7 @@ void bad_argument (svalue_t * val, int type, int arg, int instr)
   } while (!((j <<= 1) & TYPE_CODES_END));
 
   outbuf_add(&outbuf, " Got: ");
-  svalue_to_string(val, &outbuf, 0, 0, 0);
+  globalSPrintF.svalue_to_string(val, &outbuf, 0, 0, 0);
   outbuf_add(&outbuf, ".\n");
   outbuf_fix(&outbuf);
   error_needs_free(outbuf.buffer);
@@ -4837,7 +4837,7 @@ const char *dump_trace (int how)
         tmpval.type = T_FUNCTION;
         tmpval.u.fp = p[0].fr.funp;
 
-        svalue_to_string(&tmpval, &tmpbuf, 0, 0, 0);
+        globalSPrintF.svalue_to_string(&tmpval, &tmpbuf, 0, 0, 0);
 
         dump_trace_line(tmpbuf.buffer, p[1].prog->filename, p[1].ob->obname,
                         get_line_number(p[1].pc, p[1].prog));
@@ -4873,7 +4873,7 @@ const char *dump_trace (int how)
           debug_message(",");
         }
         outbuf_zero(&outbuf);
-        svalue_to_string(&ptr[i], &outbuf, 0, 0, 0);
+        globalSPrintF.svalue_to_string(&ptr[i], &outbuf, 0, 0, 0);
         /* don't need to fix length here */
         debug_message("%s", outbuf.buffer);
         FREE_MSTR(outbuf.buffer);
@@ -4892,7 +4892,7 @@ const char *dump_trace (int how)
           debug_message(",");
         }
         outbuf_zero(&outbuf);
-        svalue_to_string(&ptr[i], &outbuf, 0, 0, 0);
+        globalSPrintF.svalue_to_string(&ptr[i], &outbuf, 0, 0, 0);
         /* no need to fix length */
         debug_message("%s", outbuf.buffer);
         FREE_MSTR(outbuf.buffer);
@@ -4920,7 +4920,7 @@ const char *dump_trace (int how)
       tmpval.type = T_FUNCTION;
       tmpval.u.fp = p[0].fr.funp;
 
-      svalue_to_string(&tmpval, &tmpbuf, 0, 0, 0);
+      globalSPrintF.svalue_to_string(&tmpval, &tmpbuf, 0, 0, 0);
 
       debug_message("'%s' in '/%20s' ('/%20s') %s\n",
                     tmpbuf.buffer,
@@ -4954,7 +4954,7 @@ const char *dump_trace (int how)
         debug_message(",");
       }
       outbuf_zero(&outbuf);
-      svalue_to_string(&fp[i], &outbuf, 0, 0, 0);
+      globalSPrintF.svalue_to_string(&fp[i], &outbuf, 0, 0, 0);
       /* no need to fix length */
       debug_message("%s", outbuf.buffer);
       FREE_MSTR(outbuf.buffer);
@@ -4973,7 +4973,7 @@ const char *dump_trace (int how)
         debug_message(",");
       }
       outbuf_zero(&outbuf);
-      svalue_to_string(&ptr[i], &outbuf, 0, 0, 0);
+      globalSPrintF.svalue_to_string(&ptr[i], &outbuf, 0, 0, 0);
       /* no need to fix length */
       debug_message("%s", outbuf.buffer);
       FREE_MSTR(outbuf.buffer);
@@ -5037,7 +5037,7 @@ array_t *get_svalue_trace()
         tmpval.type = T_FUNCTION;
         tmpval.u.fp = p[0].fr.funp;
 
-        svalue_to_string(&tmpval, &tmpbuf, 0, 0, 0);
+        globalSPrintF.svalue_to_string(&tmpval, &tmpbuf, 0, 0, 0);
 
         add_mapping_string(m, "function", tmpbuf.buffer);
         FREE_MSTR(tmpbuf.buffer);
@@ -5110,7 +5110,7 @@ array_t *get_svalue_trace()
       tmpval.type = T_FUNCTION;
       tmpval.u.fp = p[0].fr.funp;
 
-      svalue_to_string(&tmpval, &tmpbuf, 0, 0, 0);
+      globalSPrintF.svalue_to_string(&tmpval, &tmpbuf, 0, 0, 0);
       add_mapping_string(m, "function", tmpbuf.buffer);
       FREE_MSTR(tmpbuf.buffer);
       num_arg = p[0].fr.funp->f.functional.num_arg;

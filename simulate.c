@@ -119,7 +119,7 @@ init_privs_for_object (object_t * ob)
     push_malloced_string(add_slash(ob->obname));
 
     if (master_ob)
-        value = apply_master_ob(APPLY_PRIVS_FILE, 1);
+        value = globalMaster.apply_master_ob(APPLY_PRIVS_FILE, 1);
     else
         value = apply(applies_table[APPLY_PRIVS_FILE], ob, 1, ORIGIN_DRIVER);
 
@@ -153,7 +153,7 @@ static int give_uid_to_object (object_t * ob)
      */
     push_malloced_string(add_slash(ob->obname));
 
-    ret = apply_master_ob(APPLY_CREATOR_FILE, 1);
+    ret = globalMaster.apply_master_ob(APPLY_CREATOR_FILE, 1);
     if (!ret)
         error("master object: No function %s() defined!\n",
               applies_table[APPLY_CREATOR_FILE]);
@@ -261,7 +261,7 @@ static object_t *load_virtual_object (const char * name, int clone)
     push_number(clone);
     if (args)
         push_refed_array(args);
-    v = apply_master_ob(APPLY_COMPILE_OBJECT, argc);
+    v = globalMaster.apply_master_ob(APPLY_COMPILE_OBJECT, argc);
     if (!v || (v->type != T_OBJECT))
         return 0;
     new_ob = v->u.ob;
@@ -513,7 +513,7 @@ object_t *int_load_object (const char * lname, int callcreate)
     enter_object_hash(ob);      /* add name to fast object lookup table */
     save_command_giver(command_giver);
     push_object(ob);
-    mret = apply_master_ob(APPLY_VALID_OBJECT, 1);
+    mret = globalMaster.apply_master_ob(APPLY_VALID_OBJECT, 1);
     if (mret && !MASTER_APPROVED(mret)) {
         destruct_object(ob);
         error("master object: %s() denied permission to load '/%s'.\n", applies_table[APPLY_VALID_OBJECT], name);
@@ -905,7 +905,7 @@ void destruct_object (object_t * ob)
         }
 
         if (ob == master_ob)
-            set_master(new_ob);
+            globalMaster.set_master(new_ob);
         if (ob == simul_efun_ob)
             set_simul_efun(new_ob);
 
@@ -1571,7 +1571,7 @@ void fatal (const char *fmt, ...)
     copy_and_push_string(msg_buf);
     push_object(command_giver);
     push_object(current_object);
-    safe_apply_master_ob(APPLY_CRASH, 3);
+    globalMaster.safe_apply_master_ob(APPLY_CRASH, 3);
     debug_message("crash() in master called successfully.  Aborting.\n");
   }
   /* Make sure we don't trap our abort() */
@@ -1679,9 +1679,9 @@ static void mudlib_error_handler (char * err, int katch) {
     if (katch) {
         STACK_INC;
         *sp = const1;
-        mret = apply_master_ob(APPLY_ERROR_HANDLER,2);
+        mret = globalMaster.apply_master_ob(APPLY_ERROR_HANDLER,2);
     } else {
-        mret = apply_master_ob(APPLY_ERROR_HANDLER,1);
+        mret = globalMaster.apply_master_ob(APPLY_ERROR_HANDLER,1);
     }
     if ((mret == (svalue_t *)-1) || !mret) {
         debug_message("No error handler for error: ");
@@ -1910,7 +1910,7 @@ void slow_shut_down (int minutes)
     svalue_t *amo;
 
     push_number(minutes);
-    amo = apply_master_ob(APPLY_SLOW_SHUTDOWN, 1);
+    amo = globalMaster.apply_master_ob(APPLY_SLOW_SHUTDOWN, 1);
     /* in this case, approved means the mudlib will handle it */
     if (!MASTER_APPROVED(amo))
     {

@@ -532,7 +532,7 @@ void preload_objects (int eflag)
 		return;
 	}
 	push_number(eflag);
-	ret = apply_master_ob(APPLY_EPILOG, 1);
+	ret = globalMaster.apply_master_ob(APPLY_EPILOG, 1);
 	pop_context(&econ);
 	if ((ret == 0) || (ret == (svalue_t *)-1) || (ret->type != T_ARRAY))
 		return;
@@ -557,7 +557,7 @@ void preload_objects (int eflag)
 		set_eval(max_cost);
 
 		push_svalue(((array_t *)prefiles)->item + ix);
-		(void) apply_master_ob(APPLY_PRELOAD, 1);
+		(void) globalMaster.apply_master_ob(APPLY_PRELOAD, 1);
 	}
 	free_array((array_t *)prefiles);
 	pop_context(&econ);

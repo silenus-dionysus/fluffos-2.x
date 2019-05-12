@@ -414,7 +414,7 @@ static void interrogate_master (void) {
         }
     
         DEBUG_PP(("[%s]", applies_table[APPLY_USERS]));
-        ret = apply_master_ob(APPLY_USERS, 0);
+        ret = globalMaster.apply_master_ob(APPLY_USERS, 0);
         if (ret && ret->type == T_ARRAY) {
             master_user_list = ret->u.arr;
             ret->u.arr->ref++;
@@ -435,7 +435,7 @@ static void interrogate_master (void) {
         }
         
         DEBUG_PP(("[%s]", applies_table[APPLY_LITERALS]));
-        ret = apply_master_ob(APPLY_LITERALS, 0);
+        ret = globalMaster.apply_master_ob(APPLY_LITERALS, 0);
 
         if (ret && ret->type == T_ARRAY)
             num_literals = parse_copy_array(ret->u.arr, &literals);
@@ -852,7 +852,7 @@ static object_t *first_inv (object_t * ob) {
     svalue_t *ret;
 
     push_object(ob);
-    ret = apply_master_ob(APPLY_PARSE_FIRST_INVENTORY, 1);
+    ret = globalMaster.apply_master_ob(APPLY_PARSE_FIRST_INVENTORY, 1);
     if (ret && ret != (svalue_t *)-1 && ret->type == T_OBJECT)
         return ret->u.ob;
     return (object_t *)NULL;
@@ -867,7 +867,7 @@ static object_t *next_inv (object_t * parent, object_t * sibling) {
 
     push_object(parent);
     push_object(sibling);
-    ret = apply_master_ob(APPLY_PARSE_NEXT_INVENTORY, 2);
+    ret = globalMaster.apply_master_ob(APPLY_PARSE_NEXT_INVENTORY, 2);
     if (ret && ret != (svalue_t *)-1 && ret->type == T_OBJECT)
         return ret->u.ob;
     return (object_t *)NULL;
@@ -881,7 +881,7 @@ static object_t *super (object_t * ob) {
     svalue_t *ret;
 
     push_object(ob);
-    ret = apply_master_ob(APPLY_PARSE_ENVIRONMENT, 1);
+    ret = globalMaster.apply_master_ob(APPLY_PARSE_ENVIRONMENT, 1);
     if (ret && ret != (svalue_t *)-1 && ret->type == T_OBJECT)
         return ret->u.ob;
     return (object_t *)NULL;
@@ -3039,24 +3039,24 @@ static svalue_t * get_the_error (parser_error_t * err, int obj) {
     case ERR_NOT_ACCESSIBLE:
         push_shared_string(err->err.noun->name);
         push_number(get_single(&err->err.noun->pv.noun) == -1);
-        return apply_master_ob(APPLY_PARSER_ERROR_MESSAGE, 4);
+        return globalMaster.apply_master_ob(APPLY_PARSER_ERROR_MESSAGE, 4);
     case ERR_AMBIG:
         push_bitvec_as_array(&err->err.obs, 0);
-        return apply_master_ob(APPLY_PARSER_ERROR_MESSAGE, 3);
+        return globalMaster.apply_master_ob(APPLY_PARSER_ERROR_MESSAGE, 3);
     case ERR_ORDINAL:
         push_number(err->err.ord_error);
-        return apply_master_ob(APPLY_PARSER_ERROR_MESSAGE, 3);
+        return globalMaster.apply_master_ob(APPLY_PARSER_ERROR_MESSAGE, 3);
     case ERR_THERE_IS_NO:
         push_words(err->err.str_problem.start,
                    err->err.str_problem.end);
-        return apply_master_ob(APPLY_PARSER_ERROR_MESSAGE, 3);
+        return globalMaster.apply_master_ob(APPLY_PARSER_ERROR_MESSAGE, 3);
     case ERR_ALLOCATED:
         push_malloced_string(err->err.str);
-        return apply_master_ob(APPLY_PARSER_ERROR_MESSAGE, 3);
+        return globalMaster.apply_master_ob(APPLY_PARSER_ERROR_MESSAGE, 3);
     case ERR_BAD_MULTIPLE:
-        return apply_master_ob(APPLY_PARSER_ERROR_MESSAGE, 2);
+        return globalMaster.apply_master_ob(APPLY_PARSER_ERROR_MESSAGE, 2);
     case ERR_MANY_PATHS:
-  return apply_master_ob(APPLY_PARSER_ERROR_MESSAGE, 5);
+  return globalMaster.apply_master_ob(APPLY_PARSER_ERROR_MESSAGE, 5);
     default:
         pop_stack();
         sp--;

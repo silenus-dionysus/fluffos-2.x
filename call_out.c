@@ -509,7 +509,7 @@ array_t *get_all_call_outs()
 				tmpval.type = T_FUNCTION;
 				tmpval.u.fp = cop->function.f;
 
-				svalue_to_string(&tmpval, &tmpbuf, 0, 0, 0);
+				globalSPrintF.svalue_to_string(&tmpval, &tmpbuf, 0, 0, 0);
 
 				vv->item[0].type = T_OBJECT;
 				vv->item[0].u.ob = cop->function.f->hdr.owner;

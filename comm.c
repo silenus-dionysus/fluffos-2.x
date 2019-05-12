@@ -1049,7 +1049,7 @@ static void copy_chars (interactive_t * ip, char * from, int num_bytes)
 							case TELOPT_MSSP:
 							{
 								add_binary_message(ip->ob, telnet_start_mssp, sizeof(telnet_start_mssp));
-								svalue_t *res = apply_master_ob(APPLY_GET_MUD_STATS, 0);
+								svalue_t *res = globalMaster.apply_master_ob(APPLY_GET_MUD_STATS, 0);
 								mapping_t *map;
 								if(res <=  (svalue_t *)0 || res->type != T_MAPPING) {
 									map = allocate_mapping(0);
@@ -2094,7 +2094,7 @@ static void new_user_handler (int which)
 	master = master_ob;
 	add_ref(master_ob, "new_user");
 	push_number(external_port[which].port);
-	ret = apply_master_ob(APPLY_CONNECT, 1);
+	ret = globalMaster.apply_master_ob(APPLY_CONNECT, 1);
 	/* master_ob->interactive can be zero if the master object self
        destructed in the above (don't ask) */
 	set_command_giver(0);

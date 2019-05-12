@@ -35,7 +35,7 @@ valid_hide (object_t * obj)
         return 0;
     }
     push_object(obj);
-    ret = apply_master_ob(APPLY_VALID_HIDE, 1);
+    ret = globalMaster.apply_master_ob(APPLY_VALID_HIDE, 1);
     return (!IS_ZERO(ret));
 }
 #endif

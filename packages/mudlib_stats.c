@@ -308,7 +308,7 @@ static void init_author_for_ob (object_t * ob)
     svalue_t *ret;
 
     push_malloced_string(add_slash(ob->obname));
-    ret = apply_master_ob(APPLY_AUTHOR_FILE, 1);
+    ret = globalMaster.apply_master_ob(APPLY_AUTHOR_FILE, 1);
     if (ret == (svalue_t *)-1) {
 	ob->stats.author = master_author;
     } else if (!ret || ret->type != T_STRING) {
@@ -354,7 +354,7 @@ static const char *author_for_file (const char * file)
     static char buff[50];
 
     copy_and_push_string(file);
-    ret = apply_master_ob(APPLY_AUTHOR_FILE, 1);
+    ret = globalMaster.apply_master_ob(APPLY_AUTHOR_FILE, 1);
     if (ret == 0 || ret == (svalue_t*)-1 || ret->type != T_STRING)
 	return 0;
     strcpy(buff, ret->u.string);
@@ -390,7 +390,7 @@ static void init_domain_for_ob (object_t * ob)
     push_malloced_string(add_slash(ob->obname));
 
     if (master_ob)
-	ret = apply_master_ob(APPLY_DOMAIN_FILE, 1);
+	ret = globalMaster.apply_master_ob(APPLY_DOMAIN_FILE, 1);
     else
 	ret = apply(applies_table[APPLY_DOMAIN_FILE], ob, 1, ORIGIN_DRIVER);
 
@@ -443,7 +443,7 @@ static const char *domain_for_file (const char * file)
     static char buff[512];
 
     share_and_push_string(file);
-    ret = apply_master_ob(APPLY_DOMAIN_FILE, 1);
+    ret = globalMaster.apply_master_ob(APPLY_DOMAIN_FILE, 1);
     if (ret == 0 || ret == (svalue_t*)-1 || ret->type != T_STRING)
 	return 0;
     strcpy(buff, ret->u.string);

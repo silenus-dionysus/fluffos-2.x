@@ -4,6 +4,8 @@
 #include "efuns_main.h"
 #include "otable.h"
 
+Master globalMaster;
+
 object_t *master_ob = 0;
 function_lookup_info_t *master_applies = 0;
 
@@ -12,7 +14,7 @@ function_lookup_info_t *master_applies = 0;
  * hasn't loaded yet.  In that case, we return (svalue_t *)-1, and the
  * calling routine should let the check succeed.
  */
-svalue_t *apply_master_ob (int fun, int num_arg)
+svalue_t *Master::apply_master_ob (int fun, int num_arg)
 {
     if (!master_ob) {
         pop_n_elems(num_arg);
@@ -38,7 +40,7 @@ svalue_t *apply_master_ob (int fun, int num_arg)
 }
 
 /* Hmm, need something like a safe_call_direct() to do this one */
-svalue_t *safe_apply_master_ob (int fun, int num_arg)
+svalue_t *Master::safe_apply_master_ob (int fun, int num_arg)
 {
     if (!master_ob) {
         pop_n_elems(num_arg);
@@ -47,7 +49,7 @@ svalue_t *safe_apply_master_ob (int fun, int num_arg)
     return safe_apply(applies_table[fun], master_ob, num_arg, ORIGIN_DRIVER);
 }
 
-void init_master() {
+void Master::init_master() {
     char buf[512];
     object_t *new_ob;
 
@@ -85,7 +87,7 @@ static void get_master_applies (object_t * ob) {
     }
 }
 
-void set_master (object_t * ob) {
+void Master::set_master (object_t * ob) {
 #if defined(PACKAGE_UIDS) || defined(PACKAGE_MUDLIB_STATS)
     int first_load = (!master_ob);
 #endif

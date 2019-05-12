@@ -134,7 +134,7 @@ f_bind (void)
     /* the new owner */
     push_object(ob);
 
-    res = apply_master_ob(APPLY_VALID_BIND, 3);
+    res = globalMaster.apply_master_ob(APPLY_VALID_BIND, 3);
     if (!MASTER_APPROVED(res))
         error("Master object denied permission to bind() function pointer.\n");
 
@@ -1394,7 +1394,7 @@ f_link (void)
     arg = sp;
     push_svalue(arg - 1);
     push_svalue(arg);
-    ret = apply_master_ob(APPLY_VALID_LINK, 2);
+    ret = globalMaster.apply_master_ob(APPLY_VALID_LINK, 2);
     if (MASTER_APPROVED(ret))
         i = globalFile.do_rename((sp - 1)->u.string, sp->u.string, F_LINK);
     else
@@ -2047,7 +2047,7 @@ f_printf (void)
     char *ret;
 
     if (command_giver) {
-        ret = string_print_formatted((sp - num_arg + 1)->u.string,
+        ret = globalSPrintF.string_print_formatted((sp - num_arg + 1)->u.string,
                                      num_arg - 1, sp - num_arg + 2);
         if (ret) {
             tell_object(command_giver, ret, COUNTED_STRLEN(ret));
@@ -3152,7 +3152,7 @@ f_sprintf (void)
     char *s;
     int num_arg = st_num_arg;
 
-    s = string_print_formatted((sp - num_arg + 1)->u.string,
+    s = globalSPrintF.string_print_formatted((sp - num_arg + 1)->u.string,
                                num_arg - 1, sp - num_arg + 2);
     pop_n_elems(num_arg);
 

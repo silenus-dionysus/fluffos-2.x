@@ -367,7 +367,7 @@ void File::smart_log (const char * error_file, int line, const char * what, int 
 
     push_malloced_string(add_slash(error_file));
     copy_and_push_string(buff);
-    mret = safe_apply_master_ob(APPLY_LOG_ERROR, 2);
+    mret = globalMaster.safe_apply_master_ob(APPLY_LOG_ERROR, 2);
     if (!mret || mret == (svalue_t *)-1) {
         debug_message("%s", buff);
     }
@@ -738,9 +738,9 @@ const char *File::check_valid_path (const char * path, object_t * call_object, c
     push_object(call_object);
     push_constant_string(call_fun);
     if (writeflg)
-        v = apply_master_ob(APPLY_VALID_WRITE, 3);
+        v = globalMaster.apply_master_ob(APPLY_VALID_WRITE, 3);
     else
-        v = apply_master_ob(APPLY_VALID_READ, 3);
+        v = globalMaster.apply_master_ob(APPLY_VALID_READ, 3);
 
     if (v == (svalue_t *)-1)
         v = 0;

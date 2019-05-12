@@ -856,7 +856,7 @@ static char *getfn (int writeflg)
 
     if (file[0] != '/') {
         copy_and_push_string(file);
-        ret = apply_master_ob(APPLY_MAKE_PATH_ABSOLUTE, 1);
+        ret = globalMaster.apply_master_ob(APPLY_MAKE_PATH_ABSOLUTE, 1);
         if ((ret == 0) || (ret == (svalue_t *)-1) || ret->type != T_STRING)
             return NULL;
         strncpy(file, ret->u.string, sizeof file - 1);
@@ -1280,7 +1280,7 @@ static int set()
             return (SET_FAIL);
         push_object(current_editor);
         push_number(P_SHIFTWIDTH | P_FLAGS);
-        ret = apply_master_ob(APPLY_SAVE_ED_SETUP, 2);
+        ret = globalMaster.apply_master_ob(APPLY_SAVE_ED_SETUP, 2);
         if (MASTER_APPROVED(ret))
             return 0;
     }
@@ -2342,7 +2342,7 @@ void ed_start (const char * file_arg, const char * write_fn,
     ED_BUFFER->flags |= EIGHTBIT_MASK;
     ED_BUFFER->shiftwidth = ED_INDENT_SPACES;
     push_object(current_editor);
-    setup = apply_master_ob(APPLY_RETRIEVE_ED_SETUP, 1);
+    setup = globalMaster.apply_master_ob(APPLY_RETRIEVE_ED_SETUP, 1);
     if (setup && setup != (svalue_t *)-1 &&
         setup->type == T_NUMBER && setup->u.number) {
         ED_BUFFER->flags = setup->u.number & ALL_FLAGS_MASK;
@@ -2521,7 +2521,7 @@ void save_ed_buffer (object_t * who)
     push_malloced_string(add_slash(P_FNAME));
     push_object(who);
     /* must be safe; we get called by remove_interactive() */
-    stmp = safe_apply_master_ob(APPLY_GET_ED_BUFFER_SAVE_FILE_NAME, 2);
+    stmp = globalMaster.safe_apply_master_ob(APPLY_GET_ED_BUFFER_SAVE_FILE_NAME, 2);
     if (stmp && stmp != (svalue_t *)-1) {
         if (stmp->type == T_STRING) {
             fname = stmp->u.string;
@@ -3038,7 +3038,7 @@ char *object_ed_start (object_t * ob, const char *fname, int restricted,
     ED_BUFFER->shiftwidth = ED_INDENT_SPACES;
 
     push_object(current_editor);
-    setup = apply_master_ob(APPLY_RETRIEVE_ED_SETUP, 1);
+    setup = globalMaster.apply_master_ob(APPLY_RETRIEVE_ED_SETUP, 1);
     if (setup && setup != (svalue_t *)-1 && setup->type == T_NUMBER && setup->u.number) {
         ED_BUFFER->flags = setup->u.number & ALL_FLAGS_MASK;
         ED_BUFFER->shiftwidth = setup->u.number & SHIFTWIDTH_MASK;
@@ -3086,7 +3086,7 @@ void object_save_ed_buffer (object_t * ob)
     current_editor = ob;
 
     copy_and_push_string(P_FNAME);
-    stmp = apply_master_ob(APPLY_GET_ED_BUFFER_SAVE_FILE_NAME, 1);
+    stmp = globalMaster.apply_master_ob(APPLY_GET_ED_BUFFER_SAVE_FILE_NAME, 1);
     if (stmp && stmp != (svalue_t *)-1) {
         if (stmp->type == T_STRING) {
             fname = stmp->u.string;

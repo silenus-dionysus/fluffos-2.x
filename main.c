@@ -325,7 +325,7 @@ int main (int argc, char ** argv)
 		exit(-1);
 	} else {
 		init_simul_efun(SIMUL_EFUN);
-		init_master();
+		globalMaster.init_master();
 	}
 	set_eval(max_cost);
 	pop_context(&econ);
@@ -351,7 +351,7 @@ int main (int argc, char ** argv)
 					exit(-1);
 				}
 				push_constant_string(argv[i] + 2);
-				apply_master_ob(APPLY_FLAG, 1);
+				globalMaster.apply_master_ob(APPLY_FLAG, 1);
 				if (MudOS_is_being_shut_down) {
 					debug_message("Shutdown by master object.\n");
 					exit(0);
@@ -634,7 +634,7 @@ static void CDECL PSIG(sig_usr1)
 	push_constant_string("Host machine shutting down");
 	push_undefined();
 	push_undefined();
-	apply_master_ob(APPLY_CRASH, 3);
+	globalMaster.apply_master_ob(APPLY_CRASH, 3);
 	debug_message("Received SIGUSR1, calling exit(-1)\n");
 	exit(-1);
 }

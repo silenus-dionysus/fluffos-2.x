@@ -541,13 +541,13 @@ parse (const char *        cmd,            /* Command to parse */
         pval->u.arr->ref++;     /* Otherwise next sapply will free it */
     }
 
-    pval = apply_master_ob(APPLY_QGET_PREPOS, 0);
+    pval = globalMaster.apply_master_ob(APPLY_QGET_PREPOS, 0);
     if (pval && pval->type == T_ARRAY) {
         gPrepos_list = pval->u.arr;
         pval->u.arr->ref++;     /* Otherwise next sapply will free it */
     }
 
-    pval = apply_master_ob(APPLY_QGET_ALLWORD, 0);
+    pval = globalMaster.apply_master_ob(APPLY_QGET_ALLWORD, 0);
     if (pval && pval->type == T_STRING)
         gAllword = alloc_cstring(pval->u.string, "parse");
 

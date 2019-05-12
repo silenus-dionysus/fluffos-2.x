@@ -61,6 +61,8 @@
 
 #if defined(F_SPRINTF) || defined(F_PRINTF)
 
+SPrintF globalSPrintF;
+
 typedef unsigned int format_info;
 
 /*
@@ -335,7 +337,7 @@ static void add_space (outbuffer_t * outbuf, int indent)
  * and returns a pointer to this string.
  * Scary number of parameters for a recursive function.
  */
-void svalue_to_string (svalue_t * obj, outbuffer_t * outbuf, int indent, int trailing, int indent2)
+void SPrintF::svalue_to_string (svalue_t * obj, outbuffer_t * outbuf, int indent, int trailing, int indent2)
 {
     int i;
 
@@ -497,7 +499,7 @@ void svalue_to_string (svalue_t * obj, outbuffer_t * outbuf, int indent, int tra
 
             if (!max_eval_error && !too_deep_error) {
                 push_object(obj->u.ob);
-                temp = safe_apply_master_ob(APPLY_OBJECT_NAME, 1);
+                temp = globalMaster.safe_apply_master_ob(APPLY_OBJECT_NAME, 1);
                 if (temp && temp != (svalue_t *) -1 && (temp->type == T_STRING)) {
                     outbuf_add(outbuf, " (\"");
                     outbuf_add(outbuf, temp->u.string);
@@ -809,7 +811,7 @@ static pad_info_t *make_pad (pad_info_t * p) {
  * this function is called again, or if it's going to be modified (esp.
  * if it risks being free()ed).
  */
-char *string_print_formatted (const char * format_str, int argc, svalue_t * argv)
+char *SPrintF::string_print_formatted (const char * format_str, int argc, svalue_t * argv)
 {
     format_info finfo;
     svalue_t *carg;     /* current arg */

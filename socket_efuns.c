@@ -57,7 +57,7 @@ int check_valid_socket (const char * const what, int fd, object_t * owner,
     push_constant_string(what);
     push_refed_array(info);
 
-    mret = apply_master_ob(APPLY_VALID_SOCKET, 3);
+    mret = globalMaster.apply_master_ob(APPLY_VALID_SOCKET, 3);
     return MASTER_APPROVED(mret);
 }
 
