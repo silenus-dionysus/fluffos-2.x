@@ -99,7 +99,7 @@ f_localtime (void)
 
     lt = sp->u.number;
     tm = localtime(&lt);
-    vec = allocate_empty_array(11);
+    vec = globalArray.allocate_empty_array(11);
 
     if (tm) {
       vec->item[LT_SEC].type = T_NUMBER;

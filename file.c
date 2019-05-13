@@ -50,7 +50,7 @@ static int CDECL parrcmp (CONST void * p1, CONST void * p2)
 static void encode_stat (svalue_t * vp, int flags, char * str, struct stat * st)
 {
     if (flags == -1) {
-        array_t *v = allocate_empty_array(3);
+        array_t *v = globalArray.allocate_empty_array(3);
 
         v->item[0].type = T_STRING;
         v->item[0].subtype = STRING_MALLOC;
@@ -160,7 +160,7 @@ array_t * File::get_dir (const char * path, int flags)
     } else if (*p != '\0' && strcmp(temppath, ".")) {
         if (*p == '/' && *(p + 1) != '\0')
             p++;
-        v = allocate_empty_array(1);
+        v = globalArray.allocate_empty_array(1);
         encode_stat(&v->item[0], flags, p, &st);
         return v;
     }
@@ -214,7 +214,7 @@ array_t * File::get_dir (const char * path, int flags)
     /*
      * Make array and put files on it.
      */
-    v = allocate_empty_array(count);
+    v = globalArray.allocate_empty_array(count);
     if (count == 0) {
         /* This is the easy case :-) */
 #ifndef WIN32

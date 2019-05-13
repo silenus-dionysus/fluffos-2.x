@@ -31,7 +31,7 @@ void f_id_matrix (void)
     array_t *matrix;
     int i;
 
-    matrix = allocate_empty_array(16);
+    matrix = globalArray.allocate_empty_array(16);
     for (i = 0; i < 16; i++) {
         matrix->item[i].type = T_REAL;
         matrix->item[i].u.real = identity[i];

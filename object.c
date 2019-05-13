@@ -919,7 +919,7 @@ restore_array (char ** str, svalue_t * ret)
     if (save_svalue_depth) size = sizes[save_svalue_depth-1];
     else if ((size = restore_size((const char **)str,0)) < 0) return ROB_ARRAY_ERROR;
 
-    v = allocate_array(size); /* after this point we have to clean up
+    v = globalArray.allocate_array(size); /* after this point we have to clean up
                                  or we'll leak */
     sv = v->item;
 
@@ -989,7 +989,7 @@ restore_array (char ** str, svalue_t * ret)
  generic_error:
     err = ROB_ARRAY_ERROR;
  error:
-    free_array(v);
+    globalArray.free_array(v);
     return err;
 }
 

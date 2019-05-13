@@ -43,7 +43,7 @@ int check_valid_socket (const char * const what, int fd, object_t * owner,
     array_t *info;
     svalue_t *mret;
 
-    info = allocate_empty_array(4);
+    info = globalArray.allocate_empty_array(4);
     info->item[0].type = T_NUMBER;
     info->item[0].u.number = fd;
     assign_socket_owner(&info->item[1], owner);
@@ -1422,7 +1422,7 @@ array_t *socket_status (int which)
 
     if (which < 0 || which >= max_lpc_socks) return 0;
 
-    ret = allocate_empty_array(6);
+    ret = globalArray.allocate_empty_array(6);
 
     ret->item[0].type = T_NUMBER;
     ret->item[0].subtype = 0;

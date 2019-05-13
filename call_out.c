@@ -70,7 +70,7 @@ static void free_called_call (pending_call_t * cop)
 INLINE_STATIC void free_call (pending_call_t * cop)
 {
 	if (cop->vs)
-		free_array(cop->vs);
+		globalArray.free_array(cop->vs);
 	free_called_call(cop);
 }
 
@@ -123,7 +123,7 @@ new_call_out (object_t * ob, svalue_t * fun, int delay,
 		add_ref(command_giver, "new_call_out"); /* Bump its ref */
 #endif
 	if (num_args > 0) {
-		cop->vs = allocate_empty_array(num_args);
+		cop->vs = globalArray.allocate_empty_array(num_args);
 		memcpy(cop->vs->item, arg, sizeof(svalue_t) * num_args);
 	} else
 		cop->vs = 0;
@@ -255,7 +255,7 @@ void call_out()
 						/* cop->vs is ref one */
 						extra = cop->vs->size;
 						transfer_push_some_svalues(cop->vs->item, extra);
-						free_empty_array(cop->vs);
+						globalArray.free_empty_array(cop->vs);
 					} else
 						extra = 0;
 					//reset_eval_cost();
@@ -479,7 +479,7 @@ array_t *get_all_call_outs()
 				i++;
 		}
 
-	v = allocate_empty_array(i);
+	v = globalArray.allocate_empty_array(i);
 
 	for (i = 0, j = 0; j < CALLOUT_CYCLE_SIZE; j++) {
 		delay = 0;
@@ -491,7 +491,7 @@ array_t *get_all_call_outs()
 			ob = (cop->ob ? cop->ob : cop->function.f->hdr.owner);
 			if (!ob || (ob->flags & O_DESTRUCTED))
 				continue;
-			vv = allocate_empty_array(3);
+			vv = globalArray.allocate_empty_array(3);
 			if (cop->ob) {
 				vv->item[0].type = T_OBJECT;
 				vv->item[0].u.ob = cop->ob;

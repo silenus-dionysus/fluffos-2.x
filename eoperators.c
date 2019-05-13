@@ -20,7 +20,7 @@ INLINE void f_and()
 {
     if (sp->type == T_ARRAY && (sp - 1)->type == T_ARRAY) {
         sp--;
-        sp->u.arr = intersect_array((sp + 1)->u.arr, sp->u.arr);
+        sp->u.arr = globalArray.intersect_array((sp + 1)->u.arr, sp->u.arr);
         return;
     }
     CHECK_TYPES(sp - 1, T_NUMBER, 1, F_AND);
@@ -38,7 +38,7 @@ f_and_eq()
     argp = (sp--)->u.lvalue;
 
     if (argp->type == T_ARRAY && sp->type == T_ARRAY) {
-        sp->u.arr = argp->u.arr = intersect_array(argp->u.arr, sp->u.arr);
+        sp->u.arr = argp->u.arr = globalArray.intersect_array(argp->u.arr, sp->u.arr);
         sp->u.arr->ref++; /* since we put it in two places */
         return;
     }
@@ -132,8 +132,8 @@ f_eq()
     case T_ARRAY:
         {
             i = (sp-1)->u.arr == sp->u.arr;
-            free_array((sp--)->u.arr);
-            free_array(sp->u.arr);
+            globalArray.free_array((sp--)->u.arr);
+            globalArray.free_array(sp->u.arr);
             break;
         }
 
@@ -493,8 +493,8 @@ f_ne()
     case T_ARRAY:
         {
             i = (sp-1)->u.arr != sp->u.arr;
-            free_array((sp--)->u.arr);
-            free_array(sp->u.arr);
+            globalArray.free_array((sp--)->u.arr);
+            globalArray.free_array(sp->u.arr);
             break;
         }
 
@@ -566,7 +566,7 @@ f_or()
 {
     if (sp->type == T_ARRAY && (sp - 1)->type == T_ARRAY) {
         sp--;
-        sp->u.arr = union_array(sp->u.arr, (sp+1)->u.arr);
+        sp->u.arr = globalArray.union_array(sp->u.arr, (sp+1)->u.arr);
         return;
     }
     CHECK_TYPES((sp - 1), T_NUMBER, 1, F_OR);
@@ -582,7 +582,7 @@ f_or_eq()
 
     argp = (sp--)->u.lvalue;
     if (argp->type == T_ARRAY && sp->type == T_ARRAY) {
-        argp->u.arr = sp->u.arr = union_array(argp->u.arr, sp->u.arr);
+        argp->u.arr = sp->u.arr = globalArray.union_array(argp->u.arr, sp->u.arr);
         sp->u.arr->ref++; /* because we put it in two places */
         return;
     }
@@ -747,7 +747,7 @@ f_range (int code)
             if (code & 0x01) to = v->size - to;
             from = (--sp)->u.number;
             if (code & 0x10) from = v->size - from;
-            put_array(slice_array(v, from, to));
+            put_array(globalArray.slice_array(v, from, to));
             break;
         }
 
@@ -820,7 +820,7 @@ f_extract_range (int code)
             array_t *v = sp->u.arr;
             from = (--sp)->u.number;
             if (code) from = v->size - from;
-            put_array(slice_array(v, from, v->size - 1));
+            put_array(globalArray.slice_array(v, from, v->size - 1));
             break;
         }
 
@@ -881,7 +881,7 @@ f_sub_eq()
 
         case T_ARRAY:
         {
-            sp->u.arr = argp->u.arr = subtract_array(argp->u.arr, sp->u.arr);
+            sp->u.arr = argp->u.arr = globalArray.subtract_array(argp->u.arr, sp->u.arr);
             sp->u.arr->ref++;
             break;
         }

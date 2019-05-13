@@ -251,7 +251,7 @@ static object_t *load_virtual_object (const char * name, int clone)
     }
 
     if (clone > 1) {
-        args = allocate_empty_array(clone - 1);
+        args = globalArray.allocate_empty_array(clone - 1);
         while (clone-- > 1)
             args->item[clone - 1] = *sp--;
         argc++;
@@ -1967,9 +1967,9 @@ void do_message (svalue_t * lclass, svalue_t * msg, array_t * scope, array_t * e
         else if (recurse) {
             array_t *tmp;
 
-            tmp = all_inventory(ob, 1);
+            tmp = globalArray.all_inventory(ob, 1);
             do_message(lclass, msg, tmp, exclude, 0);
-            free_array(tmp);
+            globalArray.free_array(tmp);
         }
 #endif
     }

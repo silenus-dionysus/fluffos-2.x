@@ -409,7 +409,7 @@ static void interrogate_master (void) {
     if ((master_state & MS_HAS_USERS) == 0) {
         DEBUG_PP(("[master::parse_command_users]"));
         if (master_user_list) {
-            free_array(master_user_list);
+            globalArray.free_array(master_user_list);
             master_user_list = 0;
         }
     
@@ -628,7 +628,7 @@ static void free_parse_globals (void) {
     if (parse_nicks)
         free_mapping(parse_nicks);
     if (parse_env)
-        free_array(parse_env);
+        globalArray.free_array(parse_env);
     
     parse_nicks = 0;
     parse_env = 0;
@@ -1779,7 +1779,7 @@ static void push_bitvec_as_array (bitvec_t * bv, int errors_too) {
             }
         }
     }
-    arr = allocate_array(n);
+    arr = globalArray.allocate_array(n);
     /* error safety; right spot for return value too */
     push_refed_array(arr);
 
@@ -3172,7 +3172,7 @@ void f_parse_my_rules (void) {
             array_t *arr;
             /* give them the info for the wildcard call */
             n = best_result->res[3].num;
-            arr = allocate_empty_array(n);
+            arr = globalArray.allocate_empty_array(n);
             if (n) {
                 memcpy((char *)arr->item, best_result->res[3].args, n*sizeof(svalue_t));
                 while (n--) {

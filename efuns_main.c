@@ -38,7 +38,7 @@ void reload_object (object_t * obj);
 void
 f_all_inventory (void)
 {
-    array_t *vec = all_inventory(sp->u.ob, 0);
+    array_t *vec = globalArray.all_inventory(sp->u.ob, 0);
     free_object(&sp->u.ob, "f_all_inventory");
     sp->type = T_ARRAY;
     sp->u.arr = vec;
@@ -50,10 +50,10 @@ void
 f_allocate (void)
 {
     if (st_num_arg == 2) {
-        (sp-1)->u.arr = allocate_array2((sp-1)->u.number, sp);
+        (sp-1)->u.arr = globalArray.allocate_array2((sp-1)->u.number, sp);
         pop_stack();
     } else {
-        sp->u.arr = allocate_array(sp->u.number);
+        sp->u.arr = globalArray.allocate_array(sp->u.number);
     }
     sp->type = T_ARRAY;
 }
@@ -94,7 +94,7 @@ f_allocate_mapping (void)
             (sp-1)->u.map = allocate_mapping2(arr, sp);
         }
         pop_stack();
-        free_array(arr);
+        globalArray.free_array(arr);
     } else if (sp->type == T_NUMBER) {
         sp->u.map = allocate_mapping(sp->u.number);
     } else {
@@ -222,7 +222,7 @@ f__call_other (void)
 
         ret = call_all_other(arg[0].u.arr, funcname, num_arg - 2);
         pop_stack();
-        free_array(arg->u.arr);
+        globalArray.free_array(arg->u.arr);
         sp->u.arr = ret;
         return;
     } else {
@@ -325,7 +325,7 @@ f_call_stack (void)
     if (sp->u.number < 0 || sp->u.number > 4)
         error("First argument of call_stack() must be 0, 1, 2, 3, or 4.\n");
 
-    ret = allocate_empty_array(n);
+    ret = globalArray.allocate_empty_array(n);
 
     switch (sp->u.number) {
     case 0:
@@ -566,7 +566,7 @@ f_deep_inherit_list (void)
 {
     array_t *vec;
 
-    vec = deep_inherit_list(sp->u.ob);
+    vec = globalArray.deep_inherit_list(sp->u.ob);
     free_object(&sp->u.ob, "f_deep_inherit_list");
     put_array(vec);
 }
@@ -611,17 +611,17 @@ f_deep_inventory (void)
     int args = st_num_arg;
     if(st_num_arg==2 && sp->type == T_FUNCTION && ((sp-1)->type==T_ARRAY || (sp-1)->type==T_OBJECT) ) {
         if((sp-1)->type==T_ARRAY)
-            vec = deep_inventory_array((sp-1)->u.arr, 1 , sp->u.fp); 
+            vec = globalArray.deep_inventory_array((sp-1)->u.arr, 1 , sp->u.fp); 
         else /*(sp-1)->type==T_OBJECT*/
-            vec = deep_inventory((sp-1)->u.ob, 0 , sp->u.fp);
+            vec = globalArray.deep_inventory((sp-1)->u.ob, 0 , sp->u.fp);
     }
     else if(st_num_arg==1 && (sp->type==T_FUNCTION || sp->type==T_ARRAY || sp->type==T_OBJECT) ) {
         if(sp->type==T_FUNCTION)
-            vec = deep_inventory(current_object, 0 , sp->u.fp);
+            vec = globalArray.deep_inventory(current_object, 0 , sp->u.fp);
 	else if(sp->type==T_ARRAY)
-	    vec = deep_inventory_array(sp->u.arr, 1 , 0);
+	    vec = globalArray.deep_inventory_array(sp->u.arr, 1 , 0);
 	else /*sp->type==T_OBJECT*/
-            vec = deep_inventory(sp->u.ob, 0 , 0);
+            vec = globalArray.deep_inventory(sp->u.ob, 0 , 0);
     }
     else
         vec = &the_null_array;
@@ -904,7 +904,7 @@ f_explode (void)
 
     int len = SVALUE_STRLEN(sp-1);
 
-    vec = explode_string((sp - 1)->u.string, len,
+    vec = globalArray.explode_string((sp - 1)->u.string, len,
                          sp->u.string, SVALUE_STRLEN(sp));
     free_string_svalue(sp--);
     free_string_svalue(sp);
@@ -942,8 +942,8 @@ f_filter (void)
     svalue_t *arg = sp - st_num_arg + 1;
 
     if (arg->type == T_MAPPING) filter_mapping(arg, st_num_arg);
-    else if (arg->type == T_STRING) filter_string(arg, st_num_arg);
-    else filter_array(arg, st_num_arg);
+    else if (arg->type == T_STRING) globalArray.filter_string(arg, st_num_arg);
+    else globalArray.filter_array(arg, st_num_arg);
 }
 #endif
 
@@ -1000,7 +1000,7 @@ f_function_profile (void)
 
     prog = ob->prog;
     nf = prog->num_functions_defined;
-    vec = allocate_empty_array(nf);
+    vec = globalArray.allocate_empty_array(nf);
     for (j = 0; j < nf; j++) {
         map = allocate_mapping(3);
         add_mapping_pair(map, "calls", prog->function_table[j].calls);
@@ -1145,16 +1145,16 @@ f_implode (void)
         /* st_num_arg == 2 here */
         char *str;
 
-        str = implode_string(arr, sp->u.string,
+        str = globalArray.implode_string(arr, sp->u.string,
                              SVALUE_STRLEN(sp));
         free_string_svalue(sp--);
-        free_array(arr);
+        globalArray.free_array(arr);
         put_malloced_string(str);
     } else { /* function */
         funptr_t *funp = args[1].u.fp;
 
         /* this pulls the extra arg off the stack if it exists */
-        implode_array(funp, arr, args, flag);
+        globalArray.implode_array(funp, arr, args, flag);
         pop_stack();
     }
 }
@@ -1241,7 +1241,7 @@ f_shallow_inherit_list (void)
 {
     array_t *vec;
 
-    vec = inherit_list(sp->u.ob);
+    vec = globalArray.inherit_list(sp->u.ob);
     free_object(&sp->u.ob, "f_inherit_list");
     put_array(vec);
 }
@@ -1498,8 +1498,8 @@ f_map (void)
     svalue_t *arg = sp - st_num_arg + 1;
 
     if (arg->type == T_MAPPING) map_mapping(arg, st_num_arg);
-    else if (arg->type == T_ARRAY) map_array(arg, st_num_arg);
-    else map_string(arg, st_num_arg);
+    else if (arg->type == T_ARRAY) globalArray.map_array(arg, st_num_arg);
+    else globalArray.map_string(arg, st_num_arg);
 }
 #endif
 
@@ -1688,7 +1688,7 @@ f_member_array (void)
         }
         if (i >= size)
             i = -1;                     /* Return -1 for failure */
-        free_array(v);
+        globalArray.free_array(v);
         free_svalue(find, "f_member_array");
         sp--;
     }
@@ -1710,7 +1710,7 @@ f_message (void)
     switch (args[2].type) {
     case T_OBJECT:
     case T_STRING:
-        use = allocate_empty_array(1);
+        use = globalArray.allocate_empty_array(1);
         use->item[0] = args[2];
         args[2].type = T_ARRAY;
         args[2].u.arr = use;
@@ -1742,7 +1742,7 @@ f_message (void)
     if (num_arg == 4) {
         switch (args[3].type) {
         case T_OBJECT:
-            avoid = allocate_empty_array(1);
+            avoid = globalArray.allocate_empty_array(1);
             avoid->item[0] = args[3];
             args[3].type = T_ARRAY;
             args[3].u.arr = avoid;
@@ -1944,7 +1944,7 @@ void
 f_pointerp (void)
 {
     if (sp->type == T_ARRAY) {
-        free_array(sp->u.arr);
+        globalArray.free_array(sp->u.arr);
         *sp = const1;
     } else {
         free_svalue(sp, "f_pointerp");
@@ -2003,7 +2003,7 @@ f_previous_object (void)
             if ((p->framekind & FRAME_OB_CHANGE) && p->prev_ob)
 		i++;
         } while (--p >= control_stack);
-        v = allocate_empty_array(i);
+        v = globalArray.allocate_empty_array(i);
         p = csp;
         if (previous_ob) {
             if (!(previous_ob->flags & O_DESTRUCTED)) {
@@ -2339,7 +2339,7 @@ f_reg_assoc (void) {
     if (!(arg[2].type == T_ARRAY))
         error("Bad argument 3 to reg_assoc()\n");
 
-    vec = reg_assoc(arg, arg[1].u.arr, arg[2].u.arr, st_num_arg > 3 ? &arg[3] : &const0);
+    vec = globalArray.reg_assoc(arg, arg[1].u.arr, arg[2].u.arr, st_num_arg > 3 ? &arg[3] : &const0);
 
     if (st_num_arg == 4)
         pop_3_elems();
@@ -2364,15 +2364,15 @@ f_regexp (void)
         flag = (sp--)->u.number;
     } else flag = 0;
     if (sp[-1].type == T_STRING) {
-        flag = match_single_regexp((sp - 1)->u.string, sp->u.string);
+        flag = globalArray.match_single_regexp((sp - 1)->u.string, sp->u.string);
         free_string_svalue(sp--);
         free_string_svalue(sp);
         put_number(flag);
     } else {
-        v = match_regexp((sp - 1)->u.arr, sp->u.string, flag);
+        v = globalArray.match_regexp((sp - 1)->u.arr, sp->u.string, flag);
 
         free_string_svalue(sp--);
-        free_array(sp->u.arr);
+        globalArray.free_array(sp->u.arr);
         sp->u.arr = v;
     }
 }
@@ -3094,7 +3094,7 @@ f_sizeof (void)
         break;
     case T_ARRAY:
         i = sp->u.arr->size;
-        free_array(sp->u.arr);
+        globalArray.free_array(sp->u.arr);
         break;
     case T_MAPPING:
         i = sp->u.map->count;
@@ -3185,7 +3185,7 @@ f_stat (void)
     }
     if (stat(path, &buf) != -1) {
         if (buf.st_mode & S_IFREG) {    /* if a regular file */
-            v = allocate_empty_array(3);
+            v = globalArray.allocate_empty_array(3);
             v->item[0].type = T_NUMBER;
             v->item[0].u.number = buf.st_size;
             v->item[1].type = T_NUMBER;
@@ -3377,7 +3377,7 @@ f_tell_room (void)
 
     tell_room(ob, &arg[1], avoid);
     if (num_arg > 2 && arg[2].type != T_OBJECT)
-        free_array(avoid);
+        globalArray.free_array(avoid);
     free_svalue(arg + 1, "f_tell_room");
     free_svalue(arg, "f_tell_room");
     sp = arg - 1;
@@ -3657,7 +3657,7 @@ f_userp (void)
 void
 f_users (void)
 {
-    push_refed_array(users());
+    push_refed_array( globalArray.users());
 }
 #endif
 

@@ -1350,7 +1350,7 @@ static void copy_chars (interactive_t * ip, char * from, int num_bytes)
 												break;
 											case TELOPT_ZMP:
 											{
-												array_t *arr = allocate_array(max_array_size);
+												array_t *arr = globalArray.allocate_array(max_array_size);
 												ip->sb_buf = (unsigned char *)REALLOC(ip->sb_buf, MAX(ip->sb_pos + 2, SB_SIZE));
 												ip->sb_size = MAX(ip->sb_pos + 2, SB_SIZE);
 												ip->sb_buf[ip->sb_pos] = 0;
@@ -1365,7 +1365,7 @@ static void copy_chars (interactive_t * ip, char * from, int num_bytes)
 													arr->item[aro].type = T_STRING;
 													arr->item[aro++].subtype = STRING_MALLOC;
 												}
-												arr = resize_array(arr, aro);
+												arr = globalArray.resize_array(arr, aro);
 												push_refed_array(arr);
 												apply(APPLY_ZMP, ip->ob, 2, ORIGIN_DRIVER);
 

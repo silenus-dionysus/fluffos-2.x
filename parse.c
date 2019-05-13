@@ -353,7 +353,7 @@ load_lpc_info (int ix, object_t * ob)
         if (ret && ret->type == T_ARRAY) {
             assign_svalue_no_free(&gId_list->item[ix], ret);
             if (make_plural) {
-                tmp = allocate_array(ret->u.arr->size);
+                tmp = globalArray.allocate_array(ret->u.arr->size);
                 sing = ret->u.arr;
 
                 for (il = 0; il < tmp->size; il++) {
@@ -395,27 +395,27 @@ static void parse_clean_up() {
     globals = pg->next;
 
     if (pg->Id_list)
-        free_array(pg->Id_list);
+        globalArray.free_array(pg->Id_list);
     if (pg->Pluid_list)
-        free_array(pg->Pluid_list);
+        globalArray.free_array(pg->Pluid_list);
     if (pg->Adjid_list)
-        free_array(pg->Adjid_list);
+        globalArray.free_array(pg->Adjid_list);
     if (pg->Id_list_d)
-        free_array(pg->Id_list_d);
+        globalArray.free_array(pg->Id_list_d);
     if (pg->Pluid_list_d)
-        free_array(pg->Pluid_list_d);
+        globalArray.free_array(pg->Pluid_list_d);
     if (pg->Adjid_list_d)
-        free_array(pg->Adjid_list_d);
+        globalArray.free_array(pg->Adjid_list_d);
     if (pg->Prepos_list)
-        free_array(pg->Prepos_list);
+        globalArray.free_array(pg->Prepos_list);
     if (pg->Allword)
         FREE(pg->Allword);
     if (pg->warr)
-        free_array(pg->warr);
+        globalArray.free_array(pg->warr);
     if (pg->patarr)
-        free_array(pg->patarr);
+        globalArray.free_array(pg->patarr);
     if (pg->obarr)
-        free_array(pg->obarr);
+        globalArray.free_array(pg->obarr);
     FREE(pg);
 }
 
@@ -489,18 +489,18 @@ parse (const char *        cmd,            /* Command to parse */
     push_parse_globals();
 
     /* Array of words in command */
-    parse_warr = explode_string(cmd, strlen(cmd), " ", 1);
+    parse_warr = globalArray.explode_string(cmd, strlen(cmd), " ", 1);
     
     /* Array of pattern elements */
-    parse_patarr = explode_string(pattern, strlen(pattern), " ", 1);
+    parse_patarr = globalArray.explode_string(pattern, strlen(pattern), " ", 1);
 
     /*
      * Explode can return '0'.
      */
     if (!parse_warr)
-        parse_warr = allocate_array(0);
+        parse_warr = globalArray.allocate_array(0);
     if (!parse_patarr)
-        parse_patarr = allocate_array(0);
+        parse_patarr = globalArray.allocate_array(0);
 
     /* note: obarr is only put in parse_obarr if it needs freeing */
     if (ob_or_array->type == T_ARRAY)
@@ -508,7 +508,7 @@ parse (const char *        cmd,            /* Command to parse */
 #ifndef NO_ENVIRONMENT
     else if (ob_or_array->type == T_OBJECT) {
         /* 1 == ob + deepinv */
-        parse_obarr = obarr = deep_inventory(ob_or_array->u.ob, 1, NULL);
+        parse_obarr = obarr = globalArray.deep_inventory(ob_or_array->u.ob, 1, NULL);
     }
 #endif
     else 
@@ -516,9 +516,9 @@ parse (const char *        cmd,            /* Command to parse */
 
     check_for_destr(obarr);
 
-    gId_list = allocate_array(obarr->size);
-    gPluid_list = allocate_array(obarr->size);
-    gAdjid_list = allocate_array(obarr->size);
+    gId_list = globalArray.allocate_array(obarr->size);
+    gPluid_list = globalArray.allocate_array(obarr->size);
+    gAdjid_list = globalArray.allocate_array(obarr->size);
 
     /*
      * Get the default ids of 'general references' from master object
@@ -678,15 +678,15 @@ store_words_slice (svalue_t * sp, int pos, int num, array_t * warr, int from, in
 
     if (from <= to) {
         warr->ref++;
-        slice = slice_array(warr, from, to);
+        slice = globalArray.slice_array(warr, from, to);
 
         if (slice->size) {
             ret->subtype = STRING_MALLOC;
-            ret->u.string = implode_string(slice, " ", 1);
-            free_array(slice);
+            ret->u.string = globalArray.implode_string(slice, " ", 1);
+            globalArray.free_array(slice);
             return;
         }
-        free_array(slice);
+        globalArray.free_array(slice);
     }
 
     ret->subtype = STRING_CONSTANT;
@@ -980,7 +980,7 @@ static svalue_t *
     svalue_t *pval;
     int cix, tix, obix, plur_flag, max_cix, match_all;
 
-    tmp = allocate_array(obarr->size + 1);
+    tmp = globalArray.allocate_array(obarr->size + 1);
     /* in case of errors */
     push_refed_array(tmp);
     
@@ -1015,7 +1015,7 @@ static svalue_t *
 
     if (tix < 2) {
         *fail = 1;
-        free_array(tmp);
+        globalArray.free_array(tmp);
         if (pval)
             (*cix_in)--;
         return 0;
@@ -1026,7 +1026,7 @@ static svalue_t *
             tmp->item[0].type = T_NUMBER;
             tmp->item[0].u.number = plur_flag ? 0 : 1;
         }
-        ret = slice_array(tmp, 0, tix - 1);
+        ret = globalArray.slice_array(tmp, 0, tix - 1);
     }
 
     parse_ret.type = T_ARRAY;
@@ -1064,7 +1064,7 @@ static svalue_t *
     object_t *ob;
     int obix, tix;
 
-    live = allocate_array(obarr->size);
+    live = globalArray.allocate_array(obarr->size);
     /* in case of errors */
     push_refed_array(live);
     tix = 0;
@@ -1078,12 +1078,12 @@ static svalue_t *
         pval = item_parse(live, warr, cix_in, fail);
         if (pval) {
             sp--;
-            free_array(live);
+            globalArray.free_array(live);
             return pval;
         }
     }
     sp--;
-    free_array(live);
+    globalArray.free_array(live);
 
     /*
      * find_player
@@ -1177,7 +1177,7 @@ prepos_parse (array_t * warr, int * cix_in, int * fail, svalue_t * prepos)
                 break;
             }
         } else {
-            tarr = explode_string(tmp, strlen(tmp), " ", 1);
+            tarr = globalArray.explode_string(tmp, strlen(tmp), " ", 1);
             for (tix = 0; tix < tarr->size; tix++) {
                 if ((*cix_in + tix >= warr->size) ||
                     (!EQ(warr->item[*cix_in + tix].u.string, tarr->item[tix].u.string)))
@@ -1185,7 +1185,7 @@ prepos_parse (array_t * warr, int * cix_in, int * fail, svalue_t * prepos)
             }
             if ((tix = (tix == tarr->size) ? 1 : 0))
                 (*cix_in) += tarr->size;
-            free_array(tarr);
+            globalArray.free_array(tarr);
             if (tix)
                 break;
         }
@@ -1318,7 +1318,7 @@ find_string (const char * str, array_t * warr, int * cix_in)
         if (*cix_in == (warr->size - 1))
             continue;
 
-        split = explode_string(str, strlen(str), " ", 1);
+        split = globalArray.explode_string(str, strlen(str), " ", 1);
 
         /*
          * warr->size - *cix_in ==      
@@ -1327,7 +1327,7 @@ find_string (const char * str, array_t * warr, int * cix_in)
          */
         if (!split || (split->size > (warr->size - *cix_in))) {
             if (split)
-                free_array(split);
+                globalArray.free_array(split);
             continue;
         }
         fpos = *cix_in;
@@ -1338,12 +1338,12 @@ find_string (const char * str, array_t * warr, int * cix_in)
         }
         if ((*cix_in - fpos) == split->size) {
             if (split)
-                free_array(split);
+                globalArray.free_array(split);
             return fpos;
         }
 
         if (split)
-            free_array(split);
+            globalArray.free_array(split);
         *cix_in = fpos;
     }
     return -1;
@@ -1475,7 +1475,7 @@ static const char *
     if (!(strchr(str, ' ')))
         return string_copy(parse_one_plural(str), "parse_to_plural");
 
-    words = explode_string(str, strlen(str), " ", 1);
+    words = globalArray.explode_string(str, strlen(str), " ", 1);
 
     for (changed = 0, il = 1; il < words->size; il++) {
         if ((EQ(words->item[il].u.string, "of")) ||
@@ -1492,11 +1492,11 @@ static const char *
         }
     }
     if (!changed) {
-        free_array(words);
+        globalArray.free_array(words);
         return string_copy(str, "parse_to_plural");
     }
-    sp = implode_string(words, " ", 1);
-    free_array(words);
+    sp = globalArray.implode_string(words, " ", 1);
+    globalArray.free_array(words);
     return sp;
 }
 

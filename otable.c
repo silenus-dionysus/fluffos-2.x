@@ -117,7 +117,7 @@ array_t *children(const char * s) {
 	ch = ObjHash(s);
 	curr = ch_table[ch];
 
-	vec = allocate_empty_array(max_array_size);
+	vec = globalArray.allocate_empty_array(max_array_size);
 	while (curr && count < max_array_size) {
 		if (!strncmp(curr->obname, s, size)) { /* found one */
 			vec->item[count].u.ob = curr;
@@ -128,7 +128,7 @@ array_t *children(const char * s) {
 		curr = curr->next_ch_hash;
 	}
 	FREE_MSTR(s);
-	vec = resize_array(vec, count);
+	vec = globalArray.resize_array(vec, count);
 	return (vec);
 }
 

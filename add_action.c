@@ -589,7 +589,7 @@ f_add_action (void)
 		add_action(sp-1, sv[i].u.string, flag & 3);
 	    }
 	}
-	free_array((sp--)->u.arr);
+	globalArray.free_array((sp--)->u.arr);
     } else {
 	add_action((sp-1), sp->u.string, flag & 3);
 	free_string_svalue(sp--);
@@ -643,7 +643,7 @@ void f_command (void)
 #ifdef F_COMMANDS
 void f_commands (void)
 {
-    push_refed_array(commands(current_object));
+    push_refed_array(globalArray.commands(current_object));
 }
 #endif
 
@@ -709,7 +709,7 @@ void f_living (void)
 #ifdef F_LIVINGS
 void f_livings (void)
 {
-    push_refed_array(livings());
+    push_refed_array(globalArray.livings());
 }
 #endif
 

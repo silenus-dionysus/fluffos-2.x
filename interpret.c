@@ -487,7 +487,7 @@ INLINE void int_free_svalue (svalue_t * v, const char * tag)
         break;
       case T_ARRAY:
         if (v->u.arr != &the_null_array)
-          dealloc_array(v->u.arr);
+          globalArray.dealloc_array(v->u.arr);
         break;
 #ifndef NO_BUFFER_TYPE
       case T_BUFFER:
@@ -932,7 +932,7 @@ INLINE void copy_lvalue_range (svalue_t * from)
             free_svalue(dptr, "copy_lvalue_range : 1");
             *dptr++ = *fptr++;
           }
-          free_empty_array(fv);
+          globalArray.free_empty_array(fv);
         } else {
           while (fsize--) assign_svalue(dptr++, fptr++);
           fv->ref--;
@@ -942,7 +942,7 @@ INLINE void copy_lvalue_range (svalue_t * from)
         svalue_t *old_dptr = old_dv->item;
 
         /* Need to reallocate the array */
-        dv = allocate_empty_array(size - ind2 + ind1 + fsize);
+        dv = globalArray.allocate_empty_array(size - ind2 + ind1 + fsize);
         dptr = dv->item;
 
         /* ind1 can range from 0 to sizeof(old_dv) */
@@ -950,7 +950,7 @@ INLINE void copy_lvalue_range (svalue_t * from)
 
         if (fv->ref == 1) {
           while (fsize--) *dptr++ = *fptr++;
-          free_empty_array(fv);
+          globalArray.free_empty_array(fv);
         } else {
           while (fsize--) assign_svalue_no_free(dptr++, fptr++);
           fv->ref--;
@@ -961,7 +961,7 @@ INLINE void copy_lvalue_range (svalue_t * from)
         size -= ind2;
 
         while (size--) assign_svalue_no_free(dptr++, old_dptr++);
-        free_array(old_dv);
+        globalArray.free_array(old_dv);
 
         owner->u.arr = dv;
       }
@@ -1060,7 +1060,7 @@ INLINE void assign_lvalue_range (svalue_t * from)
         svalue_t *old_dptr = old_dv->item;
 
         /* Need to reallocate the array */
-        dv = allocate_empty_array(size - ind2 + ind1 + fsize);
+        dv = globalArray.allocate_empty_array(size - ind2 + ind1 + fsize);
         dptr = dv->item;
 
         /* ind1 can range from 0 to sizeof(old_dv) */
@@ -1073,7 +1073,7 @@ INLINE void assign_lvalue_range (svalue_t * from)
         size -= ind2;
 
         while (size--) assign_svalue_no_free(dptr++, old_dptr++);
-        free_array(old_dv);
+        globalArray.free_array(old_dv);
 
         owner->u.arr = dv;
       }
@@ -1464,7 +1464,7 @@ INLINE_STATIC void setup_varargs_variables (int actual, int local, int num_arg) 
   if (actual >= num_arg) {
     int n = actual - num_arg + 1;
     /* Aggregate excessive arguments */
-    arr = allocate_empty_array(n);
+    arr = globalArray.allocate_empty_array(n);
     while (n--)
       arr->item[n] = *sp--;
   } else {
@@ -2417,7 +2417,7 @@ eval_instruction (char * p)
                     type_name((sp - 1)->type), type_name(sp->type));
             } else {
               /* add_array now free's the arrays */
-              (sp-1)->u.arr = add_array((sp - 1)->u.arr, sp->u.arr);
+              (sp-1)->u.arr = globalArray.add_array((sp - 1)->u.arr, sp->u.arr);
               sp--;
               break;
             }
@@ -2572,7 +2572,7 @@ eval_instruction (char * p)
           bad_argument(sp, T_ARRAY, 2, instruction);
         else {
           /* add_array now frees the arrays */
-          lval->u.arr = add_array(lval->u.arr, sp->u.arr);
+          lval->u.arr = globalArray.add_array(lval->u.arr, sp->u.arr);
         }
         break;
       case T_MAPPING:
@@ -2738,7 +2738,7 @@ eval_instruction (char * p)
       if ((sp-1)->type == T_LVALUE) {
         /* mapping */
         sp -= 3;
-        free_array((sp--)->u.arr);
+        globalArray.free_array((sp--)->u.arr);
         free_mapping((sp--)->u.map);
       } else {
         /* array or string */
@@ -2746,7 +2746,7 @@ eval_instruction (char * p)
         if (sp->type == T_STRING)
           free_string_svalue(sp--);
         else
-          free_array((sp--)->u.arr);
+          globalArray.free_array((sp--)->u.arr);
       }
       break;
 
@@ -2785,14 +2785,14 @@ eval_instruction (char * p)
           t = s + n - 1;
           if (arr->ref == 1) {
             memcpy(s, arr->item, n * sizeof(svalue_t));
-            free_empty_array(arr);
+            globalArray.free_empty_array(arr);
             break;
           } else {
             while (n--)
               assign_svalue_no_free(t--, &arr->item[n]);
           }
         }
-        free_array(arr);
+        globalArray.free_array(arr);
         break;
       }
 
@@ -2819,7 +2819,7 @@ eval_instruction (char * p)
         LOAD_SHORT(offset, pc);
         offset += num_varargs;
         num_varargs = 0;
-        v = allocate_empty_array(offset);
+        v = globalArray.allocate_empty_array(offset);
         /*
          * transfer svalues in reverse...popping stack as we go
          */
@@ -3235,7 +3235,7 @@ eval_instruction (char * p)
             assign_svalue(&arr->item[i], &const0u);
           }
           assign_svalue_no_free(--sp, &arr->item[i]);
-          free_array(arr);
+          globalArray.free_array(arr);
           break;
         }
       default:
@@ -3290,7 +3290,7 @@ eval_instruction (char * p)
             assign_svalue(&arr->item[i], &const0u);
           }
           assign_svalue_no_free(--sp, &arr->item[i]);
-          free_array(arr);
+          globalArray.free_array(arr);
           break;
         }
       default:
@@ -3649,7 +3649,7 @@ eval_instruction (char * p)
              * subtract_array already takes care of
              * destructed objects
              */
-            sp->u.arr = subtract_array(sp->u.arr, (sp+1)->u.arr);
+            sp->u.arr = globalArray.subtract_array(sp->u.arr, (sp+1)->u.arr);
             break;
           }
 
@@ -4499,7 +4499,7 @@ array_t *call_all_other (array_t * v, const char * func, int numargs)
   tmp = sp;
   STACK_INC;
   sp->type = T_ARRAY;
-  sp->u.arr = ret = allocate_array(size = v->size);
+  sp->u.arr = ret = globalArray.allocate_array(size = v->size);
   CHECK_STACK_OVERFLOW(numargs);
   for (vptr = v->item, rptr = ret->item; size--; vptr++, rptr++) {
     if (vptr->type == T_OBJECT) {
@@ -5009,7 +5009,7 @@ array_t *get_svalue_trace()
   if (csp < &control_stack[0]) {
     return &the_null_array;
   }
-  v = allocate_empty_array((csp - &control_stack[0]) + 1);
+  v = globalArray.allocate_empty_array((csp - &control_stack[0]) + 1);
   for (p = &control_stack[0]; p < csp; p++) {
     m = allocate_mapping(6);
     switch (p[0].framekind & FRAME_MASK) {
@@ -5060,7 +5060,7 @@ array_t *get_svalue_trace()
       array_t *v2;
 
       ptr = p[1].fp;
-      v2 = allocate_empty_array(num_arg);
+      v2 = globalArray.allocate_empty_array(num_arg);
       for (i = 0; i < num_arg; i++) {
         assign_svalue_no_free(&v2->item[i], &ptr[i]);
       }
@@ -5073,7 +5073,7 @@ array_t *get_svalue_trace()
       array_t *v2;
 
       ptr = p[1].fp + num_arg;
-      v2 = allocate_empty_array(num_local);
+      v2 = globalArray.allocate_empty_array(num_local);
       for (i = 0; i < num_local; i++) {
         assign_svalue_no_free(&v2->item[i], &ptr[i]);
       }
@@ -5127,7 +5127,7 @@ array_t *get_svalue_trace()
   if (num_arg != -1) {
     array_t *v2;
 
-    v2 = allocate_empty_array(num_arg);
+    v2 = globalArray.allocate_empty_array(num_arg);
     for (i = 0; i < num_arg; i++) {
       assign_svalue_no_free(&v2->item[i], &fp[i]);
     }
@@ -5139,7 +5139,7 @@ array_t *get_svalue_trace()
   if (num_local > 0 && num_arg != -1) {
     array_t *v2;
 
-    v2 = allocate_empty_array(num_local);
+    v2 = globalArray.allocate_empty_array(num_local);
     for (i = 0; i < num_local; i++) {
       assign_svalue_no_free(&v2->item[i], &fp[i + num_arg]);
     }

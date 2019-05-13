@@ -82,7 +82,7 @@ void f_named_livings() {
 		}
 	}
 
-	vec = allocate_empty_array(nob);
+	vec = globalArray.allocate_empty_array(nob);
 	while (--nob >= 0) {
 		vec->item[nob].type = T_OBJECT;
 		vec->item[nob].u.ob = obtab[nob];
@@ -210,7 +210,7 @@ static array_t *deep_copy_array ( array_t * arg ) {
 	array_t *vec;
 	int i;
 
-	vec = allocate_empty_array(arg->size);
+	vec = globalArray.allocate_empty_array(arg->size);
 	for (i = 0; i < arg->size; i++)
 		deep_copy_svalue(&arg->item[i], &vec->item[i]);
 
@@ -329,7 +329,7 @@ void f_functions (void) {
 			                                                               == APPLY___INIT_SPECIAL_CHAR)
 		num--;
 
-	vec = allocate_empty_array(num);
+	vec = globalArray.allocate_empty_array(num);
 	i = num;
 
 	while (i--) {
@@ -368,7 +368,7 @@ void f_functions (void) {
 				types = 0;
 
 			vec->item[i].type = T_ARRAY;
-			subvec = vec->item[i].u.arr = allocate_empty_array(3 + funp->num_arg);
+			subvec = vec->item[i].u.arr = globalArray.allocate_empty_array(3 + funp->num_arg);
 
 			subvec->item[0].type = T_STRING;
 			subvec->item[0].subtype = STRING_SHARED;
@@ -421,7 +421,7 @@ static void fv_recurse (array_t * arr, int * idx, program_t * prog, int type, in
 	for (i = 0; i < prog->num_variables_defined; i++) {
 		if (flag) {
 			arr->item[*idx + i].type = T_ARRAY;
-			subarr = arr->item[*idx + i].u.arr = allocate_empty_array(2);
+			subarr = arr->item[*idx + i].u.arr = globalArray.allocate_empty_array(2);
 			subarr->item[0].type = T_STRING;
 			subarr->item[0].subtype = STRING_SHARED;
 			subarr->item[0].u.string = ref_string(prog->variable_table[i]);
@@ -444,7 +444,7 @@ void f_variables (void) {
 	int flag = (sp--)->u.number;
 	program_t *prog = sp->u.ob->prog;
 
-	arr = allocate_empty_array(prog->num_variables_total);
+	arr = globalArray.allocate_empty_array(prog->num_variables_total);
 	fv_recurse(arr, &idx, prog, 0, flag);
 
 	pop_stack();
@@ -1587,7 +1587,7 @@ void f_replaceable (void) {
 		replaceable = 0;
 
 	if (st_num_arg == 2)
-		free_array((sp--)->u.arr);
+		globalArray.free_array((sp--)->u.arr);
 	FREE(ignore);
 	free_svalue(sp, "f_replaceable");
 	put_number(replaceable);
@@ -2362,7 +2362,7 @@ void f_get_garbage (void){
 
 	if (count > max_array_size)
 		count = max_array_size;
-	ret = allocate_empty_array(count);
+	ret = globalArray.allocate_empty_array(count);
 	for (i = 0;  i < count;  i++) {
 		ret->item[i].type = T_OBJECT;
 		ret->item[i].u.ob = obs[i];
@@ -2388,7 +2388,7 @@ f_num_classes() {
 #ifdef F_ASSEMBLE_CLASS
 void
 f_assemble_class() {
-	array_t *arr = copy_array( sp->u.arr );
+	array_t *arr = globalArray.copy_array( sp->u.arr );
 	pop_stack();
 	push_refed_array(arr);
 	sp->type = T_CLASS;
@@ -2402,7 +2402,7 @@ f_disassemble_class() {
 	array_t *arr;
 	if( sp->type != T_CLASS )
 		error( "Argument to disassemble_class() not a class.\n" );
-	arr = copy_array( sp->u.arr );
+	arr = globalArray.copy_array( sp->u.arr );
 	pop_stack();
 	push_refed_array(arr);
 }
@@ -2426,7 +2426,7 @@ void f_fetch_class_member() {
 		error( "Class index out of bounds.\n" );
 
 	assign_svalue_no_free( sp, &arr->item[pos] );
-	free_array( arr );
+	globalArray.free_array( arr );
 }
 #endif
 
@@ -2458,7 +2458,7 @@ void f_element_of() {
 		error("Can't take element from empty array.\n");
 	}
 	assign_svalue_no_free(sp, &arr->item[random_number(arr->size)]);
-	free_array(arr);
+	globalArray.free_array(arr);
 }
 #endif
 #ifdef F_SHUFFLE
@@ -2578,7 +2578,7 @@ f_max() {
 	pop_stack();
 
 	assign_svalue_no_free( sp, &arr->item[max_index] );
-	free_array( arr );
+	globalArray.free_array( arr );
 }
 
 #endif
@@ -2654,7 +2654,7 @@ f_min() {
 	pop_stack();
 
 	assign_svalue_no_free( sp, &arr->item[min_index] );
-	free_array( arr );
+	globalArray.free_array( arr );
 }
 #endif
 
@@ -2908,7 +2908,7 @@ void f_classes() {
 
 	prog = sp->u.ob->prog;
 	num = prog->num_classes;
-	vec = allocate_empty_array( num );
+	vec = globalArray.allocate_empty_array( num );
 
 	// Pull out data for each class.
 	for( i = 0; i < num; i++ ) {
@@ -2917,7 +2917,7 @@ void f_classes() {
 			size = prog->classes[i].size;
 
 			vec->item[i].type = T_ARRAY;
-			subvec = vec->item[i].u.arr = allocate_empty_array( 1 + size );
+			subvec = vec->item[i].u.arr = globalArray.allocate_empty_array( 1 + size );
 
 			// First item of return array: the class's name.
 			subvec->item[0].type = T_STRING;
@@ -2930,7 +2930,7 @@ void f_classes() {
 			// Find the name and type of each class member.
 			for( j = 0; j < size; j++, offset++ ) {
 				subvec->item[j + 1].type = T_ARRAY;
-				subsubvec = subvec->item[j + 1].u.arr = allocate_empty_array( 2 );
+				subsubvec = subvec->item[j + 1].u.arr = globalArray.allocate_empty_array( 2 );
 
 				// Each subarray contains the member's name...
 				subsubvec->item[0].type = T_STRING;

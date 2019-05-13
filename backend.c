@@ -559,7 +559,7 @@ void preload_objects (int eflag)
 		push_svalue(((array_t *)prefiles)->item + ix);
 		(void) globalMaster.apply_master_ob(APPLY_PRELOAD, 1);
 	}
-	free_array((array_t *)prefiles);
+	globalArray.free_array((array_t *)prefiles);
 	pop_context(&econ);
 }       /* preload_objects() */
 
@@ -659,7 +659,7 @@ array_t *get_heart_beats() {
 		obtab[nob++] = (hb++)->ob;
 	}
 
-	arr = allocate_empty_array(nob);
+	arr = globalArray.allocate_empty_array(nob);
 	while (nob--) {
 		arr->item[nob].type = T_OBJECT;
 		arr->item[nob].u.ob = obtab[nob];

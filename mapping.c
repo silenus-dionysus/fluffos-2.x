@@ -600,7 +600,7 @@ void f_unique_mapping (void)
     size = v->size;
     if (!size) {
         pop_n_elems(num_arg - 1);
-        free_array(v);
+        globalArray.free_array(v);
         sp->type = T_MAPPING;
         sp->u.map = allocate_mapping(0);
         return;
@@ -708,7 +708,7 @@ void f_unique_mapping (void)
                 elt = ALLOCATE(mapping_node_t, 105,"f_unique_mapping:6");
                 *elt->values = uptr->key;
                 (elt->values + 1)->type = T_ARRAY;
-                ret = (elt->values + 1)->u.arr = allocate_empty_array(size = uptr->count);
+                ret = (elt->values + 1)->u.arr = globalArray.allocate_empty_array(size = uptr->count);
                 ind = uptr->indices;
                 while (size--) {
                     assign_svalue_no_free(ret->item + size, sv + ind[size]);
@@ -732,7 +732,7 @@ void f_unique_mapping (void)
     FREE((char *) nlist);
     sp--;
     pop_n_elems(num_arg - 1);
-    free_array(v);
+    globalArray.free_array(v);
     sp->type = T_MAPPING;
     sp->u.map = m;
 }
@@ -1220,7 +1220,7 @@ mapping_indices (mapping_t *m)
 
         debug(mapping,("mapping_indices: size = %d\n", MAP_COUNT(m)));
 
-        v = allocate_empty_array(MAP_COUNT(m));
+        v = globalArray.allocate_empty_array(MAP_COUNT(m));
         sv = v->item;
         do {
             for (elt = a[j]; elt; elt = elt->next)
@@ -1241,7 +1241,7 @@ mapping_values (mapping_t *m)
 
         debug(mapping,("mapping_values: size = %d\n",MAP_COUNT(m)));
 
-        v = allocate_empty_array(MAP_COUNT(m));
+        v = globalArray.allocate_empty_array(MAP_COUNT(m));
         sv = v->item;
         do {
             for (elt = a[j]; elt; elt = elt->next)
