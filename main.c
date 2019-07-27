@@ -200,7 +200,7 @@ int main (int argc, char ** argv)
 
 	printf("Initializing internal tables....\n");
 	init_strings();   /* in stralloc.c */
-	init_otable();    /* in otable.c */
+	globalOTable.init_otable();    /* in otable.c */
 	init_identifiers();   /* in lex.c */
 	init_locals();              /* in compiler.c */
 

@@ -1839,7 +1839,7 @@ void f_mud_status (void)
         print_cache_stats(&ob);
         outbuf_add(&ob, "\n");
 #endif
-        tot = show_otable_status(&ob, verbose);
+        tot = globalOTable.show_otable_status(&ob, verbose);
         outbuf_add(&ob, "\n");
         tot += heart_beat_status(&ob, verbose);
         outbuf_add(&ob, "\n");
@@ -1878,7 +1878,7 @@ void f_mud_status (void)
         outbuf_addv(&ob, "Interactives:\t\t\t%8d %8d\n", num_user,
                     num_user * sizeof(interactive_t));
 
-        tot = show_otable_status(&ob, verbose) +
+        tot = globalOTable.show_otable_status(&ob, verbose) +
             heart_beat_status(&ob, verbose) +
             add_string_status(&ob, verbose) +
             print_call_out_usage(&ob, verbose);
@@ -3855,7 +3855,7 @@ f_memory_info (void)
             tot_alloc_object_size +
             tot_alloc_sentence * sizeof(sentence_t) +
             num_user * sizeof(interactive_t) +
-            show_otable_status(0, -1) +
+            globalOTable.show_otable_status(0, -1) +
             heart_beat_status(0, -1) +
             add_string_status(0, -1) +
             print_call_out_usage(0, -1) + res;

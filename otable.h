@@ -6,6 +6,10 @@
 /*
  * otable.c
  */
+
+class OTable {
+
+public:
 void init_otable (void);
 void enter_object_hash (object_t *);
 void remove_object_hash (object_t *);
@@ -14,4 +18,7 @@ object_t *lookup_object_hash (const char *);
 int show_otable_status (outbuffer_t *, int);
 array_t *find_ch_n (const char * s);
 
+};
+
+extern OTable globalOTable;
 #endif

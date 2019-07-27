@@ -15,6 +15,8 @@
  * Note: if you change an object name, you must remove it and reenter it.
  */
 
+OTable globalOTable;
+
 static int otable_size;
 static int otable_size_minus_one;
 
@@ -52,7 +54,7 @@ static char *_basename(const char *full, int *size) {
 	return name;
 }
 
-void init_otable() {
+void OTable::init_otable() {
 	int x, y;
 
 	/* ensure that otable_size is a power of 2 */
@@ -141,7 +143,7 @@ array_t *children(const char * s) {
 
 static int objs_in_table = 0;
 
-void enter_object_hash(object_t * ob) {
+void OTable::enter_object_hash(object_t * ob) {
 #ifdef DEBUG
 	object_t *s;
 #endif
@@ -178,7 +180,7 @@ void enter_object_hash(object_t * ob) {
  * is removed from the next_all list - i.e. in destruct.
  */
 
-void remove_object_hash(object_t * ob) {
+void OTable::remove_object_hash(object_t * ob) {
 	int dummy;
 	object_t *s;
 	object_t *t = 0;
@@ -221,7 +223,7 @@ void remove_object_hash(object_t * ob) {
 
 static long user_obj_lookups = 0, user_obj_found = 0;
 
-object_t *lookup_object_hash(const char * s) {
+object_t *OTable::lookup_object_hash(const char * s) {
 	object_t *ob = find_obj_n(s);
 
 	user_obj_lookups++;
@@ -237,7 +239,7 @@ object_t *lookup_object_hash(const char * s) {
 
 static char sbuf[100];
 
-int show_otable_status(outbuffer_t * out, int verbose) {
+int OTable::show_otable_status(outbuffer_t * out, int verbose) {
 	int starts;
 
 	if (verbose == 1) {

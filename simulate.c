@@ -267,7 +267,7 @@ static object_t *load_virtual_object (const char * name, int clone)
     new_ob = v->u.ob;
 
     if (!clone) {
-        ob = lookup_object_hash(name);
+        ob = globalOTable.lookup_object_hash(name);
         if (ob && ob != new_ob) {
             /*
              * If we rename, we're going to have a duplicate name here.  Don't
@@ -291,11 +291,11 @@ static object_t *load_virtual_object (const char * name, int clone)
 #endif
 
     /* perform the object rename */
-    remove_object_hash(new_ob);
+    globalOTable.remove_object_hash(new_ob);
     if (new_ob->obname)
         FREE((char *)new_ob->obname);
     SETOBNAME(new_ob, new_name);
-    enter_object_hash(new_ob);
+    globalOTable.enter_object_hash(new_ob);
 
     /* finish initialization */
     new_ob->flags |= O_VIRTUAL;
@@ -473,7 +473,7 @@ object_t *int_load_object (const char * lname, int callcreate)
             error("Illegal to inherit self.\n");
         }
 
-        if ((inh_obj = lookup_object_hash(inhbuf))) {
+        if ((inh_obj = globalOTable.lookup_object_hash(inhbuf))) {
 	    IF_DEBUG(fatal("Inherited object is already loaded!"));
         } else {
             inh_obj = load_object(inhbuf, 0);
@@ -487,7 +487,7 @@ object_t *int_load_object (const char * lname, int callcreate)
          * create function. Without this check, that would crash the driver.
          * -Beek
          */
-        if (!(ob = lookup_object_hash(name))) {
+        if (!(ob = globalOTable.lookup_object_hash(name))) {
             ob = int_load_object(name, callcreate);
             /* sigh, loading the inherited file removed us */
             if (!ob) {
@@ -510,7 +510,7 @@ object_t *int_load_object (const char * lname, int callcreate)
     if(obj_list)
       obj_list->prev_all = ob;
     obj_list = ob;
-    enter_object_hash(ob);      /* add name to fast object lookup table */
+    globalOTable.enter_object_hash(ob);      /* add name to fast object lookup table */
     save_command_giver(command_giver);
     push_object(ob);
     mret = globalMaster.apply_master_ob(APPLY_VALID_OBJECT, 1);
@@ -604,7 +604,7 @@ object_t *clone_object (const char * str1, int num_arg)
     obj_list->prev_all = new_ob;
     new_ob->prev_all = 0;
     obj_list = new_ob;
-    enter_object_hash(new_ob);  /* Add name to fast object lookup table */
+    globalOTable.enter_object_hash(new_ob);  /* Add name to fast object lookup table */
 
     init_object(new_ob);
 
@@ -916,13 +916,13 @@ void destruct_object (object_t * ob)
         SETOBNAME(ob, tmp);
         tmp = new_ob->obname;
         SETOBNAME(new_ob, "");
-        remove_object_hash(ob);
+        globalOTable.remove_object_hash(ob);
         SETOBNAME(new_ob, tmp);
 	tmp_ob = ob;
 	free_object(&tmp_ob, "vital object reference");
 	// still need ob below!
     } else
-        remove_object_hash(ob);
+       globalOTable.remove_object_hash(ob);
 
     /*
      * Now remove us out of the list of all objects. This must be done last,
@@ -1369,7 +1369,7 @@ object_t *find_object (const char * str)
     if (!strip_name(str, tmpbuf, sizeof tmpbuf))
         return 0;
 
-    if ((ob = lookup_object_hash(tmpbuf))) {
+    if ((ob = globalOTable.lookup_object_hash(tmpbuf))) {
         return ob;
     }
     ob = load_object(tmpbuf, 0);
@@ -1387,7 +1387,7 @@ object_t *find_object2 (const char * str)
     if (!strip_name(str, p, sizeof p))
         return 0;
 
-    if ((ob = lookup_object_hash(p))) {
+    if ((ob = globalOTable.lookup_object_hash(p))) {
         return ob;
     }
     return 0;
