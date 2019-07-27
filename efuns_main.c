@@ -885,7 +885,7 @@ f_exec (void)
 {
     int i;
 
-    i = replace_interactive((sp - 1)->u.ob, sp->u.ob);
+    i = globalComm.replace_interactive((sp - 1)->u.ob, sp->u.ob);
 
     /* They might have been destructed */
     if (sp->type == T_OBJECT)
@@ -1731,7 +1731,7 @@ f_message (void)
                 error("Printable strings limited to length of %d.\n",
                       LARGEST_PRINTABLE_STRING);
 
-            add_message(command_giver, args[1].u.string, len);
+            globalComm.add_message(command_giver, args[1].u.string, len);
             pop_n_elems(num_arg);
             return;
         }
@@ -2107,7 +2107,7 @@ f_query_host_name (void)
 {
     char *tmp;
 
-    if ((tmp = query_host_name()))
+    if ((tmp = globalComm.query_host_name()))
         push_constant_string(tmp);
     else
         push_number(0);
@@ -2120,7 +2120,7 @@ f_query_idle (void)
 {
     int i;
 
-    i = query_idle(sp->u.ob);
+    i = globalComm.query_idle(sp->u.ob);
     free_object(&sp->u.ob, "f_query_idle");
     put_number(i);
 }
@@ -2132,7 +2132,7 @@ f_query_ip_name (void)
 {
     char *tmp;
 
-    tmp = query_ip_name(st_num_arg ? sp->u.ob : 0);
+    tmp = globalComm.query_ip_name(st_num_arg ? sp->u.ob : 0);
     if (st_num_arg) free_object(&(sp--)->u.ob, "f_query_ip_name");
     if (!tmp) push_number(0);
     else share_and_push_string(tmp);
@@ -2145,7 +2145,7 @@ f_query_ip_number (void)
 {
     const char *tmp;
 
-    tmp = query_ip_number(st_num_arg ? sp->u.ob : 0);
+    tmp = globalComm.query_ip_number(st_num_arg ? sp->u.ob : 0);
     if (st_num_arg) free_object(&(sp--)->u.ob, "f_query_ip_number");
     if (!tmp) push_number(0);
     else share_and_push_string(tmp);
@@ -2185,7 +2185,7 @@ f_query_snooping (void)
 {
     object_t *ob;
 
-    ob = query_snooping(sp->u.ob);
+    ob = globalComm.query_snooping(sp->u.ob);
     free_object(&sp->u.ob, "f_query_snooping");
     if (ob) { put_unrefed_undested_object(ob, "query_snooping"); }
     else *sp = const0;
@@ -2198,7 +2198,7 @@ f_query_snoop (void)
 {
     object_t *ob;
 
-    ob = query_snoop(sp->u.ob);
+    ob = globalComm.query_snoop(sp->u.ob);
     free_object(&sp->u.ob, "f_query_snoop");
     if (ob) { put_unrefed_undested_object(ob, "query_snoop"); }
     else *sp = const0;
@@ -2313,14 +2313,14 @@ f_receive (void)
                 error("Printable strings limited to length of %d.\n",
                       LARGEST_PRINTABLE_STRING);
 
-            add_message(current_object, sp->u.string, len);
+            globalComm.add_message(current_object, sp->u.string, len);
         }
         free_string_svalue(sp--);
     }
 #ifndef NO_BUFFER_TYPE
     else {
         if (current_object->interactive)
-            add_message(current_object, (char *)sp->u.buf->item, sp->u.buf->size);
+            globalComm.add_message(current_object, (char *)sp->u.buf->item, sp->u.buf->size);
 
         globalBuffer.free_buffer((sp--)->u.buf);
     }
@@ -2724,7 +2724,7 @@ f_resolve (void)
 {
     int i;
 
-    i = query_addr_number((sp - 1)->u.string, sp);
+    i = globalComm.query_addr_number((sp - 1)->u.string, sp);
     pop_stack();
     free_string_svalue(sp);
     put_number(i);
@@ -3127,12 +3127,12 @@ f_snoop (void)
      * object.
      */
     if (st_num_arg == 1) {
-        if (!new_set_snoop(sp->u.ob, 0) || (sp->u.ob->flags & O_DESTRUCTED)) {
+        if (!globalComm.new_set_snoop(sp->u.ob, 0) || (sp->u.ob->flags & O_DESTRUCTED)) {
             free_object(&sp->u.ob, "f_snoop:1");
             *sp = const0;
         }
     } else {
-        if (!new_set_snoop((sp - 1)->u.ob, sp->u.ob) ||
+        if (!globalComm.new_set_snoop((sp - 1)->u.ob, sp->u.ob) ||
             (sp->u.ob->flags & O_DESTRUCTED)) {
             free_object(&(sp--)->u.ob, "f_snoop:2");
             free_object(&sp->u.ob, "f_snoop:3");
@@ -3939,14 +3939,14 @@ void
 f_flush_messages (void) {
     if (st_num_arg == 1) {
         if (sp->u.ob->interactive)
-            flush_message(sp->u.ob->interactive);
+            globalComm.flush_message(sp->u.ob->interactive);
         pop_stack();
     } else {
         int i;
 
         for (i = 0; i < max_users; i++) {
             if (all_users[i] && !(all_users[i]->iflags & CLOSING))
-                flush_message(all_users[i]);
+                globalComm.flush_message(all_users[i]);
         }
     }
 }

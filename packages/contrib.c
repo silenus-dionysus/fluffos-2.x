@@ -1714,7 +1714,7 @@ void f_remove_interactive (void) {
 		free_object(&sp->u.ob, "f_remove_interactive");
 		*sp = const0;
 	} else {
-		remove_interactive(sp->u.ob, 0);
+		globalComm.remove_interactive(sp->u.ob, 0);
 		/* It may have been dested */
 		if (sp->type == T_OBJECT)
 			free_object(&sp->u.ob, "f_remove_interactive");
@@ -2870,8 +2870,8 @@ void f_send_nullbyte (void){
 	else {
 		tmp = 1;
 		//""is only the end-of-string zero byte.
-		add_message(who,"",1);
-		flush_message(who->interactive);
+		globalComm.add_message(who,"",1);
+		globalComm.flush_message(who->interactive);
 	}
 	free_object(&sp->u.ob, "f_send_nullbyte");
 	put_number(tmp);

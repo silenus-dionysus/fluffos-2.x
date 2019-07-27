@@ -35,7 +35,7 @@ double consts[NUM_CONSTS];
 
 #ifndef NO_IP_DEMON
 int no_ip_demon = 0;
-void init_addr_server();
+//void init_addr_server();
 #endif        /* NO_IP_DEMON */
 
 #ifdef SIGNAL_FUNC_TAKES_INT
@@ -315,7 +315,7 @@ int main (int argc, char ** argv)
 
 #ifndef NO_IP_DEMON
 	if (!no_ip_demon && ADDR_SERVER_IP)
-		init_addr_server(ADDR_SERVER_IP, ADDR_SERVER_PORT);
+		globalComm.init_addr_server(ADDR_SERVER_IP, ADDR_SERVER_PORT);
 #endif        /* NO_IP_DEMON */
 
 	save_context(&econ);

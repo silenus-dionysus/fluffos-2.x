@@ -61,6 +61,8 @@
 #define NEW_ENV_USERVAR          3
 
 
+Comm globalComm;
+
 static unsigned char telnet_break_response[] = {  28, IAC, WILL, TELOPT_TM };
 static unsigned char telnet_ip_response[]    = { 127, IAC, WILL, TELOPT_TM };
 static unsigned char telnet_abort_response[] = { IAC, DM };
@@ -124,20 +126,16 @@ static void sigpipe_handler(void);
 #endif
 
 static void hname_handler (void);
-static void get_user_data (interactive_t *);
-static char *get_user_command (void);
 static char *first_cmd_in_buf (interactive_t *);
 static int cmd_in_buf (interactive_t *);
-static int call_function_interactive (interactive_t *, char *);
-static void print_prompt (interactive_t *);
-static void query_addr_name (object_t *);
+//static void query_addr_name (object_t *);
 static void got_addr_number (char *, char *);
 #ifdef IPV6
 static void add_ip_entry (struct in6_addr, char *);
 #else
 static void add_ip_entry (long, char *);
 #endif
-static void new_user_handler (int);
+//static void new_user_handler (int);
 static void end_compression (interactive_t *);
 static void start_compression (interactive_t *);
 static int send_compressed (interactive_t *ip, unsigned char* data, int length);
@@ -190,8 +188,7 @@ int has_console = -1;
  */
 static int addr_server_fd = -1;
 
-static
-void set_linemode (interactive_t * ip)
+void Comm::set_linemode (interactive_t * ip)
 {
 	if (ip->iflags & USING_LINEMODE) {
 		add_binary_message(ip->ob, telnet_line_mode, sizeof(telnet_line_mode));
@@ -201,8 +198,7 @@ void set_linemode (interactive_t * ip)
 	}
 }
 
-static
-void set_charmode (interactive_t * ip)
+void Comm::set_charmode (interactive_t * ip)
 {
 	if (ip->iflags & USING_LINEMODE) {
 		add_binary_message(ip->ob, telnet_char_mode, sizeof(telnet_char_mode));
@@ -212,8 +208,8 @@ void set_charmode (interactive_t * ip)
 }
 
 #ifndef NO_SNOOP
-static void
-receive_snoop (const char * buf, int len, object_t * snooper)
+void
+Comm::receive_snoop (const char * buf, int len, object_t * snooper)
 {
 	/* command giver no longer set to snooper */
 #ifdef RECEIVE_SNOOP
@@ -235,7 +231,7 @@ receive_snoop (const char * buf, int len, object_t * snooper)
 /*
  * Initialize new user connection socket.
  */
-void init_user_conn()
+void Comm::init_user_conn()
 {
 #ifdef IPV6
 	struct sockaddr_in6 sin;
@@ -385,7 +381,7 @@ void init_user_conn()
 	/*
 	 * Shut down new user accept file descriptor.
 	 */
-void ipc_remove()
+void Comm::ipc_remove()
 {
 	int i;
 
@@ -399,7 +395,7 @@ void ipc_remove()
 	debug_message("closed external ports\n");
 }
 
-void init_addr_server (char * hostname, int addr_server_port)
+void Comm::init_addr_server (char * hostname, int addr_server_port)
 {
 #ifdef WIN32
 	WORD wVersionRequested = MAKEWORD(1,1);
@@ -558,7 +554,7 @@ static int shadow_catch_message (object_t * ob, const char * str)
  * Send a message to an interactive object. If that object is shadowed,
  * special handling is done.
  */
-void add_message (object_t * who, const char * data, int len)
+void Comm::add_message (object_t * who, const char * data, int len)
 {
 	interactive_t *ip;
 	const char *cp;
@@ -637,7 +633,7 @@ void add_message (object_t * who, const char * data, int len)
 }                               /* add_message() */
 
 /* WARNING: this can only handle results < LARGEST_PRINTABLE_STRING in size */
-void add_vmessage (object_t *who, const char *format, ...)
+void Comm::add_vmessage (object_t *who, const char *format, ...)
 {
 	int len;
 	interactive_t *ip;
@@ -724,7 +720,7 @@ void add_vmessage (object_t *who, const char *format, ...)
 	add_message_calls++;
 }                               /* add_message() */
 
-void add_binary_message (object_t * who, const unsigned char * data, int len)
+void Comm::add_binary_message (object_t * who, const unsigned char * data, int len)
 {
 	interactive_t *ip;
 	const unsigned char *cp, *end;
@@ -763,7 +759,7 @@ void add_binary_message (object_t * who, const unsigned char * data, int len)
 /*
  * Flush outgoing message buffer of current interactive object.
  */
-int flush_message (interactive_t * ip)
+int Comm::flush_message (interactive_t * ip)
 {
 	int length, num_bytes;
 
@@ -864,18 +860,18 @@ static int send_mssp_val(mapping_t *map, mapping_node_t *el, void *obp){
 	if(el->values[0].type == T_STRING && el->values[1].type == T_STRING){
 		char buf[1024];
 		int len = sprintf(buf, (char *)telnet_mssp_value, el->values[0].u.string, el->values[1].u.string);
-		add_binary_message(ob, (unsigned char *)buf, len);
+		globalComm.add_binary_message(ob, (unsigned char *)buf, len);
 	} else if (el->values[0].type == T_STRING && el->values[1].type == T_ARRAY && el->values[1].u.arr->size > 0 && el->values[1].u.arr->item[0].type == T_STRING){
 		char buf[10240];
 		int len = sprintf(buf, (char *)telnet_mssp_value, el->values[0].u.string, el->values[1].u.arr->item[0].u.string);
-		add_binary_message(ob, (unsigned char *)buf, len);
+		globalComm.add_binary_message(ob, (unsigned char *)buf, len);
 		array_t *ar = el->values[1].u.arr;
 		int i;
 		unsigned char val = MSSP_VAL;
 		for(i=1; i < ar->size; i++){
 			if(ar->item[i].type == T_STRING){
-				add_binary_message(ob, &val, 1);
-				add_binary_message(ob, (const unsigned char *)ar->item[i].u.string, strlen(ar->item[i].u.string));
+				globalComm.add_binary_message(ob, &val, 1);
+				globalComm.add_binary_message(ob, (const unsigned char *)ar->item[i].u.string, strlen(ar->item[i].u.string));
 			}
 		}
 
@@ -883,7 +879,7 @@ static int send_mssp_val(mapping_t *map, mapping_node_t *el, void *obp){
 	return 0;
 }
 
-static void copy_chars (interactive_t * ip, char * from, int num_bytes)
+void Comm::copy_chars (interactive_t * ip, char * from, int num_bytes)
 {
 	int i, start, x;
 	unsigned char dont_response[3] = { IAC, DONT, 0 };
@@ -1413,7 +1409,7 @@ static void copy_chars (interactive_t * ip, char * from, int num_bytes)
  * Read pending data for a user into user->interactive->text.
  * This also does telnet negotiation.
  */
-static void get_user_data (interactive_t * ip)
+void Comm::get_user_data (interactive_t * ip)
 {
 	int  num_bytes, text_space;
 	char buf[MAX_TEXT];
@@ -1781,7 +1777,7 @@ static void sigpipe_handler(void)
 
 int max_fd;
 
-INLINE void make_selectmasks()
+INLINE void Comm::make_selectmasks()
 {
 	int i;
 	max_fd = addr_server_fd;
@@ -1852,7 +1848,7 @@ INLINE void make_selectmasks()
 /*
  * Process I/O.
  */
-INLINE void process_io()
+INLINE void Comm::process_io()
 {
 	int i;
 
@@ -1940,7 +1936,7 @@ INLINE void process_io()
  * If space is available, an interactive data structure is initialized and
  * the user is connected.
  */
-static void new_user_handler (int which)
+void Comm::new_user_handler (int which)
 {
 	int new_socket_fd;
 #ifdef IPV6
@@ -2170,7 +2166,7 @@ static void new_user_handler (int which)
 	 * command in their buffer.  A command is defined to be a single character
 	 * when SINGLE_CHAR is set, or a newline terminated string otherwise.
 	 */
-static char *get_user_command()
+char *Comm::get_user_command()
 {
 	static int NextCmdGiver = 0;
 
@@ -2281,7 +2277,7 @@ static char *get_user_command()
 	 * This function calls get_user_command() to get a user command.
 	 * One user command is processed per execution of this function.
 	 */
-	int process_user_command()
+	int Comm::process_user_command()
 	{
 		char *user_command;
 		interactive_t *ip=NULL;//for if(ip) below
@@ -2445,7 +2441,7 @@ static char *get_user_command()
 	/*
 	 * Remove an interactive user immediately.
 	 */
-	void remove_interactive (object_t * ob, int dested)
+	void Comm::remove_interactive (object_t * ob, int dested)
 	{
 		int idx;
 		/* don't have to worry about this dangling, since this is the routine
@@ -2538,7 +2534,7 @@ static char *get_user_command()
 	}                               /* remove_interactive() */
 
 #if defined(F_INPUT_TO) || defined(F_GET_CHAR)
-	static int call_function_interactive (interactive_t * i, char * str)
+	int Comm::call_function_interactive (interactive_t * i, char * str)
 	{
 		object_t *ob;
 		funptr_t *funp;
@@ -2675,7 +2671,7 @@ static char *get_user_command()
 		return (1);
 	}                               /* call_function_interactive() */
 
-	int set_call (object_t * ob, sentence_t * sent, int flags)
+	int Comm::set_call (object_t * ob, sentence_t * sent, int flags)
 	{
 		if (ob == 0 || sent == 0)
 			return (0);
@@ -2691,7 +2687,7 @@ static char *get_user_command()
 	}                               /* set_call() */
 #endif
 
-void set_prompt (const char * str)
+void Comm::set_prompt (const char * str)
 {
 	if (command_giver && command_giver->interactive) {
 		command_giver->interactive->prompt = str;
@@ -2701,7 +2697,7 @@ void set_prompt (const char * str)
 /*
  * Print the prompt, but only if input_to not is disabled.
  */
-static void print_prompt (interactive_t* ip)
+void Comm::print_prompt (interactive_t* ip)
 {
 	object_t *ob = ip->ob;
 
@@ -2746,7 +2742,7 @@ static void print_prompt (interactive_t* ip)
  * 0 or 1 depending on success.
  */
 #ifndef NO_SNOOP
-int new_set_snoop (object_t * by, object_t * victim)
+int Comm::new_set_snoop (object_t * by, object_t * victim)
 {
 	interactive_t *ip;
 	object_t *tmp;
@@ -2808,7 +2804,7 @@ int new_set_snoop (object_t * by, object_t * victim)
 }                               /* set_new_snoop() */
 #endif
 
-static void query_addr_name (object_t * ob)
+void Comm::query_addr_name (object_t * ob)
 {
 	static char buf[100];
 	static char *dbuf = &buf[sizeof(int) + sizeof(int) + sizeof(int)];
@@ -2851,7 +2847,7 @@ static ipnumberentry_t ipnumbertable[IPSIZE];
 /*
  * Does a call back on the current_object with the function call_back.
  */
-int query_addr_number (const char * name, svalue_t * call_back)
+int Comm::query_addr_number (const char * name, svalue_t * call_back)
 {
 	static char buf[100];
 	static char *dbuf = &buf[sizeof(int) + sizeof(int) + sizeof(int)];
@@ -3011,7 +3007,7 @@ void mark_iptable() {
 char ipv6addr[INET6_ADDRSTRLEN];
 #endif
 
-char *query_ip_name (object_t * ob)
+char *Comm::query_ip_name (object_t * ob)
 {
 	int i;
 
@@ -3057,7 +3053,7 @@ static void add_ip_entry (long addr, char * name)
 	ipcur = (ipcur + 1) % IPSIZE;
 }
 
-const char *query_ip_number (object_t * ob)
+const char *Comm::query_ip_number (object_t * ob)
 {
 	if (ob == 0)
 		ob = command_giver;
@@ -3094,7 +3090,7 @@ char *inet_ntoa (struct in_addr ad)
 }
 #endif                          /* INET_NTOA_OK */
 
-char *query_host_name()
+char *Comm::query_host_name()
 {
 	static char name[400];
 
@@ -3104,14 +3100,14 @@ char *query_host_name()
 }                               /* query_host_name() */
 
 #ifndef NO_SNOOP
-object_t *query_snoop (object_t * ob)
+object_t *Comm::query_snoop (object_t * ob)
 {
 	if (!ob->interactive)
 		return 0;
 	return ob->interactive->snooped_by;
 }                               /* query_snoop() */
 
-object_t *query_snooping (object_t * ob)
+object_t *Comm::query_snooping (object_t * ob)
 {
 	int i;
 
@@ -3125,7 +3121,7 @@ object_t *query_snooping (object_t * ob)
 }                               /* query_snooping() */
 #endif
 
-int query_idle (object_t * ob)
+int Comm::query_idle (object_t * ob)
 {
 	if (!ob->interactive)
 		error("query_idle() of non-interactive object.\n");
@@ -3133,7 +3129,7 @@ int query_idle (object_t * ob)
 }                               /* query_idle() */
 
 #ifdef F_EXEC
-int replace_interactive (object_t * ob, object_t * obfrom)
+int Comm::replace_interactive (object_t * ob, object_t * obfrom)
 {
 	if (ob->interactive) {
 		error("Bad argument 1 to exec()\n");
@@ -3404,33 +3400,33 @@ static int send_compressed (interactive_t *ip, unsigned char* data, int length) 
 
 #ifdef F_ACT_MXP
 void f_act_mxp(){
-	add_binary_message(current_object, telnet_will_mxp, sizeof(telnet_will_mxp));
+	globalComm.add_binary_message(current_object, telnet_will_mxp, sizeof(telnet_will_mxp));
 }
 #endif
 
 #ifdef F_SEND_ZMP
 void f_send_zmp(){
-	add_binary_message(current_object, telnet_start_zmp, sizeof(telnet_start_zmp));
-	add_binary_message(current_object, (const unsigned char *)(sp-1)->u.string, strlen((sp-1)->u.string));
+	globalComm.add_binary_message(current_object, telnet_start_zmp, sizeof(telnet_start_zmp));
+	globalComm.add_binary_message(current_object, (const unsigned char *)(sp-1)->u.string, strlen((sp-1)->u.string));
 	int i;
 	unsigned char zero = 0;
 	for(i=0; i<sp->u.arr->size; i++){
 		if(sp->u.arr->item[i].type == T_STRING){
-			add_binary_message(current_object, &zero, 1);
-			add_binary_message(current_object, (const unsigned char *)sp->u.arr->item[i].u.string, strlen(sp->u.arr->item[i].u.string));
+			globalComm.add_binary_message(current_object, &zero, 1);
+			globalComm.add_binary_message(current_object, (const unsigned char *)sp->u.arr->item[i].u.string, strlen(sp->u.arr->item[i].u.string));
 		}
 	}
-	add_binary_message(current_object, &zero, 1);
-	add_binary_message(current_object, telnet_end_sub, sizeof(telnet_end_sub));
+	globalComm.add_binary_message(current_object, &zero, 1);
+	globalComm.add_binary_message(current_object, telnet_end_sub, sizeof(telnet_end_sub));
 	pop_2_elems();
 }
 #endif
 
 #ifdef F_SEND_GMCP
 void f_send_gmcp(){
-	add_binary_message(current_object, telnet_start_gmcp, sizeof(telnet_start_gmcp));
-	add_binary_message(current_object, (const unsigned char *)(sp->u.string), strlen(sp->u.string));
-	add_binary_message(current_object, telnet_end_sub, sizeof(telnet_end_sub));
+	globalComm.add_binary_message(current_object, telnet_start_gmcp, sizeof(telnet_start_gmcp));
+	globalComm.add_binary_message(current_object, (const unsigned char *)(sp->u.string), strlen(sp->u.string));
+	globalComm.add_binary_message(current_object, telnet_end_sub, sizeof(telnet_end_sub));
 
   pop_stack();
 }
@@ -3438,23 +3434,23 @@ void f_send_gmcp(){
 
 #ifdef F_REQUEST_TERM_TYPE
 void f_request_term_type(){
-	add_binary_message(command_giver, telnet_term_query, sizeof(telnet_term_query));
+	globalComm.add_binary_message(command_giver, telnet_term_query, sizeof(telnet_term_query));
 }
 #endif
 
 #ifdef F_START_REQUEST_TERM_TYPE
 void f_start_request_term_type(){
-	add_binary_message(command_giver, telnet_do_ttype, sizeof(telnet_do_ttype));
+	globalComm.add_binary_message(command_giver, telnet_do_ttype, sizeof(telnet_do_ttype));
 }
 #endif
 
 #ifdef F_REQUEST_TERM_SIZE
 void f_request_term_size(){
 	if((st_num_arg == 1) && (sp->u.number == 0))
-		add_binary_message(command_giver, telnet_dont_naws,
+		globalComm.add_binary_message(command_giver, telnet_dont_naws,
 				sizeof(telnet_dont_naws));
 	else
-		add_binary_message(command_giver, telnet_do_naws, sizeof(telnet_do_naws));
+		globalComm.add_binary_message(command_giver, telnet_do_naws, sizeof(telnet_do_naws));
 
 	if(st_num_arg == 1)
 		sp--;
@@ -3466,25 +3462,25 @@ void f_websocket_handshake_done(){
 	if(!current_interactive)
 		return;
 
-	flush_message(current_interactive->interactive);
+	globalComm.flush_message(current_interactive->interactive);
 	current_interactive->interactive->iflags |= HANDSHAKE_COMPLETE;
 	object_t * ob = current_interactive;//command_giver;
 	/* Ask permission to ask them for their terminal type */
-	add_binary_message(ob, telnet_do_ttype, sizeof(telnet_do_ttype));
+	globalComm.add_binary_message(ob, telnet_do_ttype, sizeof(telnet_do_ttype));
 	/* Ask them for their window size */
-	add_binary_message(ob, telnet_do_naws, sizeof(telnet_do_naws));
+	globalComm.add_binary_message(ob, telnet_do_naws, sizeof(telnet_do_naws));
 
 	// Ask them if they support mxp.
-	add_binary_message(ob, telnet_do_mxp, sizeof(telnet_do_mxp));
+	globalComm.add_binary_message(ob, telnet_do_mxp, sizeof(telnet_do_mxp));
 	// And mssp
-	add_binary_message(ob, telnet_will_mssp, sizeof(telnet_will_mssp));
+	globalComm.add_binary_message(ob, telnet_will_mssp, sizeof(telnet_will_mssp));
 	// May as well ask for zmp while we're there!
 
-	add_binary_message(ob, telnet_will_zmp, sizeof(telnet_will_zmp));
+	globalComm.add_binary_message(ob, telnet_will_zmp, sizeof(telnet_will_zmp));
 	// Also newenv
-	add_binary_message(ob, telnet_do_newenv, sizeof(telnet_do_newenv));
+	globalComm.add_binary_message(ob, telnet_do_newenv, sizeof(telnet_do_newenv));
 	// gmcp *yawn*
-	add_binary_message(ob, telnet_will_gmcp, sizeof(telnet_will_gmcp));
+	globalComm.add_binary_message(ob, telnet_will_gmcp, sizeof(telnet_will_gmcp));
 
 }
 #endif

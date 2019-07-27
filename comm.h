@@ -194,6 +194,8 @@ extern int has_console;
 extern void restore_sigttin(void);
 #endif
 
+class Comm {
+public:
 void CDECL add_vmessage (object_t *, const char *, ...);
 void add_message (object_t *, const char *, int);
 void add_binary_message (object_t *, const unsigned char *, int);
@@ -216,6 +218,7 @@ char *query_ip_name (object_t *);
 const char *query_ip_number (object_t *);
 char *query_host_name (void);
 int query_idle (object_t *);
+
 #ifndef NO_SNOOP
 int new_set_snoop (object_t *, object_t *);
 object_t *query_snoop (object_t *);
@@ -225,5 +228,19 @@ object_t *query_snooping (object_t *);
 #ifdef DEBUGMALLOC_EXTENSIONS
 void mark_iptable (void);
 #endif
+private:
+    void new_user_handler(int);
+    void query_addr_name (object_t * ob);
+    void set_linemode (interactive_t * ip);
+    void print_prompt (interactive_t* ip);
+    char *get_user_command();
+    int call_function_interactive (interactive_t * i, char * str);
+    void set_charmode (interactive_t * ip);
+    void receive_snoop (const char * buf, int len, object_t * snooper);
+    void copy_chars (interactive_t * ip, char * from, int num_bytes);
+    void get_user_data(interactive_t*);
 
+};
+
+extern Comm globalComm;
 #endif                          /* COMM_H */

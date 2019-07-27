@@ -107,7 +107,7 @@ void Backend::backend()
 	if (!there_is_a_port)
 		debug_message("No external ports specified.\n");
 
-	init_user_conn();   /* initialize user connection socket */
+	globalComm.init_user_conn();   /* initialize user connection socket */
 #ifdef SIGHUP
 	signal(SIGHUP, startshutdownMudOS);
 #endif
@@ -143,7 +143,7 @@ void Backend::backend()
 		/*
 		 * select
 		 */
-		make_selectmasks();
+		globalComm.make_selectmasks();
 		timeout.tv_sec = 1;
 		timeout.tv_usec = 0;
 #ifndef hpux
@@ -156,12 +156,12 @@ void Backend::backend()
 		 * process I/O if necessary.
 		 */
 		if (nb > 0) {
-			process_io();
+			globalComm.process_io();
 		}
 		/*
 		 * process user commands.
 		 */
-		for (i = 0; process_user_command() && i < max_users; i++)
+		for (i = 0; globalComm.process_user_command() && i < max_users; i++)
 			;
 
 		/*
@@ -211,7 +211,7 @@ static void look_for_objects_to_swap()
 		 * has gone down.
 		 */
 		if (!no_ip_demon && next_server_time)
-			init_addr_server(ADDR_SERVER_IP, ADDR_SERVER_PORT);
+			globalComm.init_addr_server(ADDR_SERVER_IP, ADDR_SERVER_PORT);
 		next_server_time = current_time + 15 * 60;
 	}
 #endif

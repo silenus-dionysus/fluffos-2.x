@@ -962,7 +962,7 @@ void destruct_object (object_t * ob)
     ob->flags |= O_DESTRUCTED;
     /* moved this here from destruct2() -- see comments in destruct2() */
     if (ob->interactive)
-        remove_interactive(ob, 1);
+        globalComm.remove_interactive(ob, 1);
 #ifdef F_SET_HIDE
     if (ob->flags & O_HIDDEN)
         num_hidden--;
@@ -1204,7 +1204,7 @@ int input_to (svalue_t * fun, int flag, int num_arg, svalue_t * args)
     if (!command_giver || command_giver->flags & O_DESTRUCTED)
         return 0;
     s = alloc_sentence();
-    if (set_call(command_giver, s, flag & ~I_SINGLE_CHAR)) {
+    if (globalComm.set_call(command_giver, s, flag & ~I_SINGLE_CHAR)) {
         /*
          * If we have args, we copy them, and adjust the stack automatically
          * (elsewhere) to avoid double free_svalue()'s
@@ -1251,7 +1251,7 @@ int get_char (svalue_t * fun, int flag, int num_arg, svalue_t * args)
     if (!command_giver || command_giver->flags & O_DESTRUCTED)
         return 0;
     s = alloc_sentence();
-    if (set_call(command_giver, s, flag | I_SINGLE_CHAR)) {
+    if (globalComm.set_call(command_giver, s, flag | I_SINGLE_CHAR)) {
         /*
          * If we have args, we copy them, and adjust the stack automatically
          * (elsewhere) to avoid double free_svalue()'s
@@ -1639,17 +1639,17 @@ static void debug_message_with_location (char * err) {
 
 static void add_message_with_location (char * err) {
     if (current_object && current_prog) {
-        add_vmessage(command_giver, "%sprogram: /%s, object: /%s, file: %s\n",
+        globalComm.add_vmessage(command_giver, "%sprogram: /%s, object: /%s, file: %s\n",
                      err,
                      current_prog->filename,
                      current_object->obname,
                      get_line_number(pc, current_prog));
     } else if (current_object) {
-        add_vmessage(command_giver, "%sprogram: (none), object: /%s, file: (none)\n",
+        globalComm.add_vmessage(command_giver, "%sprogram: (none), object: /%s, file: (none)\n",
                      err,
                      current_object->obname);
     } else {
-        add_vmessage(command_giver, "%sprogram: (none), object: (none), file: (none)\n",
+        globalComm.add_vmessage(command_giver, "%sprogram: (none), object: (none), file: (none)\n",
                      err);
     }
 }
@@ -1786,7 +1786,7 @@ void error_handler (char * err)
             ob = find_object2(object_name);
             if (!ob) {
                 if (command_giver)
-                    add_vmessage(command_giver,
+                    globalComm.add_vmessage(command_giver,
                                 "error when executing program in destroyed object /%s\n",
                                 object_name);
                 debug_message("error when executing program in destroyed object /%s\n",
@@ -1800,7 +1800,7 @@ void error_handler (char * err)
                 add_message_with_location(err + 1);
 #ifndef NO_WIZARDS
             } else {
-                add_vmessage(command_giver, "%s\n", DEFAULT_ERROR_MESSAGE);
+                globalComm.add_vmessage(command_giver, "%s\n", DEFAULT_ERROR_MESSAGE);
             }
 #endif
         }
@@ -1809,7 +1809,7 @@ void error_handler (char * err)
             globalBackend.set_heart_beat(current_heart_beat, 0);
             debug_message("Heart beat in /%s turned off.\n", current_heart_beat->obname);
             if (current_heart_beat->interactive)
-                add_message(current_heart_beat, hb_message, sizeof(hb_message)-1);
+                globalComm.add_message(current_heart_beat, hb_message, sizeof(hb_message)-1);
 
             current_heart_beat = 0;
         }
@@ -1880,7 +1880,7 @@ void shutdownMudOS (int exit_code)
 #ifdef PACKAGE_DB
     db_cleanup();
 #endif
-    ipc_remove();
+    globalComm.ipc_remove();
 #if defined(PACKAGE_SOCKETS) || defined(PACKAGE_EXTERNAL)
     for (i = 0; i < max_lpc_socks; i++) {
         if (lpc_socks[i].state == STATE_CLOSED) continue;
@@ -1890,7 +1890,7 @@ void shutdownMudOS (int exit_code)
 #endif
     for (i = 0; i < max_users; i++) {
         if (all_users[i] && !(all_users[i]->iflags & CLOSING))
-            flush_message(all_users[i]);
+            globalComm.flush_message(all_users[i]);
     }
 #ifdef PROFILING
     monitor(0, 0, 0, 0, 0);     /* cause gmon.out to be written */
