@@ -7,6 +7,8 @@
  * Write statistics about objects on file.
  */
 
+DumpStat globalDumpStat;
+
 static int sumSizes (mapping_t *, mapping_node_t *, void *);
 static int svalue_size (svalue_t *);
 

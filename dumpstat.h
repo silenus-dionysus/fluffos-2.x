@@ -6,7 +6,12 @@
 /*
  * dumpstat.c
  */
+
+class DumpStat {
+public:
 int data_size (object_t *);
 void dumpstat (const char *);
+};
 
+extern DumpStat globalDumpStat;
 #endif

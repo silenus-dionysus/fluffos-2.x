@@ -645,10 +645,10 @@ void
 f_dumpallobj (void)
 {
     if (st_num_arg) {
-        dumpstat(sp->u.string);
+        globalDumpStat.dumpstat(sp->u.string);
         free_string_svalue(sp--);
     } else {
-        dumpstat("/OBJ_DUMP");
+        globalDumpStat.dumpstat("/OBJ_DUMP");
     }
 }
 #endif
