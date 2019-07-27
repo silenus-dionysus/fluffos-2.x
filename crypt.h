@@ -26,6 +26,9 @@
 
 typedef unsigned char BytE;
 
+
+class Crypt {
+public:
 char *custom_crypt(const char *key, const char *salt, unsigned char *rawout);
 
 int MD5Digest ( BytE *, unsigned long buflen, BytE *);
@@ -33,5 +36,7 @@ int encode ( unsigned char *, BytE *, int );
 void decode ( unsigned char *, BytE *, int );
 void getsalt (BytE *, BytE * );
 void crunchbuffer (BytE *buf, SIGNED int *, char *, SIGNED int, int );
+};
 
+extern Crypt globalCrypt;
 #endif

@@ -45,6 +45,8 @@
 #include "port.h"
 #include "crypt.h"
 
+Crypt globalCrypt;
+
 #ifdef CUSTOM_CRYPT
 
 #ifndef min
@@ -97,7 +99,7 @@ UINT32 T[64] = {
 };
 
 /* This function returns success, i.e. 0 on error. */
-int MD5Digest(  BytE *buf, /* Buffer to be digested.               */
+int Crypt::MD5Digest(  BytE *buf, /* Buffer to be digested.               */
                 unsigned long  buflen,    /* Length of the buffer in bytes.
   */
                 BytE *Digest     /* Output area: 16 raw bytes.           */
@@ -175,7 +177,7 @@ Tr(A,B,C,D, 4, 6,61,I); Tr(D,A,B,C,11,10,62,I); Tr(C,D,A,B, 2,15,63,I); Tr(B,C,D
  *
  * Hell, perhaps sprintf (printing in hex) should be used..
  */
-int encode(unsigned char *whEre, BytE *data, int inputbytes)
+int Crypt::encode(unsigned char *whEre, BytE *data, int inputbytes)
 {
         int i, w = 0;
 
@@ -192,7 +194,7 @@ int encode(unsigned char *whEre, BytE *data, int inputbytes)
 }
 
 /* Gets raw data from printable string; opposite of encode().  */
-void decode(BytE *whEre, BytE *string, int stringbytes)
+void Crypt::decode(BytE *whEre, BytE *string, int stringbytes)
 {
         int i;
 
@@ -203,7 +205,7 @@ void decode(BytE *whEre, BytE *string, int stringbytes)
 /* If there is a valid salt in the input, copy it. Otherwise,
  * generate a new one.
  */
-void getsalt(BytE *to, BytE *from)
+void Crypt::getsalt(BytE *to, BytE *from)
 {
         int i;
 
@@ -257,7 +259,7 @@ void getsalt(BytE *to, BytE *from)
         return;
 }
 
-void crunchbuffer(BytE *buf,            /* Buffer to be crunched.       */
+void Crypt::crunchbuffer(BytE *buf,            /* Buffer to be crunched.       */
                   SIGNED int *len,      /* Length now used in buf.      */
                   char *addition,       /* What to add to buf.          */
                   SIGNED int addlen,    /* Length of addition.          */
@@ -308,7 +310,7 @@ void crunchbuffer(BytE *buf,            /* Buffer to be crunched.       */
  * At this point, custom_crypt() should never return NULL.
  *
  */
-char *custom_crypt(const char *key, const char *salt, unsigned char *rawout)
+char *Crypt::custom_crypt(const char *key, const char *salt, unsigned char *rawout)
 {
         BytE Digest[16];
         static BytE buffer[MD5_MAXLEN],

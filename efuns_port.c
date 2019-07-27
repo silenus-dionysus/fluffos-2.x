@@ -25,7 +25,7 @@
 #ifdef F_CRYPT
 #define SALT_LEN        8
 #ifdef CUSTOM_CRYPT
-#define CRYPT(x, y) custom_crypt(x, y, 0)
+#define CRYPT(x, y) globalCrypt.custom_crypt(x, y, 0)
 #endif
 
 void
