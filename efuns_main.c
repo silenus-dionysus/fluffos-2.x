@@ -65,7 +65,7 @@ f_allocate_buffer (void)
 {
     buffer_t *buf;
 
-    buf = allocate_buffer(sp->u.number);
+    buf = globalBuffer.allocate_buffer(sp->u.number);
     if (buf) {
         pop_stack();
         push_refed_buffer(buf);
@@ -2260,7 +2260,7 @@ f_read_buffer (void)
         from_file = 1;          /* new line */
         str = globalFile.read_bytes(arg[0].u.string, start, len, &rlen);
     } else {                    /* T_BUFFER */
-        str = read_buffer(arg[0].u.buf, start, len, &rlen);
+        str = globalBuffer.read_buffer(arg[0].u.buf, start, len, &rlen);
     }
     pop_n_elems(num_arg);
     if (str == 0) {
@@ -2268,7 +2268,7 @@ f_read_buffer (void)
     } else if (from_file) {     /* changed */
         buffer_t *buf;
 
-        buf = allocate_buffer(rlen);
+        buf = globalBuffer.allocate_buffer(rlen);
         memcpy(buf->item, str, rlen);
         STACK_INC;
         sp->type = T_BUFFER;
@@ -2322,7 +2322,7 @@ f_receive (void)
         if (current_object->interactive)
             add_message(current_object, (char *)sp->u.buf->item, sp->u.buf->size);
 
-        free_buffer((sp--)->u.buf);
+        globalBuffer.free_buffer((sp--)->u.buf);
     }
 #endif
 }
@@ -3103,7 +3103,7 @@ f_sizeof (void)
 #ifndef NO_BUFFER_TYPE
     case T_BUFFER:
         i = sp->u.buf->size;
-        free_buffer(sp->u.buf);
+        globalBuffer.free_buffer(sp->u.buf);
         break;
 #endif
     case T_STRING:
@@ -3316,7 +3316,7 @@ void
 f_bufferp (void)
 {
     if (sp->type == T_BUFFER) {
-        free_buffer(sp->u.buf);
+        globalBuffer.free_buffer(sp->u.buf);
         *sp = const1;
     } else {
         free_svalue(sp, "f_bufferp");
@@ -3592,14 +3592,14 @@ f__to_int (void)
 #ifndef NO_BUFFER_TYPE
         case T_BUFFER:
             if (sp->u.buf->size < sizeof(int)) {
-                free_buffer(sp->u.buf);
+                globalBuffer.free_buffer(sp->u.buf);
                 *sp = const0;
             } else {
                 int hostint, netint;
 
                 memcpy((char *) &netint, sp->u.buf->item, sizeof(int));
                 hostint = ntohl(netint);
-                free_buffer(sp->u.buf);
+                globalBuffer.free_buffer(sp->u.buf);
                 put_number(hostint);
             }
 #endif
@@ -3767,21 +3767,21 @@ f_write_buffer (void)
             netint = htonl(sp->u.number);       /* convert to network
                                                  * byte-order */
             netbuf = (char *) &netint;
-            i = write_buffer((sp - 2)->u.buf, (sp - 1)->u.number, netbuf,
+            i = globalBuffer.write_buffer((sp - 2)->u.buf, (sp - 1)->u.number, netbuf,
                             sizeof(int));
             break;
         }
 
         case T_BUFFER:
         {
-            i = write_buffer((sp - 2)->u.buf, (sp - 1)->u.number,
+            i = globalBuffer.write_buffer((sp - 2)->u.buf, (sp - 1)->u.number,
                             (char *) sp->u.buf->item, sp->u.buf->size);
             break;
         }
 
         case T_STRING:
         {
-            i = write_buffer((sp - 2)->u.buf, (sp - 1)->u.number,
+            i = globalBuffer.write_buffer((sp - 2)->u.buf, (sp - 1)->u.number,
                             sp->u.string, SVALUE_STRLEN(sp));
             break;
         }

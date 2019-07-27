@@ -14,15 +14,17 @@ buffer_t null_buf =
     0                           /* size */
 };
 
+Buffer globalBuffer;
+
 INLINE buffer_t *
-       null_buffer()
+       Buffer::null_buffer()
 {
     null_buf.ref++;
     return &null_buf;
 }                               /* null_buffer() */
 
 INLINE void
-free_buffer (buffer_t * b)
+Buffer::free_buffer (buffer_t * b)
 {
     b->ref--;
     /* don't try to free the null_buffer (ref count might overflow) */
@@ -33,7 +35,7 @@ free_buffer (buffer_t * b)
 }                               /* free_buffer() */
 
 buffer_t *
-allocate_buffer (int size)
+Buffer::allocate_buffer (int size)
 {
     buffer_t *buf;
 
@@ -55,7 +57,7 @@ allocate_buffer (int size)
 #endif
 }
 
-int write_buffer (buffer_t * buf, int start, const char * str, int theLength)
+int Buffer::write_buffer (buffer_t * buf, int start, const char * str, int theLength)
 {
     int size;
 
@@ -78,7 +80,7 @@ int write_buffer (buffer_t * buf, int start, const char * str, int theLength)
 }                               /* write_buffer() */
 
 char *
-read_buffer (buffer_t * b, int start, int len, int * rlen)
+Buffer::read_buffer (buffer_t * b, int start, int len, int * rlen)
 {
     char *str;
     unsigned int size;

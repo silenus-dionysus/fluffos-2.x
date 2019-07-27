@@ -287,7 +287,7 @@ static void deep_copy_svalue (svalue_t * from, svalue_t * to) {
 #ifndef NO_BUFFER_TYPE
 	case T_BUFFER:
 		*to = *from;
-		to->u.buf = allocate_buffer(from->u.buf->size);
+		to->u.buf = globalBuffer.allocate_buffer(from->u.buf->size);
 		memcpy(to->u.buf->item, from->u.buf->item, from->u.buf->size);
 		break;
 #endif

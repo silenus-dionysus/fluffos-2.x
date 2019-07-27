@@ -874,7 +874,7 @@ void socket_read_select_handler (int fd)
             if (lpc_socks[fd].flags & S_BINARY) {
                 buffer_t *b;
 
-                b = allocate_buffer(cc);
+                b = globalBuffer.allocate_buffer(cc);
                 if (b) {
                     memcpy(b->item, buf, cc);
                     push_refed_buffer(b);
@@ -1000,7 +1000,7 @@ void socket_read_select_handler (int fd)
             if (lpc_socks[fd].flags & S_BINARY) {
                 buffer_t *b;
 
-                b = allocate_buffer(cc);
+                b = globalBuffer.allocate_buffer(cc);
                 if (b) {
                     b->ref--;
                     memcpy(b->item, buf, cc);

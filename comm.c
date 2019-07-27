@@ -1654,7 +1654,7 @@ static void get_user_data (interactive_t * ip)
 	{
 		buffer_t *buffer;
 
-		buffer = allocate_buffer(num_bytes);
+		buffer = globalBuffer.allocate_buffer(num_bytes);
 		memcpy(buffer->item, buf, num_bytes);
 
 		push_refed_buffer(buffer);

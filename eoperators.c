@@ -183,8 +183,8 @@ f_eq()
     case T_BUFFER:
         {
             i = (sp-1)->u.buf == sp->u.buf;
-            free_buffer((sp--)->u.buf);
-            free_buffer(sp->u.buf);
+            globalBuffer.free_buffer((sp--)->u.buf);
+            globalBuffer.free_buffer(sp->u.buf);
             break;
         }
 #endif
@@ -545,8 +545,8 @@ f_ne()
     case T_BUFFER:
         {
             i = (sp-1)->u.buf != sp->u.buf;
-            free_buffer((sp--)->u.buf);
-            free_buffer(sp->u.buf);
+            globalBuffer.free_buffer((sp--)->u.buf);
+            globalBuffer.free_buffer(sp->u.buf);
             break;
         }
 #endif
@@ -725,15 +725,15 @@ f_range (int code)
             if (from < 0) from = 0;
 #endif
             if (to < from || from >= len) {
-                free_buffer(rbuf);
-                put_buffer(null_buffer());
+                globalBuffer.free_buffer(rbuf);
+                put_buffer(globalBuffer.null_buffer());
                 return;
             }
             if (to >= len) to = len - 1;
             {
-                buffer_t *nbuf = allocate_buffer(to - from + 1);
+                buffer_t *nbuf = globalBuffer.allocate_buffer(to - from + 1);
                 memcpy(nbuf->item, rbuf->item + from, to - from + 1);
-                free_buffer(rbuf);
+                globalBuffer.free_buffer(rbuf);
                 put_buffer(nbuf);
             }
             break;
@@ -807,9 +807,9 @@ f_extract_range (int code)
             if (from < 0) from = 0;
 #endif
             if (from > len) from = len;
-            nbuf = allocate_buffer(len - from);
+            nbuf = globalBuffer.allocate_buffer(len - from);
             memcpy(nbuf->item, rbuf->item + from, len - from);
-            free_buffer(rbuf);
+            globalBuffer.free_buffer(rbuf);
             put_buffer(nbuf);
             break;
         }

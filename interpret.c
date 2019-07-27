@@ -1011,7 +1011,7 @@ INLINE void copy_lvalue_range (svalue_t * from)
         unsigned char *old_item = (owner->u.buf)->item;
         unsigned char *new_item;
 
-        b = allocate_buffer(size - ind2 + ind1 + fsize);
+        b = globalBuffer.allocate_buffer(size - ind2 + ind1 + fsize);
         new_item = b->item;
         if (ind1 >= 1) {
           memcpy(b->item, old_item, ind1);
@@ -1022,10 +1022,10 @@ INLINE void copy_lvalue_range (svalue_t * from)
 
         if ((size -= ind2) >= 1)
           memcpy(new_item, old_item + ind2, size);
-        free_buffer(owner->u.buf);
+        globalBuffer.free_buffer(owner->u.buf);
         owner->u.buf = b;
       }
-      free_buffer(from->u.buf);
+      globalBuffer.free_buffer(from->u.buf);
       break;
     }
 #endif
@@ -1123,7 +1123,7 @@ INLINE void assign_lvalue_range (svalue_t * from)
         unsigned char *old_item = (owner->u.buf)->item;
         unsigned char *new_item;
 
-        b = allocate_buffer(size - ind2 + ind1 + fsize);
+        b = globalBuffer.allocate_buffer(size - ind2 + ind1 + fsize);
         new_item = b->item;
         if (ind1 >= 1) {
           memcpy(b->item, old_item, ind1);
@@ -1134,7 +1134,7 @@ INLINE void assign_lvalue_range (svalue_t * from)
 
         if ((size -= ind2) >= 1)
           memcpy(new_item, old_item + ind2, size);
-        free_buffer(owner->u.buf);
+        globalBuffer.free_buffer(owner->u.buf);
         owner->u.buf = b;
       }
       break;
@@ -2351,12 +2351,12 @@ eval_instruction (char * p)
             } else {
               buffer_t *b;
 
-              b = allocate_buffer(sp->u.buf->size + (sp - 1)->u.buf->size);
+              b = globalBuffer.allocate_buffer(sp->u.buf->size + (sp - 1)->u.buf->size);
               memcpy(b->item, (sp - 1)->u.buf->item, (sp - 1)->u.buf->size);
               memcpy(b->item + (sp - 1)->u.buf->size, sp->u.buf->item,
                      sp->u.buf->size);
-              free_buffer((sp--)->u.buf);
-              free_buffer(sp->u.buf);
+              globalBuffer.free_buffer((sp--)->u.buf);
+              globalBuffer.free_buffer(sp->u.buf);
               sp->u.buf = b;
             }
             break;
@@ -2557,12 +2557,12 @@ eval_instruction (char * p)
         } else {
           buffer_t *b;
 
-          b = allocate_buffer(lval->u.buf->size + sp->u.buf->size);
+          b = globalBuffer.allocate_buffer(lval->u.buf->size + sp->u.buf->size);
           memcpy(b->item, lval->u.buf->item, lval->u.buf->size);
           memcpy(b->item + lval->u.buf->size, sp->u.buf->item,
                  sp->u.buf->size);
-          free_buffer(sp->u.buf);
-          free_buffer(lval->u.buf);
+          globalBuffer.free_buffer(sp->u.buf);
+          globalBuffer.free_buffer(lval->u.buf);
           lval->u.buf = b;
         }
         break;
@@ -3201,7 +3201,7 @@ eval_instruction (char * p)
           if ((i > sp->u.buf->size) || (i < 0))
             error("Buffer index out of bounds.\n");
           i = sp->u.buf->item[i];
-          free_buffer(sp->u.buf);
+          globalBuffer.free_buffer(sp->u.buf);
           (--sp)->u.number = i;
           sp->subtype = 0;
           break;
@@ -3257,7 +3257,7 @@ eval_instruction (char * p)
             error("Buffer index out of bounds.\n");
 
           i = sp->u.buf->item[i];
-          free_buffer(sp->u.buf);
+          globalBuffer.free_buffer(sp->u.buf);
           (--sp)->u.number = i;
           sp->subtype = 0;
           break;
