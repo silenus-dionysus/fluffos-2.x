@@ -1918,7 +1918,7 @@ void dealloc_object (object_t * ob, const char * from)
         tot_alloc_object_size -=
             (ob->prog->num_variables_total - 1) * sizeof(svalue_t) +
             sizeof(object_t);
-        free_prog(&ob->prog);
+        globalProgram.free_prog(&ob->prog);
         ob->prog = 0;
     }
     if (ob->replaced_program) {

@@ -117,7 +117,7 @@ void get_simul_efuns (program_t * prog)
             (FUNC_NO_CODE|DECL_PROTECTED|DECL_PRIVATE|DECL_HIDDEN))
             continue;
 
-        find_or_add_simul_efun(find_func_entry(prog,i), i);
+        find_or_add_simul_efun(globalProgram.find_func_entry(prog,i), i);
     }
     
     if (num_simul_efun) {

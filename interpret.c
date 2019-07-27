@@ -4237,11 +4237,11 @@ int apply_low (const char * fun, object_t * ob, int num_arg)
     /* we have to search the function */
 
     if (entry->oprogp) {
-      free_prog(&entry->oprogp);
+      globalProgram.free_prog(&entry->oprogp);
       entry->oprogp = 0;
     }
     if (entry->progp) {
-      free_prog(&entry->progp);
+      globalProgram.free_prog(&entry->progp);
       entry->progp = 0;
     } else {
       if (entry->funp){
@@ -4313,8 +4313,8 @@ int apply_low (const char * fun, object_t * ob, int num_arg)
          * longer tells you if a program is inherited by any other
          * program, but most uses can cope (see appropriate comments).
          */
-        reference_prog(entry->oprogp, "apply_low() cache [oprogp]");
-        reference_prog(entry->progp, "apply_low() cache [progp]");
+        globalProgram.reference_prog(entry->oprogp, "apply_low() cache [oprogp]");
+        globalProgram.reference_prog(entry->progp, "apply_low() cache [progp]");
         previous_ob = current_object;
         current_object = ob;
         IF_DEBUG(save_csp = csp);
@@ -4336,7 +4336,7 @@ int apply_low (const char * fun, object_t * ob, int num_arg)
 
     /* We have to mark a function not to be in the object */
     entry->oprogp = progp;
-    reference_prog(entry->oprogp, "apply_low() cache [oprogp miss]");
+    globalProgram.reference_prog(entry->oprogp, "apply_low() cache [oprogp miss]");
     if (sfun) {
       ref_string(sfun);
       entry->funp = (function_t *)sfun;

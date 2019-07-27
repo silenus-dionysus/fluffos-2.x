@@ -72,11 +72,11 @@ void replace_programs (void)
         }
         r_ob->ob->replaced_program = string_copy(r_ob->new_prog->filename, "replace_programs");
 
-        reference_prog(r_ob->new_prog, "replace_programs");
+        globalProgram.reference_prog(r_ob->new_prog, "replace_programs");
         old_prog = r_ob->ob->prog;
         r_ob->ob->prog = r_ob->new_prog;
         r_next = r_ob->next;
-        free_prog(&old_prog);
+        globalProgram.free_prog(&old_prog);
 
         debug(d_flag, ("program freed."));
 #ifndef NO_SHADOWS

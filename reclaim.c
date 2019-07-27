@@ -54,7 +54,7 @@ check_svalue (svalue_t * v)
                     debug(d_flag, ("subtr func ref /%s: now %i\n",
                                 prog->filename, prog->func_ref));
                     if (!prog->ref && !prog->func_ref)
-                        deallocate_program(prog);
+                        globalProgram.deallocate_program(prog);
                 }
                 free_object(&v->u.fp->hdr.owner, "reclaim_objects");
                 v->u.fp->hdr.owner = 0;

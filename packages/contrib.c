@@ -1576,7 +1576,7 @@ void f_replaceable (void) {
 	for (i = 0; i < num; i++) {
 		if (prog->function_flags[i] & (FUNC_INHERITED | FUNC_NO_CODE)) continue;
 		for (j = 0; j < numignore; j++)
-			if (ignore[j] == find_func_entry(prog, i)->funcname)
+			if (ignore[j] == globalProgram.find_func_entry(prog, i)->funcname)
 				break;
 		if (j == numignore)
 			break;

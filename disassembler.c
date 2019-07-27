@@ -111,7 +111,7 @@ dump_prog (program_t * prog, const char * fn, int flags)
         char sflags[8];
         int flags;
         int runtime_index;
-        function_t *func_entry = find_func_entry(prog, i);
+        function_t *func_entry = globalProgram.find_func_entry(prog, i);
         register int low, high, mid;
         
 
@@ -439,7 +439,7 @@ disassemble (FILE * f, char * code, int start, int end, program_t * prog)
         case F_GLOBAL_LVALUE:
         case F_GLOBAL:
             if ((unsigned) (iarg = EXTRACT_UCHAR(pc)) < NUM_VARS)
-                sprintf(buff, "%s", variable_name(prog, iarg));
+                sprintf(buff, "%s", globalProgram.variable_name(prog, iarg));
             else
                 sprintf(buff, "<out of range %ld>", iarg);
             pc++;

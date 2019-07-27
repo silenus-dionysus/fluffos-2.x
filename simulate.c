@@ -446,7 +446,7 @@ object_t *int_load_object (const char * lname, int callcreate)
             error("No program in object '/%s'!\n", name);
 
 	if (prog) {
-            free_prog(&prog);
+            globalProgram.free_prog(&prog);
         }
         error("Error in loading object '/%s'\n", name);
     }
@@ -466,7 +466,7 @@ object_t *int_load_object (const char * lname, int callcreate)
         inherit_file = 0;
 
         if (prog) {
-            free_prog(&prog);
+            globalProgram.free_prog(&prog);
             prog = 0;
         }
         if (strcmp(inhbuf, name) == 0) {
@@ -597,7 +597,7 @@ object_t *clone_object (const char * str1, int num_arg)
     new_ob->flags |= (O_CLONE | (ob->flags & (O_WILL_CLEAN_UP | O_WILL_RESET)));
     new_ob->load_time = ob->load_time;
     new_ob->prog = ob->prog;
-    reference_prog(ob->prog, "clone_object");
+    globalProgram.reference_prog(ob->prog, "clone_object");
     DEBUG_CHECK(!current_object, "clone_object() from no current_object !\n");
 
     new_ob->next_all = obj_list;

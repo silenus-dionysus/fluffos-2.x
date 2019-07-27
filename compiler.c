@@ -2473,9 +2473,9 @@ static program_t *epilog (void) {
         inherits more than one object and one of the inherited is already
         loaded and not the last inherited
     */
-    reference_prog (prog, "epilog");
+    globalProgram.reference_prog (prog, "epilog");
     for (i = 0; (unsigned)i < prog->num_inherited; i++) {
-        reference_prog (prog->inherit[i].prog, "inheritance");
+        globalProgram.reference_prog (prog->inherit[i].prog, "inheritance");
     }
     release_tree();
     uninitialize_parser();

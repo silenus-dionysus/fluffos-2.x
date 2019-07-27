@@ -79,7 +79,7 @@ static void get_master_applies (object_t * ob) {
         int ind, ri;
         
         if (find_function_by_name(ob, name, &ind, &ri)) {
-            master_applies[i].func = find_func_entry(ob->prog, ri);
+            master_applies[i].func = globalProgram.find_func_entry(ob->prog, ri);
             master_applies[i].index = ri;
         } else {
             master_applies[i].func = 0;
