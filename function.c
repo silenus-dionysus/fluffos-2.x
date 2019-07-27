@@ -5,8 +5,10 @@
 #include "compiler.h"
 #include "replace_program.h"
 
+Function globalFunction;
+
 INLINE void
-dealloc_funp (funptr_t * fp)
+Function::dealloc_funp (funptr_t * fp)
 {
     program_t *prog = 0;
 
@@ -38,7 +40,7 @@ dealloc_funp (funptr_t * fp)
 }
 
 INLINE void
-free_funp (funptr_t * fp)
+Function::free_funp (funptr_t * fp)
 {
     fp->hdr.ref--;
     if (fp->hdr.ref > 0) {
@@ -48,7 +50,7 @@ free_funp (funptr_t * fp)
 }
 
 INLINE void
-push_refed_funp (funptr_t * fp)
+Function::push_refed_funp (funptr_t * fp)
 {
     STACK_INC;
     sp->type = T_FUNCTION;
@@ -56,7 +58,7 @@ push_refed_funp (funptr_t * fp)
 }
 
 INLINE void
-push_funp (funptr_t * fp)
+Function::push_funp (funptr_t * fp)
 {
     STACK_INC;
     sp->type = T_FUNCTION;
@@ -71,7 +73,7 @@ push_funp (funptr_t * fp)
  * if we simply pushed the args from vec at this point.  (Note that the
  * old function pointers are broken in this regard)
  */
-int merge_arg_lists (int num_arg, array_t * arr, int start) {
+int Function::merge_arg_lists (int num_arg, array_t * arr, int start) {
     int num_arr_arg = arr->size - start;
     svalue_t *sptr;
     
@@ -96,7 +98,7 @@ int merge_arg_lists (int num_arg, array_t * arr, int start) {
 }
 
 INLINE funptr_t *
-make_efun_funp (int opcode, svalue_t * args)
+Function::make_efun_funp (int opcode, svalue_t * args)
 {
     funptr_t *fp;
     
@@ -119,7 +121,7 @@ make_efun_funp (int opcode, svalue_t * args)
 }
 
 INLINE funptr_t *
-make_lfun_funp (int index, svalue_t * args)
+Function::make_lfun_funp (int index, svalue_t * args)
 {
     funptr_t *fp;
     int newindex;
@@ -154,7 +156,7 @@ make_lfun_funp (int index, svalue_t * args)
 }
 
 INLINE funptr_t *
-make_simul_funp (int index, svalue_t * args)
+Function::make_simul_funp (int index, svalue_t * args)
 {
     funptr_t *fp;
     
@@ -177,7 +179,7 @@ make_simul_funp (int index, svalue_t * args)
 }
 
 INLINE funptr_t *
-make_functional_funp (short num_arg, short num_local, short len, svalue_t * args, int flag)
+Function::make_functional_funp (short num_arg, short num_local, short len, svalue_t * args, int flag)
 {
     funptr_t *fp;
 
@@ -218,7 +220,7 @@ typedef void (*func_t) (void);
 extern func_t efun_table[];
 
 svalue_t *
-call_function_pointer (funptr_t * funp, int num_arg)
+Function::call_function_pointer (funptr_t * funp, int num_arg)
 {
     static func_t *oefun_table = efun_table - BASE;
     array_t *v;
@@ -325,7 +327,7 @@ call_function_pointer (funptr_t * funp, int num_arg)
 }
 
 svalue_t *
-safe_call_function_pointer (funptr_t * funp, int num_arg)
+Function::safe_call_function_pointer (funptr_t * funp, int num_arg)
 {
     error_context_t econ;
     svalue_t *ret;

@@ -2651,7 +2651,7 @@ char *Comm::get_user_command()
 				error("Illegal function name.\n");
 			(void) apply(function, ob, num_arg + 1, ORIGIN_INTERNAL);
 		} else
-			call_function_pointer(funp, num_arg + 1);
+			globalFunction.call_function_pointer(funp, num_arg + 1);
 
 		pop_stack();                /* remove `function' from stack */
 
@@ -2862,7 +2862,7 @@ int Comm::query_addr_number (const char * name, svalue_t * call_back)
 		if (call_back->type == T_STRING)
 			apply(call_back->u.string, current_object, 2, ORIGIN_INTERNAL);
 		else
-			call_function_pointer(call_back->u.fp, 2);
+			globalFunction.call_function_pointer(call_back->u.fp, 2);
 		return 0;
 	}
 	strcpy(dbuf, name);
@@ -2899,7 +2899,7 @@ int Comm::query_addr_number (const char * name, svalue_t * call_back)
 		if (call_back->type == T_STRING)
 			apply(call_back->u.string, current_object, 2, ORIGIN_INTERNAL);
 		else
-			call_function_pointer(call_back->u.fp, 2);
+			globalFunction.call_function_pointer(call_back->u.fp, 2);
 		return 0;
 	} else {
 		int i;
@@ -2915,7 +2915,7 @@ int Comm::query_addr_number (const char * name, svalue_t * call_back)
 			if (call_back->type == T_STRING)
 				apply(call_back->u.string, current_object, 2, ORIGIN_INTERNAL);
 			else
-				call_function_pointer(call_back->u.fp, 2);
+				globalFunction.call_function_pointer(call_back->u.fp, 2);
 			return 0;
 		}
 		/* Create our entry... */
@@ -2970,7 +2970,7 @@ static void got_addr_number (char * number, char * name)
 						ipnumbertable[i].ob_to_call,
 						3, ORIGIN_INTERNAL);
 			else
-				safe_call_function_pointer(ipnumbertable[i].call_back.u.fp, 3);
+				globalFunction.safe_call_function_pointer(ipnumbertable[i].call_back.u.fp, 3);
 			free_svalue(&ipnumbertable[i].call_back, "got_addr_number");
 			free_string(ipnumbertable[i].name);
 			free_object(&ipnumbertable[i].ob_to_call, "got_addr_number: ");

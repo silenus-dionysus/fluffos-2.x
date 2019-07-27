@@ -286,7 +286,7 @@ allocate_mapping2 (array_t * arr, svalue_t * sv)
         svp = find_for_insert(newmap, arr->item + i, 1);
         if (sv->type == T_FUNCTION) {
             push_svalue(arr->item + i);
-            ret = call_function_pointer(sv->u.fp, 1);
+            ret = globalFunction.call_function_pointer(sv->u.fp, 1);
             *svp = *ret;
             ret->type = T_NUMBER;
         } else {

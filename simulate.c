@@ -1523,7 +1523,7 @@ void free_sentence (sentence_t * p)
 {
     if (p->flags & V_FUNCTION) {
       if (p->function.f)
-          free_funp(p->function.f);
+          globalFunction.free_funp(p->function.f);
       else p->function.f = 0;
     } else {
       if (p->function.s)

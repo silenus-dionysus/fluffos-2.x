@@ -151,7 +151,7 @@ f_bind (void)
                    new_fp->f.functional.prog->func_ref));
     }
 
-    free_funp(old_fp);
+    globalFunction.free_funp(old_fp);
     sp--;
     sp->u.fp = new_fp;
 }
@@ -212,7 +212,7 @@ f__call_other (void)
         if (((i = v->size) < 1) || !((sv = v->item)->type == T_STRING))
             error("call_other: 1st elem of array for arg 2 must be a string\n");
         funcname = sv->u.string;
-        num_arg = 2 + merge_arg_lists(num_arg - 2, v, 1);
+        num_arg = 2 + globalFunction.merge_arg_lists(num_arg - 2, v, 1);
     }
 
     if (arg[0].type == T_OBJECT)
@@ -1352,7 +1352,7 @@ f_functionp (void)
             i |= FP_HAS_ARGUMENTS;
         if (!sp->u.fp->hdr.owner || (sp->u.fp->hdr.owner->flags & O_DESTRUCTED))
             i |= FP_OWNER_DESTED;
-        free_funp(sp->u.fp);
+        globalFunction.free_funp(sp->u.fp);
         put_number(i);
         return;
     }
@@ -3871,7 +3871,7 @@ f_memory_info (void)
        There's no reliable way to determine when the program size should be
        included or not to be more accurate -- Marius, 30-Jul-2000 */
     mem = ob->prog->total_size;
-    mem += (data_size(ob) + sizeof(object_t));
+    mem += (globalDumpStat.data_size(ob) + sizeof(object_t));
     free_object(&ob, "f_memory_info");
     put_number(mem);
 }

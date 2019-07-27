@@ -129,7 +129,7 @@ f_query_notify_fail (void) {
 
 	if (command_giver && command_giver->interactive) {
 		if (command_giver->interactive->iflags & NOTIFY_FAIL_FUNC) {
-			push_funp(command_giver->interactive->default_err_message.f);
+			globalFunction.push_funp(command_giver->interactive->default_err_message.f);
 			return;
 		} else if ((p = command_giver->interactive->default_err_message.s)) {
 			STACK_INC;
@@ -1850,7 +1850,7 @@ void f_debug_message (void) {
 void f_function_owner (void) {
 	object_t *owner = sp->u.fp->hdr.owner;
 
-	free_funp(sp->u.fp);
+	globalFunction.free_funp(sp->u.fp);
 	put_unrefed_object(owner, "f_function_owner");
 }
 #endif

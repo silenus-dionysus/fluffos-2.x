@@ -53,6 +53,8 @@ union string_or_func {
     char *s;
 };
 
+class Function {
+public:
 void dealloc_funp (funptr_t *);
 void push_refed_funp (funptr_t *);
 INLINE void push_funp (funptr_t *);
@@ -63,5 +65,13 @@ INLINE funptr_t *make_lfun_funp (int, struct svalue_s *);
 INLINE funptr_t *make_simul_funp (int, struct svalue_s *);
 INLINE funptr_t *make_functional_funp (short, short, short, 
 					    struct svalue_s *, int);
+svalue_t * call_function_pointer (funptr_t * funp, int num_arg);
+svalue_t * safe_call_function_pointer (funptr_t * funp, int num_arg);
+private:
+    
+    
+};
+
+extern Function globalFunction;
 
 #endif

@@ -56,7 +56,7 @@ static void free_called_call (pending_call_t * cop)
 		free_string(cop->function.s);
 		free_object(&cop->ob, "free_call");
 	} else {
-		free_funp(cop->function.f);
+		globalFunction.free_funp(cop->function.f);
 	}
 	cop->function.s = 0;
 #ifdef THIS_PLAYER_IN_CALL_OUT
@@ -270,7 +270,7 @@ void CallOut::call_out()
 						(void) apply(cop->function.s, cop->ob, extra,
 								ORIGIN_INTERNAL);
 					} else {
-						(void) call_function_pointer(cop->function.f, extra);
+						(void) globalFunction.call_function_pointer(cop->function.f, extra);
 					}
 
 					restore_command_giver();

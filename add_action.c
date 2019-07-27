@@ -26,9 +26,9 @@ static void notify_no_command (void)
     p = command_giver->interactive->default_err_message;
     if (command_giver->interactive->iflags & NOTIFY_FAIL_FUNC) {
 	save_command_giver(command_giver);
-	v = call_function_pointer(p.f, 0);
+	v = globalFunction.call_function_pointer(p.f, 0);
 	restore_command_giver();
-	free_funp(p.f);
+	globalFunction.free_funp(p.f);
 	if (command_giver && command_giver->interactive) {
 	    if (v && v->type == T_STRING) {
 		tell_object(command_giver, v->u.string, SVALUE_STRLEN(v));
@@ -54,7 +54,7 @@ void clear_notify (object_t * ob)
 
     dem = ip->default_err_message;
     if (ip->iflags & NOTIFY_FAIL_FUNC) {
-	free_funp(dem.f);
+	globalFunction.free_funp(dem.f);
 	ip->iflags &= ~NOTIFY_FAIL_FUNC;
     }
     else if (dem.s)
@@ -362,7 +362,7 @@ static int user_parser (char * buff)
 	    push_undefined();
 	}
 	if (s->flags & V_FUNCTION) {
-	    ret = call_function_pointer(s->function.f, 1);
+	    ret = globalFunction.call_function_pointer(s->function.f, 1);
 	} else {
 	    if (s->function.s[0] == APPLY___INIT_SPECIAL_CHAR)
 		error("Illegal function name.\n");

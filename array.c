@@ -126,7 +126,7 @@ array_t *Array::allocate_array2 (int n, svalue_t * svp) {
             svalue_t *r;
 
             push_number(i);
-            r = call_function_pointer(svp->u.fp, 1);
+            r = globalFunction.call_function_pointer(svp->u.fp, 1);
             ret->item[i] = *r;
             r->type = T_NUMBER;
         }
@@ -463,7 +463,7 @@ void Array::implode_array (funptr_t * fptr, array_t * arr,
 
     while (1) {
         push_svalue(&arr->item[i++]);
-        v = call_function_pointer(fptr, 2);
+        v = globalFunction.call_function_pointer(fptr, 2);
         if (!v) {
             *dest = const0;
             return;
@@ -832,7 +832,7 @@ void f_unique_array (void) {
     for (i = 0; i < size; i++) {
         if (fptr) {
             push_svalue(v->item + i);
-            sv = call_function_pointer(fptr, 1);
+            sv = globalFunction.call_function_pointer(fptr, 1);
         } else if (v->item[i].type == T_OBJECT) {
             sv = apply(func, v->item[i].u.ob, 0, ORIGIN_EFUN);
         } else sv = 0;
@@ -1097,7 +1097,7 @@ Array::map_string (svalue_t * arg, int num_arg)
         push_number((unsigned char)*p);
         if (numex)
 	    push_some_svalues(extra, numex);
-        v = fptr ? call_function_pointer(fptr, numex + 1) : apply(func, ob, 1 + numex, ORIGIN_EFUN);
+        v = fptr ? globalFunction.call_function_pointer(fptr, numex + 1) : apply(func, ob, 1 + numex, ORIGIN_EFUN);
         /* no function or illegal return value is unaltered.
          * Anyone got a better idea?  A few idea:
          * (1) insert strings? - algorithm needs changing
@@ -1362,7 +1362,7 @@ static void deep_inventory_collect (object_t * ob, array_t * inv, int * i, int m
         next=cur->next_inv;
         if(fp) {
             push_object(cur);
-            fp_result=call_function_pointer(fp,1);
+            fp_result=globalFunction.call_function_pointer(fp,1);
             if(!fp_result || (current_object->flags & O_DESTRUCTED)) {
                 *i=0;
                 return;
@@ -1431,7 +1431,7 @@ array_t *Array::deep_inventory (object_t * ob, int take_top, funptr_t *fp)
     if (take_top) {
         if(fp) {
             push_object(ob);
-            fp_result=call_function_pointer(fp,1);
+            fp_result=globalFunction.call_function_pointer(fp,1);
             if(!fp_result || (current_object->flags & O_DESTRUCTED)){
             	pop_stack(); //dinv
                 return &the_null_array;
@@ -1502,7 +1502,7 @@ array_t *Array::deep_inventory_array (array_t *arr, int take_top, funptr_t *fp)
             if(take_top){
                   if(fp) {
                       push_object(arr->item[c].u.ob);
-                      fp_result=call_function_pointer(fp,1);
+                      fp_result=globalFunction.call_function_pointer(fp,1);
                       if(!fp_result || (current_object->flags & O_DESTRUCTED)){
                     	  pop_stack(); //free dinv
                           return &the_null_array;
@@ -2145,7 +2145,7 @@ void f_objects (void)
 
             push_object(list[i]);
             if (f){
-            	v = call_function_pointer(f, 1);
+            	v = globalFunction.call_function_pointer(f, 1);
             } else
             	v = apply(func, current_object, 1, ORIGIN_EFUN);
             if (!v || (current_object->flags & O_DESTRUCTED)) {

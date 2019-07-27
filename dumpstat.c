@@ -100,7 +100,7 @@ static int svalue_size (svalue_t * v)
     return 0;
 }
 
-int data_size (object_t * ob)
+int DumpStat::data_size (object_t * ob)
 {
     int total = 0, i;
 
@@ -113,7 +113,7 @@ int data_size (object_t * ob)
     return total;
 }
 
-void dumpstat (const char * tfn)
+void DumpStat::dumpstat (const char * tfn)
 {
     FILE *f;
     object_t *ob;

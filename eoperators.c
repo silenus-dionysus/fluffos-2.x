@@ -175,8 +175,8 @@ f_eq()
     case T_FUNCTION:
         {
             i = (sp-1)->u.fp == sp->u.fp;
-            free_funp((sp--)->u.fp);
-            free_funp(sp->u.fp);
+            globalFunction.free_funp((sp--)->u.fp);
+            globalFunction.free_funp(sp->u.fp);
             break;
         }
 #ifndef NO_BUFFER_TYPE
@@ -536,8 +536,8 @@ f_ne()
     case T_FUNCTION:
         {
             i = (sp-1)->u.fp != sp->u.fp;
-            free_funp((sp--)->u.fp);
-            free_funp(sp->u.fp);
+            globalFunction.free_funp((sp--)->u.fp);
+            globalFunction.free_funp(sp->u.fp);
             break;
         }
 
@@ -1194,17 +1194,17 @@ f_function_constructor()
     switch (kind) {
     case FP_EFUN:
         LOAD_SHORT(index, pc);
-        fp = make_efun_funp(index, sp);
+        fp = globalFunction.make_efun_funp(index, sp);
         pop_stack();
         break;
     case FP_LOCAL:
         LOAD_SHORT(index, pc);
-        fp = make_lfun_funp(index, sp); 
+        fp = globalFunction.make_lfun_funp(index, sp); 
         pop_stack();
         break;
     case FP_SIMUL:
         LOAD_SHORT(index, pc);
-        fp = make_simul_funp(index, sp); 
+        fp = globalFunction.make_simul_funp(index, sp); 
         pop_stack();
         break;
     case FP_FUNCTIONAL:
@@ -1214,7 +1214,7 @@ f_function_constructor()
 
             num_arg = EXTRACT_UCHAR(pc++);  /* number of arguments */
             LOAD_SHORT(index, pc);       /* length of functional */
-            fp = make_functional_funp(num_arg, 0, index, sp, kind & FP_NOT_BINDABLE);
+            fp = globalFunction.make_functional_funp(num_arg, 0, index, sp, kind & FP_NOT_BINDABLE);
             pop_stack();
             break;
         }
@@ -1226,13 +1226,13 @@ f_function_constructor()
             num_arg = EXTRACT_UCHAR(pc++);
             locals = EXTRACT_UCHAR(pc++);
             LOAD_SHORT(index, pc); /* length */
-            fp = make_functional_funp(num_arg, locals, index, 0, kind & FP_NOT_BINDABLE);
+            fp = globalFunction.make_functional_funp(num_arg, locals, index, 0, kind & FP_NOT_BINDABLE);
             break;
         }
     default:
         fatal("Tried to make unknown type of function pointer.\n");
     }
-    push_refed_funp(fp);
+    globalFunction.push_refed_funp(fp);
 }
 
 INLINE void
@@ -1250,7 +1250,7 @@ f__evaluate (void)
         push_undefined();
         return;
     }
-    v = call_function_pointer(arg->u.fp, st_num_arg - 1);
+    v = globalFunction.call_function_pointer(arg->u.fp, st_num_arg - 1);
     assign_svalue(sp, v);
 }
 

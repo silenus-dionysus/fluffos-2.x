@@ -117,7 +117,7 @@ void set_read_callback (int which, svalue_t * cb)
     char *s;
 
     if (lpc_socks[which].flags & S_READ_FP) {
-        free_funp(lpc_socks[which].read_callback.f);
+        globalFunction.free_funp(lpc_socks[which].read_callback.f);
         lpc_socks[which].flags &= ~S_READ_FP;
     } else if ((s = lpc_socks[which].read_callback.s))
         free_string(s);
@@ -139,7 +139,7 @@ void set_write_callback (int which, svalue_t * cb)
     char *s;
 
     if (lpc_socks[which].flags & S_WRITE_FP) {
-        free_funp(lpc_socks[which].write_callback.f);
+        globalFunction.free_funp(lpc_socks[which].write_callback.f);
         lpc_socks[which].flags &= ~S_WRITE_FP;
     } else if ((s = lpc_socks[which].write_callback.s))
         free_string(s);
@@ -161,7 +161,7 @@ void set_close_callback (int which, svalue_t * cb)
     char *s;
 
     if (lpc_socks[which].flags & S_CLOSE_FP) {
-        free_funp(lpc_socks[which].close_callback.f);
+        globalFunction.free_funp(lpc_socks[which].close_callback.f);
         lpc_socks[which].flags &= ~S_CLOSE_FP;
     } else if ((s = lpc_socks[which].close_callback.s))
         free_string(s);
@@ -185,7 +185,7 @@ static void copy_close_callback (int to, int from)
     char *s;
 
     if (lpc_socks[to].flags & S_CLOSE_FP) {
-        free_funp(lpc_socks[to].close_callback.f);
+        globalFunction.free_funp(lpc_socks[to].close_callback.f);
     } else if ((s = lpc_socks[to].close_callback.s))
         free_string(s);
 
@@ -802,7 +802,7 @@ static void call_callback (int fd, int what, int num_arg)
     }
 
     if (lpc_socks[fd].flags & what) {
-        safe_call_function_pointer(callback.f, num_arg);
+        globalFunction.safe_call_function_pointer(callback.f, num_arg);
     } else if (callback.s) {
         if (callback.s[0] == APPLY___INIT_SPECIAL_CHAR)
             error("Illegal function name.\n");
@@ -1183,7 +1183,7 @@ int socket_release (int fd, object_t * ob, svalue_t * callback)
     push_object(ob);
 
     if (callback->type == T_FUNCTION)
-        safe_call_function_pointer(callback->u.fp, 2);
+        globalFunction.safe_call_function_pointer(callback->u.fp, 2);
     else
         safe_apply(callback->u.string, ob, 2, ORIGIN_INTERNAL);
 

@@ -499,7 +499,7 @@ INLINE void int_free_svalue (svalue_t * v, const char * tag)
         dealloc_mapping(v->u.map);
         break;
       case T_FUNCTION:
-        dealloc_funp(v->u.fp);
+        globalFunction.dealloc_funp(v->u.fp);
         break;
       case T_REF:
         if (!v->u.ref->lvalue){
@@ -564,7 +564,7 @@ svalue_t *call_efun_callback (function_to_call_t * ftc, int n) {
       error("Object destructed during efun callback.\n");
     v = apply(ftc->f.str, ftc->ob, n + ftc->narg, ORIGIN_EFUN);
   } else
-    v = call_function_pointer(ftc->f.fp, n + ftc->narg);
+    v = globalFunction.call_function_pointer(ftc->f.fp, n + ftc->narg);
   return v;
 }
 
@@ -578,7 +578,7 @@ svalue_t *safe_call_efun_callback (function_to_call_t * ftc, int n) {
       error("Object destructed during efun callback.\n");
     v = apply(ftc->f.str, ftc->ob, n + ftc->narg, ORIGIN_EFUN);
   } else
-    v = safe_call_function_pointer(ftc->f.fp, n + ftc->narg);
+    v = globalFunction.safe_call_function_pointer(ftc->f.fp, n + ftc->narg);
   return v;
 }
 
