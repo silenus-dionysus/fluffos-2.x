@@ -167,7 +167,7 @@ void Backend::backend()
 		/*
 		 * call outs
 		 */
-		call_out();
+		globalCallOut.call_out();
 #ifdef PACKAGE_ASYNC
 		check_reqs();
 #endif

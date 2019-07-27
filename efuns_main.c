@@ -263,7 +263,7 @@ f_call_out (void)
     LPC_INT ret;
 
     if (!(current_object->flags & O_DESTRUCTED)) {
-        ret = new_call_out(current_object, arg, arg[1].u.number, num, arg + 2);
+        ret = globalCallOut.new_call_out(current_object, arg, arg[1].u.number, num, arg + 2);
         /* args have been transfered; don't free them;
            also don't need to free the int */
         sp -= num + 1;
@@ -277,7 +277,7 @@ f_call_out (void)
     put_number(ret);
 #else
     if (!(current_object->flags & O_DESTRUCTED)) {
-        new_call_out(current_object, arg, arg[1].u.number, num, arg + 2);
+        globalCallOut.new_call_out(current_object, arg, arg[1].u.number, num, arg + 2);
         sp -= num + 1;
     } else {
         pop_n_elems(num);
@@ -292,7 +292,7 @@ f_call_out (void)
 void
 f_call_out_info (void)
 {
-    push_refed_array(get_all_call_outs());
+    push_refed_array(globalCallOut.get_all_call_outs());
 }
 #endif
 
@@ -954,10 +954,10 @@ f_find_call_out (void)
     int i;
 #ifdef CALLOUT_HANDLES
     if (sp->type == T_NUMBER) {
-        i = find_call_out_by_handle(sp->u.number);
+        i = globalCallOut.find_call_out_by_handle(sp->u.number);
     } else { /* T_STRING */
 #endif
-        i = find_call_out(current_object, sp->u.string);
+        i = globalCallOut.find_call_out(current_object, sp->u.string);
         free_string_svalue(sp);
 #ifdef CALLOUT_HANDLES
     }
@@ -1845,7 +1845,7 @@ void f_mud_status (void)
         outbuf_add(&ob, "\n");
         tot += add_string_status(&ob, verbose);
         outbuf_add(&ob, "\n");
-        tot += print_call_out_usage(&ob, verbose);
+        tot += globalCallOut.print_call_out_usage(&ob, verbose);
     } else {
         /* !verbose */
         outbuf_addv(&ob, "Sentences:\t\t\t%8d %8d\n", tot_alloc_sentence,
@@ -1881,7 +1881,7 @@ void f_mud_status (void)
         tot = globalOTable.show_otable_status(&ob, verbose) +
             globalBackend.heart_beat_status(&ob, verbose) +
             add_string_status(&ob, verbose) +
-            print_call_out_usage(&ob, verbose);
+            globalCallOut.print_call_out_usage(&ob, verbose);
     }
 
     tot += total_prog_block_size +
@@ -2388,15 +2388,15 @@ f_remove_call_out (void)
 #ifdef CALLOUT_HANDLES
         if (sp->type == T_STRING) {
 #endif
-            i = remove_call_out(current_object, sp->u.string);
+            i = globalCallOut.remove_call_out(current_object, sp->u.string);
             free_string_svalue(sp);
 #ifdef CALLOUT_HANDLES
         } else {
-            i = remove_call_out_by_handle(sp->u.number);
+            i = globalCallOut.remove_call_out_by_handle(sp->u.number);
         }
 #endif
     } else {
-        remove_all_call_out(current_object);
+        globalCallOut.remove_all_call_out(current_object);
         i = 0;
         STACK_INC;
     }
@@ -3858,7 +3858,7 @@ f_memory_info (void)
             globalOTable.show_otable_status(0, -1) +
             globalBackend.heart_beat_status(0, -1) +
             add_string_status(0, -1) +
-            print_call_out_usage(0, -1) + res;
+            globalCallOut.print_call_out_usage(0, -1) + res;
         push_number(tot);
         return;
     }

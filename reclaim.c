@@ -113,7 +113,7 @@ int reclaim_objects()
     int i;
     object_t *ob;
 
-    reclaim_call_outs();
+    globalCallOut.reclaim_call_outs();
 
     cleaned = nested = 0;
     for (ob = obj_list; ob; ob = ob->next_all)

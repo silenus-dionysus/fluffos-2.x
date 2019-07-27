@@ -6,6 +6,8 @@
 /*
  * call_out.c
  */
+class CallOut {
+public:
 void call_out (void);
 void reclaim_call_outs (void);
 #ifdef CALLOUT_HANDLES
@@ -21,6 +23,7 @@ int find_call_out (object_t *, const char *);
 array_t *get_all_call_outs (void);
 int print_call_out_usage (outbuffer_t *, int);
 void mark_call_outs (void);
-void reclaim_call_outs (void);
+};
 
+extern CallOut globalCallOut;
 #endif

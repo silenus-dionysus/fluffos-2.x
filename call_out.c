@@ -19,6 +19,8 @@
 
 #define CHUNK_SIZE  20
 
+CallOut globalCallOut;
+
 typedef struct pending_call_s {
 	int delta;
 	union string_or_func function;
@@ -82,7 +84,7 @@ LPC_INT
 #else
 void
 #endif
-new_call_out (object_t * ob, svalue_t * fun, int delay,
+CallOut::new_call_out (object_t * ob, svalue_t * fun, int delay,
 		int num_args, svalue_t * arg)
 {
 	pending_call_t *cop, **copp;
@@ -167,7 +169,7 @@ new_call_out (object_t * ob, svalue_t * fun, int delay,
  * if it is a living object. Check for shadowing objects, which may also
  * be living objects.
  */
-void call_out()
+void CallOut::call_out()
 {
 	long extra, real_time;
 	static pending_call_t *cop = 0;
@@ -318,7 +320,7 @@ static int time_left (int slot, int delay) {
  * The time left until execution is returned.
  * -1 is returned if no call out pending.
  */
-int remove_call_out (object_t * ob, const char * fun)
+int CallOut::remove_call_out (object_t * ob, const char * fun)
 {
 	pending_call_t **copp, *cop;
 	int delay;
@@ -349,7 +351,7 @@ int remove_call_out (object_t * ob, const char * fun)
 }
 
 #ifdef CALLOUT_HANDLES
-int remove_call_out_by_handle (LPC_INT handle)
+int CallOut::remove_call_out_by_handle (LPC_INT handle)
 {
 	pending_call_t **copp, *cop;
 	int delay = 0;
@@ -371,7 +373,7 @@ int remove_call_out_by_handle (LPC_INT handle)
 	return -1;
 }
 
-int find_call_out_by_handle (LPC_INT handle)
+int CallOut::find_call_out_by_handle (LPC_INT handle)
 {
 	pending_call_t *cop;
 	int delay = 0;
@@ -388,7 +390,7 @@ int find_call_out_by_handle (LPC_INT handle)
 }
 #endif
 
-int find_call_out (object_t * ob, const char * fun)
+int CallOut::find_call_out (object_t * ob, const char * fun)
 {
 	pending_call_t *cop;
 	int delay;
@@ -410,7 +412,7 @@ int find_call_out (object_t * ob, const char * fun)
 	return -1;
 }
 
-int print_call_out_usage (outbuffer_t * ob, int verbose)
+int CallOut::print_call_out_usage (outbuffer_t * ob, int verbose)
 {
 	int i, j;
 	pending_call_t *cop;
@@ -435,7 +437,7 @@ int print_call_out_usage (outbuffer_t * ob, int verbose)
 
 #ifdef DEBUGMALLOC_EXTENSIONS
 #ifdef DEBUG
-void mark_call_outs()
+void CallOut::mark_call_outs()
 {
 	pending_call_t *cop;
 	int i;
@@ -466,7 +468,7 @@ void mark_call_outs()
  * 1: The function (string).
  * 2: The delay.
  */
-array_t *get_all_call_outs()
+array_t *CallOut::get_all_call_outs()
 {
 	int i, j, delay;
 	pending_call_t *cop;
@@ -530,7 +532,7 @@ array_t *get_all_call_outs()
 }
 
 void
-remove_all_call_out (object_t * obj)
+CallOut::remove_all_call_out (object_t * obj)
 {
 	pending_call_t **copp, *cop;
 	int i;
@@ -556,7 +558,7 @@ remove_all_call_out (object_t * obj)
 	}
 }
 
-void reclaim_call_outs() {
+void CallOut::reclaim_call_outs() {
 	pending_call_t *cop;
 	int i;
 
