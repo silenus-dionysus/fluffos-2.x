@@ -2160,7 +2160,7 @@ static void new_user_handler (int which)
 		add_binary_message(ob, telnet_will_gmcp, sizeof(telnet_will_gmcp));
 	}
 
-	logon(ob);
+	globalBackend.logon(ob);
 	debug(connections, ("new_user_handler: end\n"));
 	set_command_giver(0);
 }                               /* new_user_handler() */
@@ -2296,7 +2296,7 @@ static char *get_user_command()
 		if(command_giver) ip = command_giver->interactive;
 		current_interactive = command_giver;    /* this is yuck phooey, sigh */
 		if(ip) clear_notify(ip->ob);
-		update_load_av();
+		globalBackend.update_load_av();
 		debug(connections, ("process_user_command: command_giver = /%s\n", command_giver->obname));
 
 		if(!ip)

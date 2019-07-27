@@ -17,6 +17,8 @@ extern object_t *current_heart_beat;
 extern error_context_t *current_error_context;
 extern int time_for_hb;
 
+class Backend {
+public:
 void backend (void);
 void clear_state (void);
 void logon (object_t *);
@@ -32,5 +34,7 @@ char *query_load_av (void);
 array_t *get_heart_beats (void);
 int query_time_used (void);
 void call_heart_beat (void);
+};
 
+extern Backend globalBackend;
 #endif

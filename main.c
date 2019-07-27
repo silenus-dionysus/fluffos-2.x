@@ -400,7 +400,7 @@ int main (int argc, char ** argv)
 #ifdef PACKAGE_MUDLIB_STATS
 	restore_stat_files();
 #endif
-	preload_objects(e_flag);
+	globalBackend.preload_objects(e_flag);
 #ifdef SIGFPE
 	signal(SIGFPE, sig_fpe);
 #endif
@@ -444,7 +444,7 @@ int main (int argc, char ** argv)
 	signal(SIGTTOU, SIG_IGN);
 #endif
 
-	backend();
+	globalBackend.backend();
 	return 0;
 }
 

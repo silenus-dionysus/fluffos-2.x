@@ -2097,7 +2097,7 @@ void reload_object (object_t * obj)
     obj->shadowed = 0;
 #endif
     remove_living_name(obj);
-    set_heart_beat(obj, 0);
+    globalBackend.set_heart_beat(obj, 0);
     remove_all_call_out(obj);
 #ifndef NO_LIGHT
     add_light(obj, -(obj->total_light));

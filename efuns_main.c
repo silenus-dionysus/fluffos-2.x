@@ -1841,7 +1841,7 @@ void f_mud_status (void)
 #endif
         tot = globalOTable.show_otable_status(&ob, verbose);
         outbuf_add(&ob, "\n");
-        tot += heart_beat_status(&ob, verbose);
+        tot += globalBackend.heart_beat_status(&ob, verbose);
         outbuf_add(&ob, "\n");
         tot += add_string_status(&ob, verbose);
         outbuf_add(&ob, "\n");
@@ -1879,7 +1879,7 @@ void f_mud_status (void)
                     num_user * sizeof(interactive_t));
 
         tot = globalOTable.show_otable_status(&ob, verbose) +
-            heart_beat_status(&ob, verbose) +
+            globalBackend.heart_beat_status(&ob, verbose) +
             add_string_status(&ob, verbose) +
             print_call_out_usage(&ob, verbose);
     }
@@ -2156,7 +2156,7 @@ f_query_ip_number (void)
 void
 f_query_load_average (void)
 {
-    copy_and_push_string(query_load_av());
+    copy_and_push_string(globalBackend.query_load_av());
 }
 #endif
 
@@ -2943,7 +2943,7 @@ f_set_bit (void)
 void
 f_set_heart_beat (void)
 {
-    set_heart_beat(current_object, (sp--)->u.number);
+    globalBackend.set_heart_beat(current_object, (sp--)->u.number);
 }
 #endif
 
@@ -2951,7 +2951,7 @@ f_set_heart_beat (void)
 void
 f_query_heart_beat (void)
 {
-    int num = query_heart_beat(sp->u.ob);
+    int num = globalBackend.query_heart_beat(sp->u.ob);
     free_object(&sp->u.ob, "f_query_heart_beat");
     put_number(num);
 }
@@ -3856,7 +3856,7 @@ f_memory_info (void)
             tot_alloc_sentence * sizeof(sentence_t) +
             num_user * sizeof(interactive_t) +
             globalOTable.show_otable_status(0, -1) +
-            heart_beat_status(0, -1) +
+            globalBackend.heart_beat_status(0, -1) +
             add_string_status(0, -1) +
             print_call_out_usage(0, -1) + res;
         push_number(tot);

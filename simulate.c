@@ -435,7 +435,7 @@ object_t *int_load_object (const char * lname, int callcreate)
 	restore_command_giver();
         if (comp_flag)
             debug_message(" done\n");
-        update_compile_av(total_lines);
+        globalBackend.update_compile_av(total_lines);
         total_lines = 0;
         close(f);
 
@@ -591,7 +591,7 @@ object_t *clone_object (const char * str1, int num_arg)
 
     /* We do not want the heart beat to be running for unused copied objects */
     if (ob->flags & O_HEART_BEAT)
-        (void) set_heart_beat(ob, 0);
+        (void) globalBackend.set_heart_beat(ob, 0);
     new_ob = get_empty_object(ob->prog->num_variables_total);
     SETOBNAME(new_ob, make_new_name(ob->obname));
     new_ob->flags |= (O_CLONE | (ob->flags & (O_WILL_CLEAN_UP | O_WILL_RESET)));
@@ -958,7 +958,7 @@ void destruct_object (object_t * ob)
       obj_list_destruct->prev_all = ob;
     ob->prev_all = 0;
     obj_list_destruct = ob;
-    set_heart_beat(ob, 0);
+    globalBackend.set_heart_beat(ob, 0);
     ob->flags |= O_DESTRUCTED;
     /* moved this here from destruct2() -- see comments in destruct2() */
     if (ob->interactive)
@@ -1806,7 +1806,7 @@ void error_handler (char * err)
         }
         if (current_heart_beat) {
             static char hb_message[] = "FluffOS driver tells you: You have no heart beat!\n";
-            set_heart_beat(current_heart_beat, 0);
+            globalBackend.set_heart_beat(current_heart_beat, 0);
             debug_message("Heart beat in /%s turned off.\n", current_heart_beat->obname);
             if (current_heart_beat->interactive)
                 add_message(current_heart_beat, hb_message, sizeof(hb_message)-1);

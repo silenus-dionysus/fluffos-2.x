@@ -19,6 +19,8 @@
 void CDECL alarm_loop (void *);
 #endif
 
+Backend globalBackend;
+
 error_context_t *current_error_context = 0;
 
 /*
@@ -43,7 +45,7 @@ static void report_holes (void);
  * This routine must only be called from top level, not from inside
  * stack machine execution (as stack will be cleared).
  */
-void clear_state()
+void Backend::clear_state()
 {
 	current_object = 0;
 	set_command_giver(0);
@@ -71,7 +73,7 @@ static void report_holes() {
 }
 #endif
 
-void logon (object_t * ob)
+void Backend::logon (object_t * ob)
 {
 	if(ob->flags & O_DESTRUCTED){
 		return;
@@ -85,7 +87,7 @@ void logon (object_t * ob)
  * This is the backend. We will stay here for ever (almost).
  */
 extern int max_fd;
-void backend()
+void Backend::backend()
 {
 	struct timeval timeout;
 	int i, nb;
@@ -336,7 +338,7 @@ int time_for_hb = 0;
 static int num_hb_calls = 0;  /* starts */
 static float perc_hb_probes = 100.0;  /* decaying avge of how many complete */
 
-void call_heart_beat()
+void Backend::call_heart_beat()
 {
 	object_t *ob;
 	heart_beat_t *curr_hb;
@@ -409,7 +411,7 @@ void call_heart_beat()
 }       /* call_heart_beat() */
 
 int
-query_heart_beat (object_t * ob)
+Backend::query_heart_beat (object_t * ob)
 {
 	int index;
 
@@ -427,7 +429,7 @@ query_heart_beat (object_t * ob)
  * various pointers in call_heart_beat could be stuffed, so we must
  * check current_heart_beat and adjust pointers.  */
 
-int set_heart_beat (object_t * ob, int to)
+int Backend::set_heart_beat (object_t * ob, int to)
 {
 	int index;
 
@@ -493,7 +495,7 @@ int set_heart_beat (object_t * ob, int to)
 	return 1;
 }
 
-int heart_beat_status (outbuffer_t * ob, int verbose)
+int Backend::heart_beat_status (outbuffer_t * ob, int verbose)
 {
 	char buf[20];
 
@@ -518,7 +520,7 @@ int heart_beat_status (outbuffer_t * ob, int verbose)
  *
  * The master object is asked to do the actual loading.
  */
-void preload_objects (int eflag)
+void Backend::preload_objects (int eflag)
 {
 	VOLATILE array_t *prefiles;
 	svalue_t *ret;
@@ -566,7 +568,7 @@ void preload_objects (int eflag)
 /* All destructed objects are moved into a sperate linked list,
  * and deallocated after program execution.  */
 
-INLINE void remove_destructed_objects()
+INLINE void Backend::remove_destructed_objects()
 {
 	object_t *ob, *next;
 
@@ -581,7 +583,7 @@ INLINE void remove_destructed_objects()
 
 static double load_av = 0.0;
 
-void update_load_av()
+void Backend::update_load_av()
 {
 	static int last_time;
 	int n;
@@ -604,7 +606,7 @@ void update_load_av()
 static double compile_av = 0.0;
 
 void
-update_compile_av (int lines)
+Backend::update_compile_av (int lines)
 {
 	static int last_time;
 	int n;
@@ -624,7 +626,7 @@ update_compile_av (int lines)
 	acc = 0;
 }       /* update_compile_av() */
 
-char *query_load_av()
+char *Backend::query_load_av()
 {
 	static char buff[100];
 
@@ -633,7 +635,7 @@ char *query_load_av()
 }       /* query_load_av() */
 
 #ifdef F_HEART_BEATS
-array_t *get_heart_beats() {
+array_t *Backend::get_heart_beats() {
 	int nob = 0, n = num_hb_objs;
 	heart_beat_t *hb = heart_beats;
 	object_t **obtab;

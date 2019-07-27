@@ -455,7 +455,7 @@ void f_variables (void) {
 /* also Beek */
 #ifdef F_HEART_BEATS
 void f_heart_beats (void) {
-	push_refed_array(get_heart_beats());
+	push_refed_array(globalBackend.get_heart_beats());
 }
 #endif
 

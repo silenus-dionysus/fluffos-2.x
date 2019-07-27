@@ -286,7 +286,7 @@ void call_out()
 			DBG(("   current_time = %ld", current_time));
 #ifndef POSIX_TIMERS
 			if(!(current_time%HEARTBEAT_INTERVAL))
-				call_heart_beat();
+				globalBackend.call_heart_beat();
 #endif
 		} else {
 			/* We're done! */
