@@ -1,0 +1,22 @@
+dist: xenial
+
+language: cpp
+
+addons:
+  apt:
+    packages:
+    - build-essential
+    - clang-6.0
+    - bison
+    - libevent-dev
+    - libmysqlclient-dev
+    - libpcre3-dev
+    - libpq-dev
+    - libsqlite3-dev
+    - libz-dev
+    - libgtest-dev
+
+script: ./build.FluffOS && make
+
+compiler:
+  - gcc
