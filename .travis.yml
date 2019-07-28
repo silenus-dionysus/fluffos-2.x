@@ -2,6 +2,15 @@ dist: xenial
 
 language: cpp
 
+env:
+  global:
+   # The next declaration is the encrypted COVERITY_SCAN_TOKEN, created
+   #   via the "travis encrypt" command using the project repo's public key
+   - secure: "Af8imICJcAlThDd0PZdQNK4vh0hT6G0+p80BHF/UxIpKMyrSOYboAaIbnGqOCIYfJX5m0mi+9KGNk2tuRXNF9/PC/yqYAc7pdGiEXfHOND3dr/5MFDD28xjoxhr67B65wLmvEnhZmNTEQdcUZJzkthoW8TJObq3gvMHpwCwticqRzNC32396vwJuQi7Es7O9vFGesPqWitkA+cVfDMKABHN64qe4Wp8Xj8bgHJgmNoFHQnohxNx5D+gHjmzJLuP/3FSNqeO9QNYI+GR3lOhe035/N2238kPrgN76hw5B4UYwrENrZumGGtNCPSixRl0Od1b2e5UXI+qVW13JXSsGFWU5S4yWlsGu45p52M6HoA7LMitwqsKvgakjRMpMVxlXqunBH7MtmS+8xrKTBj2LKtUpe+8xGCQ1/TePo7AGNnn7NAT5GiECAmZAMgkcnUf08RNXrDcOtoLKvVDx0G7WDquWEudpbB/dmBR1WrfXL+e5V7MQkFqbD2TYD0kqGXjgckDfzyVh3ehdLGH0iGmJ77tpMKQrXbsqXHK0xSWma9G6QJXbpZ9vEfVIY5K1KJue7b0XC6LSyZESqA8dafG/eh6X3qS6uM3S+UJ7fVmbfhAtdFnVraK4Sr+py9lTsP4NRJF8vGOkxiwHqnW3IR/LlUP8PStKT9Sxox/T32mZynw="
+
+before_install:
+  - echo -n | openssl s_client -connect https://scan.coverity.com:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' | sudo tee -a /etc/ssl/certs/ca-
+
 addons:
   apt:
     packages:
@@ -15,6 +24,14 @@ addons:
     - libsqlite3-dev
     - libz-dev
     - libgtest-dev
+  coverity_scan:
+    project:
+      name: "silenus-dionysus/fluffos-2.x"
+      description: "FluffOS-2 mud driver repository."
+    notification_email: silenus.dionysus@gmail.com
+    build_command_prepend: "./build.FluffOS"
+    build_command: "make"
+    branch_pattern: coverity_scan
 
 script: ./build.FluffOS && make
 
