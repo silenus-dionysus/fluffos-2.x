@@ -19,4 +19,4 @@ addons:
 script: ./build.FluffOS && make
 
 compiler:
-  - gcc
+  - clang
