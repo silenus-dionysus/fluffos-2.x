@@ -9,7 +9,7 @@ INSTALL_DIR=../bin
 OPTIMIZE=-O3
 CPP=gcc -std=c99 -D_GNU_SOURCE -m64 -flto -E
 CFLAGS=-D__USE_FIXED_PROTOTYPES__
-CXX=g++ -fpermissive
+CXX=clang++ -Wno-everything
 YACC=bison -d -y
 RANLIB=ranlib
 A=a

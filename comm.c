@@ -1340,7 +1340,7 @@ void Comm::copy_chars (interactive_t * ip, char * from, int num_bytes)
 
 											case TELOPT_TTYPE:
 												if (!ip->sb_buf[1]) {
-													copy_and_push_string(ip->sb_buf + 2);
+													copy_and_push_string( reinterpret_cast<char*>(ip->sb_buf + 2) );
 													apply(APPLY_TERMINAL_TYPE, ip->ob, 1, ORIGIN_DRIVER);
 												}
 												break;

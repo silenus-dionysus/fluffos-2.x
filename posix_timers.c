@@ -7,27 +7,36 @@
 #include "backend.h"
 
 static timer_t eval_timer_id,  hb_timer_id;
-/*
- * SIGALRM handler.
- */
-#ifdef SIGNAL_FUNC_TAKES_INT
+
+
+#ifdef POSIX_TIMERS
 void sigalrm_handler (int sig, siginfo_t *si, void *uc)
-#else
-void sigalrm_handler()
-#endif
 {
-#ifndef POSIX_TIMERS
-	outoftime = 1;
-#else
-	if(!si->si_value.sival_ptr)
+    if(!si->si_value.sival_ptr)
 		outoftime = 1;
 	else{
 		if(si->si_value.sival_ptr == call_heart_beat){
 			time_for_hb++;
 		}
 	}
+}
+#else
+/*
+ * SIGALRM handler.
+ */
+#ifdef SIGNAL_FUNC_TAKES_INT
+void sigalrm_handler (int sig)
+#else
+void sigalrm_handler()
 #endif
-}                               /* sigalrm_handler() */
+{
+	outoftime = 1;
+}      
+#endif
+
+
+
+/* sigalrm_handler() */
 #ifdef POSIX_TIMERS
 /* Called by main() to initialize all timers (currently only eval_cost) */
 void init_posix_timers(void)
