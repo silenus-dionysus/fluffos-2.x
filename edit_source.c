@@ -1189,27 +1189,9 @@ static void handle_malloc() {
 
     const char *the_malloc = 0, *the_wrapper = 0;
 
-    if (lookup_define("SYSMALLOC"))
+//    if (lookup_define("SYSMALLOC"))
         the_malloc = "sysmalloc.c";
-    if (lookup_define("SMALLOC"))
-        the_malloc = "smalloc.c";
-    if (lookup_define("BSDMALLOC"))
-        the_malloc = "bsdmalloc.c";
-    if (lookup_define("MMALLOC"))
-        the_malloc = "mmalloc.c";
-    if(lookup_define("MALLOC64"))
-        the_malloc = "64bitmalloc.c";
-    if(lookup_define("MALLOC32"))
-        the_malloc = "32bitmalloc.c";
-    if(lookup_define("GCMALLOC"))
-        the_malloc = "gcmalloc.c";
-    if (lookup_define("GNUMALLOC"))
-        the_malloc = "gnumalloc.c";
-
-    if (lookup_define("WRAPPEDMALLOC"))
-        the_wrapper = "wrappedmalloc.c";
-    if (lookup_define("DEBUGMALLOC"))
-        the_wrapper = "debugmalloc.c";
+    
 
     if (!the_malloc && !the_wrapper) {
         fprintf(stderr, "Memory package and/or malloc wrapper incorrectly specified in options.h\n");

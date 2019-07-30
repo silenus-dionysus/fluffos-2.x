@@ -51,13 +51,6 @@
 
    Please refer to options.h for selecting malloc package and wrapper.
 */
-#if (defined(SYSMALLOC) + defined(SMALLOC) + defined(BSDMALLOC) + defined(MMALLOC) + defined(GCMALLOC)) > 1
-!Only one malloc package should be defined
-#endif
-
-#if (defined(WRAPPEDMALLOC) + defined(DEBUGMALLOC)) > 1
-!Only one wrapper (at most) should be defined
-#endif
 
 #if defined(DO_MSTATS) && defined(SYSMALLOC)
 !'DO_MSTATS' not available with 'SYSMALLOC'
@@ -102,6 +95,10 @@
 !You need to specify a malloc package in local_options/options.h
 #endif
 
+#define DMALLOC(x,t,d) MALLOC(x)
+#define DXALLOC(x, t , d) MALLOC(x)
+#define DREALLOC(x,y,tag,desc) REALLOC(x,y)
+#define DCALLOC(x,y,t,d) CALLOC(x,y)
 #define ALLOCATE(type, tag, desc) ((type *)DXALLOC(sizeof(type), tag, desc))
 #define CALLOCATE(num, type, tag, desc) ((type *)DXALLOC(sizeof(type[1]) * (num), tag, desc))
 #define RESIZE(ptr, num, type, tag, desc) ((type *)DREALLOC((void *)ptr, sizeof(type) * (num), tag, desc))
