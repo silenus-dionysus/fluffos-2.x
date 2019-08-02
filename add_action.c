@@ -25,24 +25,24 @@ static void notify_no_command (void)
 	return;
     p = command_giver->interactive->default_err_message;
     if (command_giver->interactive->iflags & NOTIFY_FAIL_FUNC) {
-	save_command_giver(command_giver);
+	globalObject.save_command_giver(command_giver);
 	v = globalFunction.call_function_pointer(p.f, 0);
-	restore_command_giver();
+	globalObject.restore_command_giver();
 	globalFunction.free_funp(p.f);
 	if (command_giver && command_giver->interactive) {
 	    if (v && v->type == T_STRING) {
-		tell_object(command_giver, v->u.string, SVALUE_STRLEN(v));
+		globalObject.tell_object(command_giver, v->u.string, SVALUE_STRLEN(v));
 	    }
 	    command_giver->interactive->iflags &= ~NOTIFY_FAIL_FUNC;
 	    command_giver->interactive->default_err_message.s = 0;
 	}
     } else {
 	if (p.s) {
-	    tell_object(command_giver, p.s, strlen(p.s));
+	    globalObject.tell_object(command_giver, p.s, strlen(p.s));
 	    free_string(p.s);
 	    command_giver->interactive->default_err_message.s = 0;
 	} else {
-	    tell_object(command_giver, default_fail_message, strlen(default_fail_message));
+	    globalObject.tell_object(command_giver, default_fail_message, strlen(default_fail_message));
 	}
     }
 }
@@ -80,7 +80,7 @@ object_t *find_living_object (const char* str, int user)
 	search_length++;
 #ifdef F_SET_HIDE
 	if ((*obp)->flags & O_HIDDEN) {
-	    if (!valid_hide(current_object))
+	    if (!globalObject.valid_hide(current_object))
 		continue;
 	}
 #endif
@@ -165,9 +165,9 @@ void setup_new_commands (object_t * dest, object_t * item)
      * the -o mode). It might be too slow, though :-(
      */
     if (item->flags & O_ENABLE_COMMANDS) {
-	save_command_giver(item);
+	globalObject.save_command_giver(item);
 	(void) apply(APPLY_INIT, dest, 0, ORIGIN_DRIVER);
-	restore_command_giver();
+	globalObject.restore_command_giver();
 	if (item->super != dest)
 	    return;
     }
@@ -184,9 +184,9 @@ void setup_new_commands (object_t * dest, object_t * item)
 	if (dest != ob->super)
 	    error("An object was moved at call of " APPLY_INIT "()\n");
 	if (ob->flags & O_ENABLE_COMMANDS) {
-	    save_command_giver(ob);
+	    globalObject.save_command_giver(ob);
 	    (void) apply(APPLY_INIT, item, 0, ORIGIN_DRIVER);
-	    restore_command_giver();
+	    globalObject.restore_command_giver();
 	    if (dest != item->super)
 		return;
 	}
@@ -195,9 +195,9 @@ void setup_new_commands (object_t * dest, object_t * item)
 	if (ob->flags & O_DESTRUCTED) /* Alaron */
 	    error("An object was destructed at call of " APPLY_INIT "()\n");
 	if (item->flags & O_ENABLE_COMMANDS) {
-	    save_command_giver(item);
+	    globalObject.save_command_giver(item);
 	    (void) apply(APPLY_INIT, ob, 0, ORIGIN_DRIVER);
-	    restore_command_giver();
+	    globalObject.restore_command_giver();
 	    if (dest != item->super)
 		return;
 	}
@@ -207,9 +207,9 @@ void setup_new_commands (object_t * dest, object_t * item)
     if (item->flags & O_DESTRUCTED)	/* Alaron */
 	error("The object to be moved was destructed at call of " APPLY_INIT "()\n");
     if (dest->flags & O_ENABLE_COMMANDS) {
-	save_command_giver(dest);
+	globalObject.save_command_giver(dest);
 	(void) apply(APPLY_INIT, item, 0, ORIGIN_DRIVER);
-	restore_command_giver();
+	globalObject.restore_command_giver();
     }
 }
 
@@ -233,7 +233,7 @@ static void enable_commands (int num)
 
     if (num) {
 	current_object->flags |= O_ENABLE_COMMANDS;
-	set_command_giver(current_object);
+	globalObject.set_command_giver(current_object);
     } else {
 #ifndef NO_ENVIRONMENT
 	/* Remove all sentences defined for the object */
@@ -249,7 +249,7 @@ static void enable_commands (int num)
 #endif
 	current_object->flags &= ~O_ENABLE_COMMANDS;
 	if (current_object == command_giver)
-	    set_command_giver(0);
+	    globalObject.set_command_giver(0);
     }
 }
 
@@ -353,7 +353,7 @@ static int user_parser (char * buff)
 	 * Remember the object, to update moves.
 	 */
 	command_object = s->ob;
-	save_command_giver(command_giver);
+	globalObject.save_command_giver(command_giver);
 	if (s->flags & V_NOSPACE) {
 	    copy_and_push_string(&buff[strlen(s->verb)]);
 	} else if (buff[length] == ' ') {
@@ -370,7 +370,7 @@ static int user_parser (char * buff)
 	}
 	/* s may be dangling at this point */
 
-	restore_command_giver();
+	globalObject.restore_command_giver();
 
 	last_verb = 0;
 
@@ -439,9 +439,9 @@ int parse_command (char * str, object_t * ob)
     }
 #endif
 
-    save_command_giver(ob);
+    globalObject.save_command_giver(ob);
     res = user_parser(str);
-    restore_command_giver();
+    globalObject.restore_command_giver();
 
     return res;
 }
@@ -697,10 +697,10 @@ void f_find_player (void)
 void f_living (void)
 {
     if (sp->u.ob->flags & O_ENABLE_COMMANDS) {
-	free_object(&sp->u.ob, "f_living:1");
+	globalObject.free_object(&sp->u.ob, "f_living:1");
 	*sp = const1;
     } else {
-	free_object(&sp->u.ob, "f_living:2");
+	globalObject.free_object(&sp->u.ob, "f_living:2");
 	*sp = const0;
     }
 }

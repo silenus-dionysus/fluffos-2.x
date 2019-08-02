@@ -39,7 +39,7 @@ void
 f_all_inventory (void)
 {
     array_t *vec = globalArray.all_inventory(sp->u.ob, 0);
-    free_object(&sp->u.ob, "f_all_inventory");
+    globalObject.free_object(&sp->u.ob, "f_all_inventory");
     sp->type = T_ARRAY;
     sp->u.arr = vec;
 }
@@ -115,7 +115,7 @@ f_bind (void)
 
     if (ob == old_fp->hdr.owner) {
         /* no change */
-        free_object(&ob, "bind nop");
+        globalObject.free_object(&ob, "bind nop");
         sp--;
         return;
     }
@@ -227,7 +227,7 @@ f__call_other (void)
         return;
     } else {
         ob = find_object(arg[0].u.string);
-        if (!ob || !object_visible(ob))
+        if (!ob || !globalObject.object_visible(ob))
             error("call_other() couldn't find object\n");
     }
     /* Send the remaining arguments to the function. */
@@ -468,7 +468,7 @@ void
 f_clonep (void)
 {
     if ((sp->type == T_OBJECT) && (sp->u.ob->flags & O_CLONE)) {
-        free_object(&sp->u.ob, "f_clonep");
+        globalObject.free_object(&sp->u.ob, "f_clonep");
         *sp = const1;
     } else {
         free_svalue(sp, "f_clonep");
@@ -567,7 +567,7 @@ f_deep_inherit_list (void)
     array_t *vec;
 
     vec = globalArray.deep_inherit_list(sp->u.ob);
-    free_object(&sp->u.ob, "f_deep_inherit_list");
+    globalObject.free_object(&sp->u.ob, "f_deep_inherit_list");
     put_array(vec);
 }
 #endif
@@ -866,13 +866,13 @@ f_environment (void)
         if ((ob = sp->u.ob)->flags & O_DESTRUCTED)
             error("environment() of destructed object.\n");
         ob = ob->super;
-        free_object(&(sp--)->u.ob, "f_environment");
+        globalObject.free_object(&(sp--)->u.ob, "f_environment");
     } else if (!(current_object->flags & O_DESTRUCTED))
         ob = current_object->super;
     else
 	error("environment() of destructed object.\n");
 
-    if (ob && object_visible(ob))
+    if (ob && globalObject.object_visible(ob))
 	push_object(ob);
     else
 	push_number(0);
@@ -889,9 +889,9 @@ f_exec (void)
 
     /* They might have been destructed */
     if (sp->type == T_OBJECT)
-        free_object(&sp->u.ob, "f_exec:1");
+        globalObject.free_object(&sp->u.ob, "f_exec:1");
     if ((--sp)->type == T_OBJECT)
-        free_object(&sp->u.ob, "f_exec:2");
+        globalObject.free_object(&sp->u.ob, "f_exec:2");
     put_number(i);
 }
 #endif
@@ -920,7 +920,7 @@ f_file_name (void)
 
     /* This function now returns a leading '/' */
     res = (char *) add_slash(sp->u.ob->obname);
-    free_object(&sp->u.ob, "f_file_name");
+    globalObject.free_object(&sp->u.ob, "f_file_name");
     put_malloced_string(res);
 }
 #endif
@@ -977,7 +977,7 @@ f_find_object (void)
     else
         ob = find_object2(sp->u.string);
     free_string_svalue(sp);
-    if (ob && object_visible(ob)) {
+    if (ob && globalObject.object_visible(ob)) {
         /* find_object only returns undested objects */
         put_unrefed_undested_object(ob, "find_object");
     } else
@@ -1015,7 +1015,7 @@ f_function_profile (void)
         prog->function_table[j].children = 0;
 
     }
-    free_object(&ob, "f_function_profile");
+    globalObject.free_object(&ob, "f_function_profile");
     put_array(vec);
 }
 #endif
@@ -1034,7 +1034,7 @@ f_function_exists (void)
         if (st_num_arg > 2)
             flag = (sp--)->u.number;
         ob = sp->u.ob;
-        free_object(&(sp--)->u.ob, "f_function_exists");
+        globalObject.free_object(&(sp--)->u.ob, "f_function_exists");
     } else {
         if (current_object->flags & O_DESTRUCTED) {
             free_string_svalue(sp);
@@ -1175,11 +1175,11 @@ f_in_edit (void)
         eb = find_ed_buffer(sp->u.ob);
 #endif
     if (eb && (fn = eb->fname)) {
-        free_object(&sp->u.ob, "f_in_edit:1");
+        globalObject.free_object(&sp->u.ob, "f_in_edit:1");
         put_malloced_string(add_slash(fn));
         return;
     }
-    free_object(&sp->u.ob, "f_in_edit:1");
+    globalObject.free_object(&sp->u.ob, "f_in_edit:1");
     *sp = const0;
     return;
 }
@@ -1192,7 +1192,7 @@ f_in_input (void)
     int i;
 
     i = sp->u.ob->interactive && sp->u.ob->interactive->input_to;
-    free_object(&sp->u.ob, "f_in_input");
+    globalObject.free_object(&sp->u.ob, "f_in_input");
     put_number(i != 0);
 }
 #endif
@@ -1224,12 +1224,12 @@ f_inherits (void)
     base = (sp--)->u.ob;
     ob = find_object2(sp->u.string);
     if (!ob) {
-        free_object(&base, "f_inherits");
+        globalObject.free_object(&base, "f_inherits");
         assign_svalue(sp, &const0);
         return;
     }
     i = inherits(base->prog, ob->prog);
-    free_object(&base, "f_inherits");
+    globalObject.free_object(&base, "f_inherits");
     free_string_svalue(sp);
     put_number(i);
 }
@@ -1242,7 +1242,7 @@ f_shallow_inherit_list (void)
     array_t *vec;
 
     vec = globalArray.inherit_list(sp->u.ob);
-    free_object(&sp->u.ob, "f_inherit_list");
+    globalObject.free_object(&sp->u.ob, "f_inherit_list");
     put_array(vec);
 }
 #endif
@@ -1278,7 +1278,7 @@ f_interactive (void)
     int i;
 
     i = (sp->u.ob->interactive != 0);
-    free_object(&sp->u.ob, "f_interactive");
+    globalObject.free_object(&sp->u.ob, "f_interactive");
     put_number(i);
 }
 #endif
@@ -1294,7 +1294,7 @@ f_has_mxp (void)
        i = sp->u.ob->interactive->iflags & USING_MXP;
        i = !!i; //force 1 or 0
     }
-    free_object(&sp->u.ob, "f_has_mxp");
+    globalObject.free_object(&sp->u.ob, "f_has_mxp");
     put_number(i);
 }
 #endif
@@ -1309,7 +1309,7 @@ void f_has_zmp (void)
 		i = sp->u.ob->interactive->iflags & USING_ZMP;
 		i = !!i; //force 1 or 0
 	}
-	free_object(&sp->u.ob, "f_has_zmp");
+	globalObject.free_object(&sp->u.ob, "f_has_zmp");
 	put_number(i);
 }
 #endif
@@ -1323,7 +1323,7 @@ void f_has_gmcp(){
 		i = sp->u.ob->interactive->iflags & USING_GMCP;
 		i = !!i; //force 1 or 0
 	}
-	free_object(&sp->u.ob, "f_has_zmp");
+	globalObject.free_object(&sp->u.ob, "f_has_zmp");
 	put_number(i);
 }
 #endif
@@ -1788,7 +1788,7 @@ f_move_object (void)
     if (sp->type == T_OBJECT)
         o2 = sp->u.ob;
     else {
-        if (!(o2 = find_object(sp->u.string)) || !object_visible(o2))
+        if (!(o2 = find_object(sp->u.string)) || !globalObject.object_visible(o2))
             error("move_object failed: could not find destination\n");
     }
 
@@ -1910,7 +1910,7 @@ void
 f_objectp (void)
 {
     if (sp->type == T_OBJECT && !(sp->u.ob->flags & O_DESTRUCTED)) {
-        free_object(&sp->u.ob, "f_objectp");
+        globalObject.free_object(&sp->u.ob, "f_objectp");
         *sp = const1;
     } else {
         free_svalue(sp, "f_objectp");
@@ -1968,7 +1968,7 @@ f_present (void)
 #endif
     ob = object_present(arg, num_arg == 1 ? 0 : arg[1].u.ob);
     pop_n_elems(num_arg);
-    if (ob && object_visible(ob)) push_object(ob);
+    if (ob && globalObject.object_visible(ob)) push_object(ob);
     else push_number(0);
 }
 #endif
@@ -2050,7 +2050,7 @@ f_printf (void)
         ret = globalSPrintF.string_print_formatted((sp - num_arg + 1)->u.string,
                                      num_arg - 1, sp - num_arg + 2);
         if (ret) {
-            tell_object(command_giver, ret, COUNTED_STRLEN(ret));
+            globalObject.tell_object(command_giver, ret, COUNTED_STRLEN(ret));
             FREE_MSTR(ret);
         }
     }
@@ -2121,7 +2121,7 @@ f_query_idle (void)
     int i;
 
     i = globalComm.query_idle(sp->u.ob);
-    free_object(&sp->u.ob, "f_query_idle");
+    globalObject.free_object(&sp->u.ob, "f_query_idle");
     put_number(i);
 }
 #endif
@@ -2133,7 +2133,7 @@ f_query_ip_name (void)
     char *tmp;
 
     tmp = globalComm.query_ip_name(st_num_arg ? sp->u.ob : 0);
-    if (st_num_arg) free_object(&(sp--)->u.ob, "f_query_ip_name");
+    if (st_num_arg) globalObject.free_object(&(sp--)->u.ob, "f_query_ip_name");
     if (!tmp) push_number(0);
     else share_and_push_string(tmp);
 }
@@ -2146,7 +2146,7 @@ f_query_ip_number (void)
     const char *tmp;
 
     tmp = globalComm.query_ip_number(st_num_arg ? sp->u.ob : 0);
-    if (st_num_arg) free_object(&(sp--)->u.ob, "f_query_ip_number");
+    if (st_num_arg) globalObject.free_object(&(sp--)->u.ob, "f_query_ip_number");
     if (!tmp) push_number(0);
     else share_and_push_string(tmp);
 }
@@ -2171,9 +2171,9 @@ f_query_privs (void)
         sp->type = T_STRING;
         sp->u.string = make_shared_string(ob->privs);
         sp->subtype = STRING_SHARED;
-	free_object(&ob, "f_query_privs");
+	globalObject.free_object(&ob, "f_query_privs");
     } else {
-        free_object(&ob, "f_query_privs");
+        globalObject.free_object(&ob, "f_query_privs");
         *sp = const0;
     }
 }
@@ -2186,7 +2186,7 @@ f_query_snooping (void)
     object_t *ob;
 
     ob = globalComm.query_snooping(sp->u.ob);
-    free_object(&sp->u.ob, "f_query_snooping");
+    globalObject.free_object(&sp->u.ob, "f_query_snooping");
     if (ob) { put_unrefed_undested_object(ob, "query_snooping"); }
     else *sp = const0;
 }
@@ -2199,7 +2199,7 @@ f_query_snoop (void)
     object_t *ob;
 
     ob = globalComm.query_snoop(sp->u.ob);
-    free_object(&sp->u.ob, "f_query_snoop");
+    globalObject.free_object(&sp->u.ob, "f_query_snoop");
     if (ob) { put_unrefed_undested_object(ob, "query_snoop"); }
     else *sp = const0;
 }
@@ -2739,7 +2739,7 @@ f_restore_object (void)
 
     flag = (st_num_arg > 1) ? (sp--)->u.number : 0;
 
-    flag = restore_object(current_object, sp->u.string, flag);
+    flag = globalObject.restore_object(current_object, sp->u.string, flag);
 
     free_string_svalue(sp);
     put_number(flag);
@@ -2755,7 +2755,7 @@ f_restore_variable (void) {
     v.type = T_NUMBER;
 
     //unlinked string
-    restore_variable(&v, (char *)sp->u.string);
+    globalObject.restore_variable(&v, (char *)sp->u.string);
     FREE_MSTR(sp->u.string);
     *sp = v;
 }
@@ -2808,7 +2808,7 @@ f_save_object (void)
     	flag = sp->u.number;
 
     if(st_num_arg && sp->type == T_STRING){
-    	flag = save_object(current_object, sp->u.string, flag);
+    	flag = globalObject.save_object(current_object, sp->u.string, flag);
 
     	free_string_svalue(sp);
     	put_number(flag);
@@ -2817,7 +2817,7 @@ f_save_object (void)
     	char *saved = new_string(MAX_STRING_LENGTH, "save_object_str");
     	push_malloced_string(saved);
         int left = MAX_STRING_LENGTH;
-        flag = save_object_str(current_object, flag, saved, left);
+        flag = globalObject.save_object_str(current_object, flag, saved, left);
         if(!flag){
         	pop_stack();
         	push_undefined();
@@ -2836,7 +2836,7 @@ void
 f_save_variable (void) {
     char *p;
 
-    p = save_variable(sp);
+    p = globalObject.save_variable(sp);
     pop_stack();
     push_malloced_string(p);
 }
@@ -2952,7 +2952,7 @@ void
 f_query_heart_beat (void)
 {
     int num = globalBackend.query_heart_beat(sp->u.ob);
-    free_object(&sp->u.ob, "f_query_heart_beat");
+    globalObject.free_object(&sp->u.ob, "f_query_heart_beat");
     put_number(num);
 }
 #endif
@@ -2961,7 +2961,7 @@ f_query_heart_beat (void)
 void
 f_set_hide (void)
 {
-    if (!valid_hide(current_object)) {
+    if (!globalObject.valid_hide(current_object)) {
         sp--;
         return;
     }
@@ -3011,7 +3011,7 @@ f_set_privs (void)
         ob->privs = make_shared_string(sp->u.string);
         free_string_svalue(sp--);
     }
-    free_object(&ob, "f_set_privs");
+    globalObject.free_object(&ob, "f_set_privs");
     sp--;
 }
 #endif
@@ -3025,7 +3025,7 @@ f_shadow (void)
     ob = (sp - 1)->u.ob;
     if (!((sp--)->u.number)) {
         ob = ob->shadowed;
-        free_object(&sp->u.ob, "f_shadow:1");
+        globalObject.free_object(&sp->u.ob, "f_shadow:1");
         if (ob) {
           add_ref(ob, "shadow(ob, 0)");
           sp->u.ob = ob;
@@ -3038,7 +3038,7 @@ f_shadow (void)
     }
     if (validate_shadowing(ob)) {
         if (current_object->flags & O_DESTRUCTED) {
-            free_object(&ob, "f_shadow:2");
+            globalObject.free_object(&ob, "f_shadow:2");
             *sp = const0;
             return;
         }
@@ -3049,12 +3049,12 @@ f_shadow (void)
             ob = ob->shadowed;
         current_object->shadowing = ob;
         ob->shadowed = current_object;
-        free_object(&sp->u.ob, "f_shadow:3");
+        globalObject.free_object(&sp->u.ob, "f_shadow:3");
         add_ref(ob, "shadow(ob, 1)");
         sp->u.ob = ob;
         return;
     }
-    free_object(&sp->u.ob, "f_shadow:4");
+    globalObject.free_object(&sp->u.ob, "f_shadow:4");
     *sp = const0;
 }
 #endif
@@ -3128,17 +3128,17 @@ f_snoop (void)
      */
     if (st_num_arg == 1) {
         if (!globalComm.new_set_snoop(sp->u.ob, 0) || (sp->u.ob->flags & O_DESTRUCTED)) {
-            free_object(&sp->u.ob, "f_snoop:1");
+            globalObject.free_object(&sp->u.ob, "f_snoop:1");
             *sp = const0;
         }
     } else {
         if (!globalComm.new_set_snoop((sp - 1)->u.ob, sp->u.ob) ||
             (sp->u.ob->flags & O_DESTRUCTED)) {
-            free_object(&(sp--)->u.ob, "f_snoop:2");
-            free_object(&sp->u.ob, "f_snoop:3");
+            globalObject.free_object(&(sp--)->u.ob, "f_snoop:2");
+            globalObject.free_object(&sp->u.ob, "f_snoop:3");
             *sp = const0;
         } else {
-            free_object(&(--sp)->u.ob, "f_snoop:4");
+            globalObject.free_object(&(--sp)->u.ob, "f_snoop:4");
             sp->u.ob = (sp+1)->u.ob;
         }
     }
@@ -3192,7 +3192,7 @@ f_stat (void)
             v->item[1].u.number = buf.st_mtime;
             v->item[2].type = T_NUMBER;
             ob = find_object2(path);
-            if (ob && !object_visible(ob))
+            if (ob && !globalObject.object_visible(ob))
                 ob = 0;
             if (ob)
                 v->item[2].u.number = ob->load_time;
@@ -3329,7 +3329,7 @@ f_bufferp (void)
 void
 f_tell_object (void)
 {
-    tell_object((sp - 1)->u.ob, sp->u.string, SVALUE_STRLEN(sp));
+    globalObject.tell_object((sp - 1)->u.ob, sp->u.string, SVALUE_STRLEN(sp));
     free_string_svalue(sp--);
     pop_stack();
 }
@@ -3359,7 +3359,7 @@ f_tell_room (void)
         ob = arg[0].u.ob;
     } else {                    /* must be a string... */
         ob = find_object(arg[0].u.string);
-        if (!ob || !object_visible(ob))
+        if (!ob || !globalObject.object_visible(ob))
             error("Bad argument 1 to tell_room()\n");
     }
 
@@ -3648,7 +3648,7 @@ f_userp (void)
     int i;
 
     i = sp->u.ob->flags & O_ONCE_INTERACTIVE;
-    free_object(&sp->u.ob, "f_userp");
+    globalObject.free_object(&sp->u.ob, "f_userp");
     put_number(i != 0);
 }
 #endif
@@ -3668,7 +3668,7 @@ f_wizardp (void)
     int i;
 
     i = sp->u.ob->flags & O_IS_WIZARD;
-    free_object(&sp->u.ob, "f_wizardp");
+    globalObject.free_object(&sp->u.ob, "f_wizardp");
     put_number(i != 0);
 }
 #endif
@@ -3680,7 +3680,7 @@ f_virtualp (void)
     int i;
 
     i = sp->u.ob->flags & O_VIRTUAL;
-    free_object(&sp->u.ob, "f_virtualp");
+    globalObject.free_object(&sp->u.ob, "f_virtualp");
     put_number(i != 0);
 }
 #endif
@@ -3872,7 +3872,7 @@ f_memory_info (void)
        included or not to be more accurate -- Marius, 30-Jul-2000 */
     mem = ob->prog->total_size;
     mem += (globalDumpStat.data_size(ob) + sizeof(object_t));
-    free_object(&ob, "f_memory_info");
+    globalObject.free_object(&ob, "f_memory_info");
     put_number(mem);
 }
 #endif
@@ -3881,8 +3881,8 @@ f_memory_info (void)
 void
 f_reload_object (void)
 {
-    reload_object(sp->u.ob);
-    free_object(&(sp--)->u.ob, "f_reload_object");
+    globalObject.reload_object(sp->u.ob);
+    globalObject.free_object(&(sp--)->u.ob, "f_reload_object");
 }
 #endif
 
@@ -3895,7 +3895,7 @@ f_query_shadowing (void)
     if ((sp->type == T_OBJECT) && (ob = sp->u.ob)->shadowing) {
         add_ref(ob->shadowing, "query_shadowing(ob)");
         sp->u.ob = ob->shadowing;
-        free_object(&ob, "f_query_shadowing");
+        globalObject.free_object(&ob, "f_query_shadowing");
     } else {
         free_svalue(sp, "f_query_shadowing");
         *sp = const0;
@@ -3909,12 +3909,12 @@ f_set_reset (void)
 {
     if (st_num_arg == 2) {
         (sp - 1)->u.ob->next_reset = current_time + sp->u.number;
-        free_object(&(--sp)->u.ob, "f_set_reset:1");
+        globalObject.free_object(&(--sp)->u.ob, "f_set_reset:1");
         sp--;
     } else {
         sp->u.ob->next_reset = current_time + TIME_TO_RESET / 2 +
             random_number(TIME_TO_RESET / 2);
-        free_object(&(sp--)->u.ob, "f_set_reset:2");
+        globalObject.free_object(&(sp--)->u.ob, "f_set_reset:2");
     }
 }
 #endif
@@ -3972,10 +3972,10 @@ f_next_inventory (void)
     object_t *ob;
 
     ob = sp->u.ob->next_inv;
-    free_object(&sp->u.ob, "f_next_inventory");
+    globalObject.free_object(&sp->u.ob, "f_next_inventory");
 
 #ifdef F_SET_HIDE
-    while (ob && (ob->flags & O_HIDDEN) && !object_visible(ob))
+    while (ob && (ob->flags & O_HIDDEN) && !globalObject.object_visible(ob))
         ob = ob->next_inv;
 #endif
 

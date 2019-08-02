@@ -595,7 +595,7 @@ static void free_parse_result (parse_result_t * pr) {
     int i, j;
 
     if (pr->ob)
-        free_object(&pr->ob, "free_parse_result");
+        globalObject.free_object(&pr->ob, "free_parse_result");
     if (pr->parallel)
         clear_parallel_errors(&pr->parallel);
     
@@ -637,7 +637,7 @@ static void free_parse_globals (void) {
     hash_clean();
     if (objects_loaded) {
         for (i = 0; i < num_objects; i++)
-            free_object(&loaded_objects[i], "free_parse_globals");
+            globalObject.free_object(&loaded_objects[i], "free_parse_globals");
         objects_loaded = 0;
     }
 }
@@ -1149,7 +1149,7 @@ static void load_objects (void) {
     for (i = 0; i < num_objects; i++)
         interrogate_object(loaded_objects[i]);
     for (i = 0; i < num_objects; i++)
-        free_object(&loaded_objects[i], "load_objects");
+        globalObject.free_object(&loaded_objects[i], "load_objects");
     /* Step 3: */
     num_objects = 0;
     me_object = -1;
@@ -2658,7 +2658,7 @@ static void do_the_call (void) {
              */
             while (n--) {
                 if ((++sp)->type == T_OBJECT && (sp->u.ob->flags & O_DESTRUCTED)) {
-                    free_object(&sp->u.ob, "do_the_call");
+                    globalObject.free_object(&sp->u.ob, "do_the_call");
                     *sp = const0u;
                 }
             }
@@ -3177,7 +3177,7 @@ void f_parse_my_rules (void) {
                 memcpy((char *)arr->item, best_result->res[3].args, n*sizeof(svalue_t));
                 while (n--) {
                     if (arr->item[n].type == T_OBJECT && arr->item[n].u.ob->flags & O_DESTRUCTED) {
-                        free_object(&arr->item[n].u.ob, "parse_my_rules");
+                        globalObject.free_object(&arr->item[n].u.ob, "parse_my_rules");
                         arr->item[n] = const0u;
                     }
                 }

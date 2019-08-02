@@ -48,7 +48,7 @@ static void report_holes (void);
 void Backend::clear_state()
 {
 	current_object = 0;
-	set_command_giver(0);
+	globalObject.set_command_giver(0);
 	current_interactive = 0;
 	previous_ob = 0;
 	current_prog = 0;
@@ -379,14 +379,14 @@ void Backend::call_heart_beat()
 					if (SETJMP(econ.context)) {
 						restore_context(&econ);
 					} else {
-						save_command_giver(new_command_giver);
+						globalObject.save_command_giver(new_command_giver);
 						if(ob->interactive) //note, NOT same as new_command_giver
 							current_interactive = ob;
 						call_direct(ob, ob->prog->heart_beat - 1,
 								ORIGIN_DRIVER, 0);
 						current_interactive = 0;
 						pop_stack(); /* pop the return value */
-						restore_command_giver();
+						globalObject.restore_command_giver();
 					}
 
 					current_object = 0;
@@ -652,7 +652,7 @@ array_t *Backend::get_heart_beats() {
 		if (hb->ob->flags & O_HIDDEN) {
 			if (apply_valid_hide) {
 				apply_valid_hide = 0;
-				display_hidden = valid_hide(current_object);
+				display_hidden = globalObject.valid_hide(current_object);
 			}
 			if (!display_hidden)
 				continue;

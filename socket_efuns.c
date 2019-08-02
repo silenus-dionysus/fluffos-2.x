@@ -639,7 +639,7 @@ int socket_write (int fd, svalue_t * message, const char * name)
 
         default:
             save_svalue_depth = 0;
-            len = svalue_save_size(message);
+            len = globalObject.svalue_save_size(message);
             if (save_svalue_depth > MAX_SAVE_SVALUE_DEPTH) {
                 return EEBADDATA;
             }
@@ -651,7 +651,7 @@ int socket_write (int fd, svalue_t * message, const char * name)
             len += 4;
             buf[4] = '\0';
             p = buf + 4;
-            save_svalue(message, &p);
+            globalObject.save_svalue(message, &p);
             break;
         }
         break;
@@ -965,7 +965,7 @@ void socket_read_select_handler (int fd)
             lpc_socks[fd].r_buf[lpc_socks[fd].r_len] = '\0';
             value = const0;
             push_number(fd);
-            if (restore_svalue(lpc_socks[fd].r_buf, &value) == 0) {
+            if (globalObject.restore_svalue(lpc_socks[fd].r_buf, &value) == 0) {
                 STACK_INC;
                 *sp = value;
             } else {

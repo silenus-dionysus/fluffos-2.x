@@ -157,6 +157,8 @@ extern object_t **cgsp;
 extern int num_hidden;
 #endif
 
+class Object {
+public:
 void bufcat (char **, char *);
 INLINE int svalue_save_size (svalue_t *);
 INLINE void save_svalue (svalue_t *, char **);
@@ -190,4 +192,31 @@ void restore_command_giver (void);
 void set_command_giver (object_t *);
 void clear_non_statics (object_t * ob);
 void restore_object_from_buff (object_t * ob, char * theBuff, int noclear);
+
+private:
+int restore_internal_size (const char ** str, int is_mapping, int depth);
+int restore_size (const char ** str, int is_mapping);
+int restore_interior_string (char ** val, svalue_t * sv);
+int parse_numeric (char ** cpp, unsigned char c, svalue_t * dest);
+void add_map_stats (mapping_s * m, int count);
+int restore_mapping (char **str, svalue_t * sv);
+int restore_class (char ** str, svalue_t * ret);
+int restore_array (char ** str, svalue_t * ret);
+int restore_string (char * val, svalue_t * sv);
+int fgv_recurse (program_t * prog, int * idx, char * name, unsigned short * type, int check_nosave);
+#ifdef HAVE_ZLIB
+int save_object_recurse (program_t * prog, svalue_t **svp, int type, int save_zeros,FILE * f, gzFile gzf);
+#else
+int save_object_recurse (program_t * prog, svalue_t **svp, int type, int save_zeros, FILE * f);
 #endif
+int save_object_recurse_str (program_t * prog, svalue_t **svp, int type, int save_zeros, char *buf, int bufsize);
+void cns_just_count (int * idx, program_t * prog);
+void cns_recurse (object_t * ob, int * idx, program_t * prog);
+void restore_object_from_line (object_t * ob, char * line, int noclear);
+int safe_restore_svalue (char * cp, svalue_t * v);
+
+
+};
+#endif
+
+extern Object globalObject;

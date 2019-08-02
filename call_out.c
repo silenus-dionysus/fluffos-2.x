@@ -54,14 +54,14 @@ static void free_called_call (pending_call_t * cop)
 	cop->next = call_list_free;
 	if (cop->ob) {
 		free_string(cop->function.s);
-		free_object(&cop->ob, "free_call");
+		globalObject.free_object(&cop->ob, "free_call");
 	} else {
 		globalFunction.free_funp(cop->function.f);
 	}
 	cop->function.s = 0;
 #ifdef THIS_PLAYER_IN_CALL_OUT
 	if (cop->command_giver){
-		free_object(&cop->command_giver, "free_call");
+		globalObject.free_object(&cop->command_giver, "free_call");
 		cop->command_giver = 0;
 	}
 #endif
@@ -240,7 +240,7 @@ void CallOut::call_out()
 					if (new_command_giver)
 						DBG(("         command_giver: /%s", new_command_giver->obname));
 #endif
-					save_command_giver(new_command_giver);
+					globalObject.save_command_giver(new_command_giver);
 					/* current object no longer set */
 
 					if (cop->vs) {
@@ -250,7 +250,7 @@ void CallOut::call_out()
 						while (svp-- > vec->item) {
 							if (svp->type == T_OBJECT &&
 									(svp->u.ob->flags & O_DESTRUCTED)) {
-								free_object(&svp->u.ob, "call_out");
+								globalObject.free_object(&svp->u.ob, "call_out");
 								*svp = const0u;
 							}
 						}
@@ -273,7 +273,7 @@ void CallOut::call_out()
 						(void) globalFunction.call_function_pointer(cop->function.f, extra);
 					}
 
-					restore_command_giver();
+					globalObject.restore_command_giver();
 				}
 				free_called_call(cop);
 				cop = 0;
@@ -569,7 +569,7 @@ void CallOut::reclaim_call_outs() {
 		cop = call_list[i];
 		while (cop) {
 			if (cop->command_giver && (cop->command_giver->flags & O_DESTRUCTED)) {
-				free_object(&cop->command_giver, "reclaim_call_outs");
+				globalObject.free_object(&cop->command_giver, "reclaim_call_outs");
 				cop->command_giver = 0;
 			}
 			cop = cop->next;

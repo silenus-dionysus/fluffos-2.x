@@ -489,7 +489,7 @@ array_t *Array::users()
         if (current_object->flags & O_HIDDEN) {
             display_hidden = 1;
         } else {
-            display_hidden = valid_hide(current_object);
+            display_hidden = globalObject.valid_hide(current_object);
         }
     }
     ret = allocate_empty_array(num_user - (display_hidden ? 0 : num_hidden_users));
@@ -977,7 +977,7 @@ array_t *Array::all_inventory (object_t * ob, int override)
 #ifdef F_SET_HIDE
         if (cur->flags & O_HIDDEN) {
             if (display_hidden == -1) {
-                display_hidden = valid_hide(current_object);
+                display_hidden = globalObject.valid_hide(current_object);
             }
             if (display_hidden)
                 cnt++;
@@ -1081,7 +1081,7 @@ Array::map_string (svalue_t * arg, int num_arg)
             if (arg[2].type == T_OBJECT)
 		ob = arg[2].u.ob;
             else if (arg[2].type == T_STRING) {
-                if ((ob = find_object(arg[2].u.string)) && !object_visible(ob))
+                if ((ob = find_object(arg[2].u.string)) && !globalObject.object_visible(ob))
                     ob = 0;
             }
             if (num_arg > 3) {
@@ -1335,7 +1335,7 @@ static int deep_inventory_count (object_t * ob)
         if (cur->flags & O_HIDDEN) {
             if (!valid_hide_flag)
                 valid_hide_flag = 1 +
-                    (valid_hide(current_object) ? 1 : 0);
+                    (globalObject.valid_hide(current_object) ? 1 : 0);
             if (valid_hide_flag & 2) {
                 cnt++;
                 cnt += deep_inventory_count(cur);
@@ -1558,7 +1558,7 @@ INLINE_STATIC svalue_t *alist_sort (array_t * inlist) {
         sv_ptr = inlist->item;
         for (j = 0; j < size; j++) {
             if (((tmp = (sv_ptr + j))->type == T_OBJECT) && (tmp->u.ob->flags & O_DESTRUCTED)) {
-                free_object(&tmp->u.ob, "alist_sort");
+                globalObject.free_object(&tmp->u.ob, "alist_sort");
                 sv_tab[j] = *tmp = const0u;
             } else if ((tmp->type == T_STRING) && !(tmp->subtype == STRING_SHARED)) {
                 sv_tab[j].u.string = make_shared_string(tmp->u.string);
@@ -1582,7 +1582,7 @@ INLINE_STATIC svalue_t *alist_sort (array_t * inlist) {
         sv_tab = inlist->item;
         for (j = 0; j < size; j++) {
             if (((tmp = (sv_tab + j))->type == T_OBJECT) && (tmp->u.ob->flags & O_DESTRUCTED)) {
-                free_object(&tmp->u.ob, "alist_sort");
+                globalObject.free_object(&tmp->u.ob, "alist_sort");
                 *tmp = const0u;
             } else if ((tmp->type == T_STRING) && !(tmp->subtype == STRING_SHARED)) {
                 str = make_shared_string(tmp->u.string);
@@ -1654,7 +1654,7 @@ array_t *Array::subtract_array (array_t * minuend, array_t * subtrahend) {
         o = (h = size - 1) >> 1;
 
         if ((source->type == T_OBJECT) && (source->u.ob->flags & O_DESTRUCTED)) {
-            free_object(&source->u.ob, "subtract_array");
+            globalObject.free_object(&source->u.ob, "subtract_array");
             *source = const0u;
         } else if ((source->type == T_STRING) && !(source->subtype == STRING_SHARED)) {
             svalue_t stmp = {T_STRING, STRING_SHARED};
@@ -1713,7 +1713,7 @@ array_t *Array::intersect_array (array_t * a1, array_t * a2) {
         sv_ptr = a2->item;
         for (j = 0; j < a2s; j++) {
             if (((tmp = (sv_ptr + j))->type == T_OBJECT) && (tmp->u.ob->flags & O_DESTRUCTED)) {
-                free_object(&tmp->u.ob, "intersect_array");
+                globalObject.free_object(&tmp->u.ob, "intersect_array");
                 sv_tab[j] = *tmp = const0u;
             } else if ((tmp->type == T_STRING) && !(tmp->subtype == STRING_SHARED)) {
                 sv_tab[j].u.string = make_shared_string(tmp->u.string);
@@ -1739,7 +1739,7 @@ array_t *Array::intersect_array (array_t * a1, array_t * a2) {
         sv_tab = a2->item;
         for (j = 0; j < a2s; j++) {
             if (((tmp = (sv_tab + j))->type == T_OBJECT) && (tmp->u.ob->flags & O_DESTRUCTED)) {
-                free_object(&tmp->u.ob, "alist_sort");
+                globalObject.free_object(&tmp->u.ob, "alist_sort");
                 *tmp = const0u;
             } else if ((tmp->type == T_STRING) && !(tmp->subtype == STRING_SHARED)) {
                 str = make_shared_string(tmp->u.string);
@@ -1854,7 +1854,7 @@ array_t *Array::union_array (array_t * a1, array_t * a2) {
         sv_ptr = a2->item;
         for (j = 0; j < a2s; j++) {
             if (((tmp = (sv_ptr + j))->type == T_OBJECT) && (tmp->u.ob->flags & O_DESTRUCTED)) {
-                free_object(&tmp->u.ob, "union_array");
+                globalObject.free_object(&tmp->u.ob, "union_array");
                 sv_tab[j] = *tmp = const0u;
             }
             else if ((tmp->type == T_STRING) && !(tmp->subtype == STRING_SHARED)) {
@@ -1882,7 +1882,7 @@ array_t *Array::union_array (array_t * a1, array_t * a2) {
         sv_tab = a2->item;
         for (j = 0; j < a2s; j++) {
             if (((tmp = (sv_tab + j))->type == T_OBJECT) && (tmp->u.ob->flags & O_DESTRUCTED)) {
-                free_object(&tmp->u.ob, "union_array");
+                globalObject.free_object(&tmp->u.ob, "union_array");
                 *tmp = const0u;
             }
             else if ((tmp->type == T_STRING) && !(tmp->subtype == STRING_SHARED)) {
@@ -2102,7 +2102,7 @@ array_t *Array::livings()
     object_t **list;
     array_t *ret;
 
-    get_objects(&list, &count, livings_filter, 0);
+    globalObject.get_objects(&list, &count, livings_filter, 0);
 
     if (count > max_array_size)
         count = max_array_size;
@@ -2133,7 +2133,7 @@ void f_objects (void)
     else if (sp->type == T_FUNCTION) f = sp->u.fp;
     else func = sp->u.string;
 
-    get_objects(&list, &count, 0, 0);
+    globalObject.get_objects(&list, &count, 0, 0);
     if (f || func) {
         /* NOTE: If an object's hidden status changes during a callback, that
          * change will NOT be reflected in the returned array.  If the caller

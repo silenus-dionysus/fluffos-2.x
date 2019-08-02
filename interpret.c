@@ -480,7 +480,7 @@ INLINE void int_free_svalue (svalue_t * v, const char * tag)
     if (!(--v->u.refed->ref)) {
       switch (v->type) {
       case T_OBJECT:
-        dealloc_object(v->u.ob, "free_svalue");
+        globalObject.dealloc_object(v->u.ob, "free_svalue");
         break;
       case T_CLASS:
         globalClass.dealloc_class(v->u.arr);
@@ -540,7 +540,7 @@ void process_efun_callback (int narg, function_to_call_t * ftc, int f) {
       } else
         if ((arg+1)->type == T_STRING) {
           if (!(ftc->ob = find_object((arg+1)->u.string)) ||
-              !object_visible(ftc->ob))
+              !globalObject.object_visible(ftc->ob))
             bad_argument(arg+1, T_STRING | T_OBJECT, 3, f);
         } else
           bad_argument(arg+1, T_STRING | T_OBJECT, 3, f);
@@ -1277,14 +1277,14 @@ void pop_control_stack()
 	  int s = outoftime;
 	  if(outoftime)
 		  set_eval(max_cost);
-	  save_command_giver(stuff->tp.u.ob);
+	  globalObject.save_command_giver(stuff->tp.u.ob);
 	  playerchanged = 0;
           if(ftc.ob || (ftc.f.fp->hdr.owner && !(ftc.f.fp->hdr.owner->flags & O_DESTRUCTED)))
 	  	  safe_call_efun_callback(&ftc, 0);
 	  object_t *cgo = command_giver;
-	  restore_command_giver();
+	  globalObject.restore_command_giver();
 	  if(playerchanged)
-		  set_command_giver(cgo);
+		  globalObject.set_command_giver(cgo);
 	  outoftime = s;
 	  free_svalue(&(stuff->func), "pop_stack");
 	  free_svalue(&(stuff->tp), "pop_stack");
@@ -1723,11 +1723,11 @@ INLINE_STATIC void do_loop_cond_local()
     break;
   default:
     if (s1->type == T_OBJECT && (s1->u.ob->flags & O_DESTRUCTED)) {
-      free_object(&s1->u.ob, "do_loop_cond:1");
+      globalObject.free_object(&s1->u.ob, "do_loop_cond:1");
       *s1 = const0u;
     }
     if (s2->type == T_OBJECT && (s2->u.ob->flags & O_DESTRUCTED)) {
-      free_object(&s2->u.ob, "do_loop_cond:2");
+      globalObject.free_object(&s2->u.ob, "do_loop_cond:2");
       *s2 = const0u;
     }
     if (s1->type == T_NUMBER && s2->type == T_NUMBER) {
@@ -2445,7 +2445,7 @@ eval_instruction (char * p)
 		object_t *ob = (sp-1)->u.ob;
 		sprintf(buff, "/%s", ob->obname);
                 SVALUE_STRING_ADD_LEFT(buff, "f_add: 3");
-		free_object(&ob, "f_add: 3");
+		globalObject.free_object(&ob, "f_add: 3");
                 break;
 	      }
             case T_NUMBER:
@@ -2481,7 +2481,7 @@ eval_instruction (char * p)
 	    case T_STRING:
 	      {
 		const char *fname = sp->u.ob->obname;
-		free_object(&(sp--)->u.ob, "f_add: str+ob");
+		globalObject.free_object(&(sp--)->u.ob, "f_add: str+ob");
 		EXTEND_SVALUE_STRING(sp, "/", "f_add: str ob");
 		EXTEND_SVALUE_STRING(sp, fname, "f_add: str ob");
 		break;
@@ -2519,7 +2519,7 @@ eval_instruction (char * p)
           EXTEND_SVALUE_STRING(lval, buff, "f_add_eq: 2");
 	} else if(sp->type == T_OBJECT) {
 	  const char *fname = sp->u.ob->obname;
-	  free_object(&(sp--)->u.ob, "f_add_eq: 2");
+	  globalObject.free_object(&(sp--)->u.ob, "f_add_eq: 2");
 	  EXTEND_SVALUE_STRING(lval, "/", "f_add: str ob");
 	  EXTEND_SVALUE_STRING(lval, fname, "f_add_eq: 2");
         } else {
@@ -4506,7 +4506,7 @@ array_t *call_all_other (array_t * v, const char * func, int numargs)
       ob = vptr->u.ob;
     } else if (vptr->type == T_STRING) {
       ob = find_object(vptr->u.string);
-      if (!ob || !object_visible(ob))
+      if (!ob || !globalObject.object_visible(ob))
         continue;
     } else continue;
     if (ob->flags & O_DESTRUCTED)
@@ -5738,7 +5738,7 @@ void remove_object_from_stack (object_t * ob)
       continue;
     if (svp->u.ob != ob)
       continue;
-    free_object(&svp->u.ob, "remove_object_from_stack");
+    globalObject.free_object(&svp->u.ob, "remove_object_from_stack");
     svp->type = T_NUMBER;
     svp->u.number = 0;
   }
@@ -5841,7 +5841,7 @@ void restore_context (error_context_t * econ) {
     pop_control_stack();
 
   while (cgsp != econ->save_cgsp)
-    restore_command_giver();
+    globalObject.restore_command_giver();
   DEBUG_CHECK(csp < econ->save_csp, "csp is below econ->csp before unwinding.\n");
 
 

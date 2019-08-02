@@ -34,7 +34,7 @@ void f_compressedp (void)
 	int i;
 
 	i = sp->u.ob->interactive && sp->u.ob->interactive->compressed_stream;
-	free_object(&sp->u.ob, "f_compressedp");
+	globalObject.free_object(&sp->u.ob, "f_compressedp");
 	put_number(i != 0);
 }
 #endif
@@ -70,7 +70,7 @@ void f_named_livings() {
 			if (ob->flags & O_HIDDEN) {
 				if (apply_valid_hide) {
 					apply_valid_hide = 0;
-					display_hidden = valid_hide(current_object);
+					display_hidden = globalObject.valid_hide(current_object);
 				}
 				if (!display_hidden)
 					continue;
@@ -152,7 +152,7 @@ f_store_variable (void) {
 	svalue_t *sv;
 	unsigned short type;
 
-	idx = find_global_variable(current_object->prog, (sp-1)->u.string, &type, 0);
+	idx = globalObject.find_global_variable(current_object->prog, (sp-1)->u.string, &type, 0);
 	if (idx == -1)
 		error("No variable named '%s'!\n", (sp-1)->u.string);
 	sv = &current_object->variables[idx];
@@ -169,7 +169,7 @@ f_fetch_variable (void) {
 	svalue_t *sv;
 	unsigned short type;
 
-	idx = find_global_variable(current_object->prog, sp->u.string, &type, 0);
+	idx = globalObject.find_global_variable(current_object->prog, sp->u.string, &type, 0);
 	if (idx == -1)
 		error("No variable named '%s'!\n", sp->u.string);
 	sv = &current_object->variables[idx];
@@ -1711,13 +1711,13 @@ void f_program_info (void) {
 #ifdef F_REMOVE_INTERACTIVE
 void f_remove_interactive (void) {
 	if( (sp->u.ob->flags & O_DESTRUCTED) || !(sp->u.ob->interactive) ) {
-		free_object(&sp->u.ob, "f_remove_interactive");
+		globalObject.free_object(&sp->u.ob, "f_remove_interactive");
 		*sp = const0;
 	} else {
 		globalComm.remove_interactive(sp->u.ob, 0);
 		/* It may have been dested */
 		if (sp->type == T_OBJECT)
-			free_object(&sp->u.ob, "f_remove_interactive");
+			globalObject.free_object(&sp->u.ob, "f_remove_interactive");
 		*sp = const1;
 	}
 }
@@ -1742,7 +1742,7 @@ f_query_ip_port (void)
 
 	if (st_num_arg) {
 		tmp = query_ip_port(sp->u.ob);
-		free_object(&sp->u.ob, "f_query_ip_port");
+		globalObject.free_object(&sp->u.ob, "f_query_ip_port");
 	} else {
 		tmp = query_ip_port(command_giver);
 		STACK_INC;
@@ -2049,7 +2049,7 @@ void f_query_replaced_program (void)
 	{
 		if (sp->u.ob->replaced_program)
 			res = add_slash(sp->u.ob->replaced_program);
-		free_object(&sp->u.ob, "f_query_replaced_program");
+		globalObject.free_object(&sp->u.ob, "f_query_replaced_program");
 	}
 	else
 	{
@@ -2317,7 +2317,7 @@ void f_base_name (void) {
 
 	if( sp->type == T_OBJECT ) {
 		if( sp->u.ob->flags & O_DESTRUCTED ) {
-			free_object( &sp->u.ob, "f_base_name");
+			globalObject.free_object( &sp->u.ob, "f_base_name");
 			*sp = const0;
 			return;
 		}
@@ -2358,7 +2358,7 @@ void f_get_garbage (void){
 	int count, i;
 	object_t **obs;
 	array_t *ret;
-	get_objects(&obs, &count, garbage_check, 0);
+	globalObject.get_objects(&obs, &count, garbage_check, 0);
 
 	if (count > max_array_size)
 		count = max_array_size;
@@ -2788,7 +2788,7 @@ void f_query_charmode (void){
 
 	if (st_num_arg){
 		tmp = query_charmode(sp->u.ob);
-		free_object(&sp->u.ob, "f_query_charmode");
+		globalObject.free_object(&sp->u.ob, "f_query_charmode");
 	}
 	else {
 		tmp = -1;
@@ -2813,7 +2813,7 @@ void f_remove_charmode (void){
 
 	if (st_num_arg){
 		tmp = remove_charmode(sp->u.ob);
-		free_object(&sp->u.ob, "f_remove_charmode");
+		globalObject.free_object(&sp->u.ob, "f_remove_charmode");
 	}
 	else {
 		tmp = -1;
@@ -2847,7 +2847,7 @@ void f_remove_get_char (void){
 
 	if (st_num_arg){
 		tmp = remove_get_char(sp->u.ob);
-		free_object(&sp->u.ob, "f_remove_get_char");
+		globalObject.free_object(&sp->u.ob, "f_remove_get_char");
 	}
 	else {
 		tmp = -3;
@@ -2873,7 +2873,7 @@ void f_send_nullbyte (void){
 		globalComm.add_message(who,"",1);
 		globalComm.flush_message(who->interactive);
 	}
-	free_object(&sp->u.ob, "f_send_nullbyte");
+	globalObject.free_object(&sp->u.ob, "f_send_nullbyte");
 	put_number(tmp);
 }
 
@@ -2887,10 +2887,10 @@ void f_restore_from_string(){
 	buf = (sp-1)->u.string;
 	noclear = sp->u.number;
 	if (!noclear) {
-		clear_non_statics(current_object);
+		globalObject.clear_non_statics(current_object);
 	}
 	copy_and_push_string(buf); //restore_object_from_buff modifies the string in place, which is ok, copied strings aren't shared
-	restore_object_from_buff(current_object, (char *)sp->u.string, noclear);
+	globalObject.restore_object_from_buff(current_object, (char *)sp->u.string, noclear);
 	pop_3_elems();
 }
 #endif

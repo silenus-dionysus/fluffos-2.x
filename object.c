@@ -12,6 +12,8 @@
 #include "master.h"
 #include "add_action.h"
 
+Object globalObject;
+
 #define too_deep_save_error() \
     error("Mappings and/or arrays nested too deep (%d) for save_object\n",\
           MAX_SAVE_SVALUE_DEPTH);
@@ -20,14 +22,14 @@ object_t *previous_ob;
 int tot_alloc_object, tot_alloc_object_size;
 
 char *save_mapping (mapping_t *m);
-INLINE_STATIC int restore_array (char **str, svalue_t *);
-INLINE_STATIC int restore_class (char **str, svalue_t *);
+INLINE int restore_array (char **str, svalue_t *);
+INLINE int restore_class (char **str, svalue_t *);
 
 #ifdef F_SET_HIDE
 int num_hidden = 0;
 
 INLINE int
-valid_hide (object_t * obj)
+Object::valid_hide (object_t * obj)
 {
     svalue_t *ret;
 
@@ -43,7 +45,7 @@ valid_hide (object_t * obj)
 int save_svalue_depth = 0, max_depth;
 int *sizes = 0;
 
-INLINE int svalue_save_size (svalue_t * v)
+INLINE int Object::svalue_save_size (svalue_t * v)
 {
     switch(v->type) {
     case T_STRING:
@@ -135,7 +137,7 @@ INLINE int svalue_save_size (svalue_t * v)
     }
 }
 
-INLINE void save_svalue (svalue_t * v, char ** buf)
+INLINE void Object::save_svalue (svalue_t * v, char ** buf)
 {
     switch(v->type) {
     case T_STRING:
@@ -252,8 +254,8 @@ INLINE void save_svalue (svalue_t * v, char ** buf)
     }
 }
 
-INLINE_STATIC int
-restore_internal_size (const char ** str, int is_mapping, int depth)
+INLINE int
+Object::restore_internal_size (const char ** str, int is_mapping, int depth)
 {
     register const char *cp = *str;
     int size = 0;
@@ -362,8 +364,8 @@ restore_internal_size (const char ** str, int is_mapping, int depth)
 
 
 
-INLINE_STATIC int
-restore_size (const char ** str, int is_mapping)
+INLINE int
+Object::restore_size (const char ** str, int is_mapping)
 {
     register const char *cp = *str;
     int size = 0;
@@ -445,8 +447,8 @@ restore_size (const char ** str, int is_mapping)
     return -1;
 }
 
-INLINE_STATIC int
-restore_interior_string (char ** val, svalue_t * sv)
+INLINE int
+Object::restore_interior_string (char ** val, svalue_t * sv)
 {
     register char *cp = *val;
     char *start = cp, *newstr;
@@ -509,7 +511,7 @@ restore_interior_string (char ** val, svalue_t * sv)
     return 0;
 }
 
-static int parse_numeric (char ** cpp, unsigned char c, svalue_t * dest)
+int Object::parse_numeric (char ** cpp, unsigned char c, svalue_t * dest)
 {
     char *cp = *cpp;
     LPC_INT res, neg;
@@ -599,7 +601,7 @@ static int parse_numeric (char ** cpp, unsigned char c, svalue_t * dest)
     }
 }
 
-INLINE_STATIC void add_map_stats (mapping_t * m, int count)
+INLINE void Object::add_map_stats (mapping_t * m, int count)
 {
     total_mapping_nodes += count;
     total_mapping_size += count * sizeof(mapping_node_t);
@@ -609,8 +611,8 @@ INLINE_STATIC void add_map_stats (mapping_t * m, int count)
     m->count = count;
 }
 
-static int
-restore_mapping (char **str, svalue_t * sv)
+int
+Object::restore_mapping (char **str, svalue_t * sv)
 {
     int size, i, mask, count = 0;
     unsigned long oi;
@@ -819,8 +821,8 @@ restore_mapping (char **str, svalue_t * sv)
 }
 
 
-INLINE_STATIC int
-restore_class (char ** str, svalue_t * ret)
+INLINE int
+Object::restore_class (char ** str, svalue_t * ret)
 {
     int size;
     char c;
@@ -906,8 +908,8 @@ restore_class (char ** str, svalue_t * ret)
     return err;
 }
 
-INLINE_STATIC int
-restore_array (char ** str, svalue_t * ret)
+INLINE int
+Object::restore_array (char ** str, svalue_t * ret)
 {
     int size;
     char c;
@@ -993,8 +995,8 @@ restore_array (char ** str, svalue_t * ret)
     return err;
 }
 
-INLINE_STATIC int
-restore_string (char * val, svalue_t * sv)
+INLINE int
+Object::restore_string (char * val, svalue_t * sv)
 {
     register char *cp = val;
     char *start = cp, *newstr;
@@ -1058,7 +1060,7 @@ restore_string (char * val, svalue_t * sv)
 /* for this case, the variable in question has been set to zero already,
    and we don't have to worry about preserving it */
 INLINE int
-restore_svalue (char * cp, svalue_t * v)
+Object::restore_svalue (char * cp, svalue_t * v)
 {
     int ret;
     char c;
@@ -1103,8 +1105,8 @@ restore_svalue (char * cp, svalue_t * v)
 
 /* for this case, we're being careful and want to leave the value alone on
    an error */
-INLINE_STATIC int
-safe_restore_svalue (char * cp, svalue_t * v)
+INLINE int
+Object::safe_restore_svalue (char * cp, svalue_t * v)
 {
     int ret;
     svalue_t val;
@@ -1155,7 +1157,7 @@ safe_restore_svalue (char * cp, svalue_t * v)
     return 0;
 }
 
-static int fgv_recurse (program_t * prog, int * idx,
+int Object::fgv_recurse (program_t * prog, int * idx,
                           char * name, unsigned short * type,
                           int check_nosave) {
     int i;
@@ -1178,7 +1180,7 @@ static int fgv_recurse (program_t * prog, int * idx,
     return 0;
 }
 
-int find_global_variable (program_t * prog, const char * const name,
+int Object::find_global_variable (program_t * prog, const char * const name,
                             unsigned short * type, int check_nosave) {
     int idx = 0;
     char *str = findstring(name);
@@ -1190,7 +1192,7 @@ int find_global_variable (program_t * prog, const char * const name,
 }
 
 void
-restore_object_from_line (object_t * ob, char * line, int noclear)
+Object::restore_object_from_line (object_t * ob, char * line, int noclear)
 {
     char *space;
     svalue_t *v;
@@ -1246,7 +1248,7 @@ restore_object_from_line (object_t * ob, char * line, int noclear)
 
 #ifdef HAVE_ZLIB
 int
-restore_object_from_gzip (object_t * ob,
+Object::restore_object_from_gzip (object_t * ob,
                             gzFile gzf,
                             int noclear, int *count)
 {
@@ -1295,7 +1297,7 @@ restore_object_from_gzip (object_t * ob,
 #endif
 
 void
-restore_object_from_buff (object_t * ob, char * theBuff,
+Object::restore_object_from_buff (object_t * ob, char * theBuff,
                             int noclear)
 {
     char *buff, *nextBuff, *tmp;
@@ -1323,11 +1325,11 @@ restore_object_from_buff (object_t * ob, char * theBuff,
  * If 'save_zeros' is set, 0 valued variables will be saved
  */
 #ifdef HAVE_ZLIB
-static int save_object_recurse (program_t * prog, svalue_t **
+int Object::save_object_recurse (program_t * prog, svalue_t **
                                   svp, int type, int save_zeros,
                                   FILE * f, gzFile gzf)
 #else
-static int save_object_recurse (program_t * prog, svalue_t **
+int Object::save_object_recurse (program_t * prog, svalue_t **
                                   svp, int type, int save_zeros,
                                   FILE * f)
 #endif
@@ -1415,7 +1417,7 @@ static int save_object_recurse (program_t * prog, svalue_t **
  * If 'save_zeros' is set, 0 valued variables will be saved
  */
 
-static int save_object_recurse_str (program_t * prog, svalue_t **svp, int type, int save_zeros, char *buf, int bufsize){
+int Object::save_object_recurse_str (program_t * prog, svalue_t **svp, int type, int save_zeros, char *buf, int bufsize){
     int i;
     int textsize = 1;
     int tmp;
@@ -1484,7 +1486,7 @@ int gz_sel = -1;
 #endif
 
 int
-save_object (object_t * ob, const char * file, int save_zeros)
+Object::save_object (object_t * ob, const char * file, int save_zeros)
 {
     char *name, *p;
     static char save_name[256], tmp_name[256];
@@ -1616,7 +1618,7 @@ save_object (object_t * ob, const char * file, int save_zeros)
 }
 
 int
-save_object_str (object_t *ob, int save_zeros, char *saved, int size)
+Object::save_object_str (object_t *ob, int save_zeros, char *saved, int size)
 {
     char *p;
     int success;
@@ -1655,7 +1657,7 @@ save_object_str (object_t *ob, int save_zeros, char *saved, int size)
  * would write it.
  */
 char *
-save_variable (svalue_t * var)
+Object::save_variable (svalue_t * var)
 {
     int theSize;
     char *new_str, *p;
@@ -1670,7 +1672,7 @@ save_variable (svalue_t * var)
     return new_str;
 }
 
-static void cns_just_count (int * idx, program_t * prog) {
+void Object::cns_just_count (int * idx, program_t * prog) {
     int i;
 
     for (i = 0; i < prog->num_inherited; i++)
@@ -1678,7 +1680,7 @@ static void cns_just_count (int * idx, program_t * prog) {
     *idx += prog->num_variables_defined;
 }
 
-static void cns_recurse (object_t * ob, int * idx, program_t * prog) {
+void Object::cns_recurse (object_t * ob, int * idx, program_t * prog) {
     int i;
 
     for (i = 0; i < prog->num_inherited; i++) {
@@ -1696,12 +1698,12 @@ static void cns_recurse (object_t * ob, int * idx, program_t * prog) {
     *idx += prog->num_variables_defined;
 }
 
-void clear_non_statics (object_t * ob) {
+void Object::clear_non_statics (object_t * ob) {
     int idx = 0;
     cns_recurse(ob, &idx, ob->prog);
 }
 
-int restore_object (object_t * ob, const char * file, int noclear)
+int Object::restore_object (object_t * ob, const char * file, int noclear)
 {
     char *name;
     int len;
@@ -1840,7 +1842,7 @@ int restore_object (object_t * ob, const char * file, int noclear)
     return 1;
 }
 
-void restore_variable (svalue_t * var, char * str)
+void Object::restore_variable (svalue_t * var, char * str)
 {
     int rc;
     rc = restore_svalue(str, var);
@@ -1860,7 +1862,7 @@ void restore_variable (svalue_t * var, char * str)
     }
 }
 
-void tell_npc (object_t * ob, const char * str)
+void Object::tell_npc (object_t * ob, const char * str)
 {
     copy_and_push_string(str);
     apply(APPLY_CATCH_TELL, ob, 1, ORIGIN_DRIVER);
@@ -1876,7 +1878,7 @@ void tell_npc (object_t * ob, const char * str)
  * goes to catch_tell unless the target of tell_object is interactive
  * and is the current_object in which case it is written via add_message().
  */
-void tell_object (object_t * ob, const char * str, int len)
+void Object::tell_object (object_t * ob, const char * str, int len)
 {
     if (!ob || (ob->flags & O_DESTRUCTED)) {
         globalComm.add_message(0, str, len);
@@ -1891,7 +1893,7 @@ void tell_object (object_t * ob, const char * str, int len)
         tell_npc(ob, str);
 }
 
-void dealloc_object (object_t * ob, const char * from)
+void Object::dealloc_object (object_t * ob, const char * from)
 {
 #ifdef DEBUG
     object_t *prev_all = 0;
@@ -1956,7 +1958,7 @@ void dealloc_object (object_t * ob, const char * from)
     FREE((char *) ob);
 }
 
-void free_object (object_t ** ob, const char * const from)
+void Object::free_object (object_t ** ob, const char * const from)
 {
     //note that we get a pointer to a pointer unlike MudOS where it's a pointer to the object
 	//this is so we can clear the variable holding the reference as that shouldn't be used anymore
@@ -1980,7 +1982,7 @@ void free_object (object_t ** ob, const char * const from)
  * are needed, we waste one svalue worth of memory (or we'd write too
  * much memory in copying the NULL_object over.
  */
-object_t *get_empty_object (int num_var)
+object_t *Object::get_empty_object (int num_var)
 {
   //static object_t NULL_object;
     object_t *ob;
@@ -2006,7 +2008,7 @@ object_t *get_empty_object (int num_var)
     return ob;
 }
 
-void reset_object (object_t * ob)
+void Object::reset_object (object_t * ob)
 {
     /* Be sure to update time first ! */
     ob->next_reset = current_time + TIME_TO_RESET / 2 +
@@ -2021,7 +2023,7 @@ void reset_object (object_t * ob)
     ob->flags |= O_RESET_STATE;
 }
 
-void call_create (object_t * ob, int num_arg)
+void Object::call_create (object_t * ob, int num_arg)
 {
     /* Be sure to update time first ! */
     ob->next_reset = current_time + TIME_TO_RESET / 2 +
@@ -2040,7 +2042,7 @@ void call_create (object_t * ob, int num_arg)
 }
 
 #ifdef F_SET_HIDE
-INLINE int object_visible (object_t * ob)
+INLINE int Object::object_visible (object_t * ob)
 {
     if (ob->flags & O_HIDDEN) {
         if (current_object->flags & O_HIDDEN)
@@ -2052,7 +2054,7 @@ INLINE int object_visible (object_t * ob)
 }
 #endif
 
-void reload_object (object_t * obj)
+void Object::reload_object (object_t * obj)
 {
     int i;
 
@@ -2112,7 +2114,7 @@ void reload_object (object_t * obj)
     call_create(obj, 0);
 }
 
-void get_objects (object_t *** list, int * size, get_objectsfn_t callback, void * data)
+void Object::get_objects (object_t *** list, int * size, get_objectsfn_t callback, void * data)
 {
     object_t *ob;
 #ifdef F_SET_HIDE
@@ -2148,7 +2150,7 @@ static object_t *command_giver_stack[CFG_MAX_CALL_DEPTH];
 object_t **cgsp = command_giver_stack;
 
 #ifdef DEBUGMALLOC_EXTENSIONS
-void mark_command_giver_stack (void)
+void Object::mark_command_giver_stack (void)
 {
     object_t **ob;
 
@@ -2162,7 +2164,7 @@ void mark_command_giver_stack (void)
 #endif
 
 /* set a new command giver, saving the old one */
-void save_command_giver (object_t * ob)
+void Object::save_command_giver (object_t * ob)
 {
     DEBUG_CHECK(cgsp == &command_giver_stack[CFG_MAX_CALL_DEPTH], "command_giver stack overflow");
     *(++cgsp) = command_giver;
@@ -2173,7 +2175,7 @@ void save_command_giver (object_t * ob)
 }
 
 /* restore the saved command giver */
-void restore_command_giver (void)
+void Object::restore_command_giver (void)
 {
     if (command_giver)
         free_object(&command_giver, "command_giver_error_handler");
@@ -2182,7 +2184,7 @@ void restore_command_giver (void)
 }
 
 /* set a new command giver */
-void set_command_giver (object_t * ob)
+void Object::set_command_giver (object_t * ob)
 {
     if (command_giver)
         free_object(&command_giver, "set_command_giver");

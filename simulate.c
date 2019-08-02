@@ -404,9 +404,9 @@ object_t *int_load_object (const char * lname, int callcreate)
         (void) strcat(obname, ".c");
 
     if (stat(real_name, &c_st) == -1 || S_ISDIR(c_st.st_mode)) {
-        save_command_giver(command_giver);
+        globalObject.save_command_giver(command_giver);
         ob = load_virtual_object(actualname, 0);
-        restore_command_giver();
+        globalObject.restore_command_giver();
         num_objects_this_thread--;
         return ob;
     }
@@ -430,9 +430,9 @@ object_t *int_load_object (const char * lname, int callcreate)
             debug_perror("compile_file", real_name);
             error("Could not read the file '/%s'.\n", real_name);
         }
-	save_command_giver(command_giver);
+	globalObject.save_command_giver(command_giver);
 	prog = compile_file(f, obname);
-	restore_command_giver();
+	globalObject.restore_command_giver();
         if (comp_flag)
             debug_message(" done\n");
         globalBackend.update_compile_av(total_lines);
@@ -499,7 +499,7 @@ object_t *int_load_object (const char * lname, int callcreate)
         num_objects_this_thread--;
         return ob;
     }
-    ob = get_empty_object(prog->num_variables_total);
+    ob = globalObject.get_empty_object(prog->num_variables_total);
     /* Shared string is no good here */
     SETOBNAME(ob, alloc_cstring(name, "load_object"));
     SET_TAG(ob->obname, TAG_OBJ_NAME);
@@ -511,7 +511,7 @@ object_t *int_load_object (const char * lname, int callcreate)
       obj_list->prev_all = ob;
     obj_list = ob;
     globalOTable.enter_object_hash(ob);      /* add name to fast object lookup table */
-    save_command_giver(command_giver);
+    globalObject.save_command_giver(command_giver);
     push_object(ob);
     mret = globalMaster.apply_master_ob(APPLY_VALID_OBJECT, 1);
     if (mret && !MASTER_APPROVED(mret)) {
@@ -520,12 +520,12 @@ object_t *int_load_object (const char * lname, int callcreate)
     }
 
     if (init_object(ob) && callcreate)
-        call_create(ob, 0);
+        globalObject.call_create(ob, 0);
     if (!(ob->flags & O_DESTRUCTED) &&
         function_exists(APPLY_CLEAN_UP, ob, 1)) {
         ob->flags |= O_WILL_CLEAN_UP;
     }
-    restore_command_giver();
+    globalObject.restore_command_giver();
 
     if (ob)
         debug(d_flag, ("--/%s loaded", ob->obname));
@@ -561,17 +561,17 @@ object_t *clone_object (const char * str1, int num_arg)
     }
 #endif
 
-    save_command_giver(command_giver);
+    globalObject.save_command_giver(command_giver);
 
     num_objects_this_thread = 0;
     ob = find_object(str1);
-    if (ob && !object_visible(ob))
+    if (ob && !globalObject.object_visible(ob))
         ob = 0;
     /*
      * If the object self-destructed...
      */
     if (ob == 0) {              /* fix from 3.1.1 */
-        restore_command_giver();
+        globalObject.restore_command_giver();
         pop_n_elems(num_arg);
         return (0);
     }
@@ -581,7 +581,7 @@ object_t *clone_object (const char * str1, int num_arg)
 
     if(ob->flags & O_VIRTUAL) {
       new_ob = load_virtual_object(ob->obname, 1 + num_arg);
-      restore_command_giver();
+      globalObject.restore_command_giver();
       return new_ob;
       /*
        * we can skip all of the stuff below since we were already
@@ -592,7 +592,7 @@ object_t *clone_object (const char * str1, int num_arg)
     /* We do not want the heart beat to be running for unused copied objects */
     if (ob->flags & O_HEART_BEAT)
         (void) globalBackend.set_heart_beat(ob, 0);
-    new_ob = get_empty_object(ob->prog->num_variables_total);
+    new_ob = globalObject.get_empty_object(ob->prog->num_variables_total);
     SETOBNAME(new_ob, make_new_name(ob->obname));
     new_ob->flags |= (O_CLONE | (ob->flags & (O_WILL_CLEAN_UP | O_WILL_RESET)));
     new_ob->load_time = ob->load_time;
@@ -608,8 +608,8 @@ object_t *clone_object (const char * str1, int num_arg)
 
     init_object(new_ob);
 
-    call_create(new_ob, num_arg);
-    restore_command_giver();
+    globalObject.call_create(new_ob, num_arg);
+    globalObject.restore_command_giver();
     /* Never know what can happen ! :-( */
     if (new_ob->flags & O_DESTRUCTED)
         return (0);
@@ -919,7 +919,7 @@ void destruct_object (object_t * ob)
         globalOTable.remove_object_hash(ob);
         SETOBNAME(new_ob, tmp);
 	tmp_ob = ob;
-	free_object(&tmp_ob, "vital object reference");
+	globalObject.free_object(&tmp_ob, "vital object reference");
 	// still need ob below!
     } else
        globalOTable.remove_object_hash(ob);
@@ -1029,7 +1029,7 @@ void destruct2 (object_t * ob)
     ob->prev_all = 0;
 #endif
 
-    free_object(&ob, "destruct_object");
+    globalObject.free_object(&ob, "destruct_object");
 }
 
 /*
@@ -1063,7 +1063,7 @@ static void send_say (object_t * ob, const char * text, array_t * avoid)
     if (!valid)
         return;
 
-    tell_object(ob, text, strlen(text));
+    globalObject.tell_object(ob, text, strlen(text));
 }
 
 void say (svalue_t * v, array_t * avoid)
@@ -1075,9 +1075,9 @@ void say (svalue_t * v, array_t * avoid)
     buff = v->u.string;
 
     if (current_object->flags & O_LISTENER || current_object->interactive)
-        save_command_giver(current_object);
+        globalObject.save_command_giver(current_object);
     else
-        save_command_giver(command_giver);
+        globalObject.save_command_giver(command_giver);
     if (command_giver)
         origin = command_giver;
     else
@@ -1106,7 +1106,7 @@ void say (svalue_t * v, array_t * avoid)
         }
     }
 
-    restore_command_giver();
+    globalObject.restore_command_giver();
 }
 
 /*
@@ -1160,11 +1160,11 @@ void tell_room (object_t * room, svalue_t * v, array_t * avoid)
             continue;
 
         if (!ob->interactive) {
-            tell_npc(ob, buff);
+            globalObject.tell_npc(ob, buff);
             if (ob->flags & O_DESTRUCTED)
                 break;
         } else {
-            tell_object(ob, buff, strlen(buff));
+            globalObject.tell_object(ob, buff, strlen(buff));
             if (ob->flags & O_DESTRUCTED)
                 break;
         }
@@ -1186,7 +1186,7 @@ void shout_string (const char * str)
 #endif
             )
             continue;
-        tell_object(ob, str, strlen(str));
+        globalObject.tell_object(ob, str, strlen(str));
     }
 }
 
@@ -1290,7 +1290,7 @@ void print_svalue (svalue_t * arg)
     int len;
 
     if (arg == 0) {
-        tell_object(command_giver, "<NULL>", 6);
+        globalObject.tell_object(command_giver, "<NULL>", 6);
     } else
         switch (arg->type) {
         case T_STRING:
@@ -1300,36 +1300,36 @@ void print_svalue (svalue_t * arg)
                       LARGEST_PRINTABLE_STRING);
             }
 
-            tell_object(command_giver, arg->u.string, len);
+            globalObject.tell_object(command_giver, arg->u.string, len);
             break;
         case T_OBJECT:
             sprintf(tbuf, "OBJ(/%s)", arg->u.ob->obname);
-            tell_object(command_giver, tbuf, strlen(tbuf));
+            globalObject.tell_object(command_giver, tbuf, strlen(tbuf));
             break;
         case T_NUMBER:
             sprintf(tbuf, "%ld", arg->u.number);
-            tell_object(command_giver, tbuf, strlen(tbuf));
+            globalObject.tell_object(command_giver, tbuf, strlen(tbuf));
             break;
         case T_REAL:
             sprintf(tbuf, "%f", arg->u.real);
-            tell_object(command_giver, tbuf, strlen(tbuf));
+            globalObject.tell_object(command_giver, tbuf, strlen(tbuf));
             break;
         case T_ARRAY:
-            tell_object(command_giver, "<ARRAY>", strlen("<ARRAY>"));
+            globalObject.tell_object(command_giver, "<ARRAY>", strlen("<ARRAY>"));
             break;
         case T_MAPPING:
-            tell_object(command_giver, "<MAPPING>", strlen("<MAPPING>"));
+            globalObject.tell_object(command_giver, "<MAPPING>", strlen("<MAPPING>"));
             break;
         case T_FUNCTION:
-            tell_object(command_giver, "<FUNCTION>", strlen("<FUNCTION>"));
+            globalObject.tell_object(command_giver, "<FUNCTION>", strlen("<FUNCTION>"));
             break;
 #ifndef NO_BUFFER_TYPE
         case T_BUFFER:
-            tell_object(command_giver, "<BUFFER>", strlen("<BUFFER>"));
+            globalObject.tell_object(command_giver, "<BUFFER>", strlen("<BUFFER>"));
             break;
 #endif
         default:
-            tell_object(command_giver, "<UNKNOWN>", strlen("<UNKNOWN>"));
+            globalObject.tell_object(command_giver, "<UNKNOWN>", strlen("<UNKNOWN>"));
             break;
         }
     return;
@@ -1351,9 +1351,9 @@ void do_write (svalue_t * arg)
     if (!ob)
         ob = current_object;
 #endif                          /* NO_SHADOWS */
-    save_command_giver(ob);
+    globalObject.save_command_giver(ob);
     print_svalue(arg);
-    restore_command_giver();
+    globalObject.restore_command_giver();
 }
 
 /* Find an object. If not loaded, load it !
@@ -1404,7 +1404,7 @@ void move_object (object_t * item, object_t * dest)
 {
     object_t **pp, *ob;
 
-    save_command_giver(command_giver);
+    globalObject.save_command_giver(command_giver);
 
     /* Recursive moves are not allowed. */
     for (ob = dest; ob; ob = ob->super)
@@ -1456,7 +1456,7 @@ void move_object (object_t * item, object_t * dest)
     item->super = dest;
 
     setup_new_commands(dest, item);
-    restore_command_giver();
+    globalObject.restore_command_giver();
 }
 #endif
 
@@ -1917,9 +1917,9 @@ void slow_shut_down (int minutes)
         object_t *save_current = current_object;
 
         current_object = 0;
-        save_command_giver(0);
+        globalObject.save_command_giver(0);
         shout_string("FluffOS driver shouts: Out of memory.\n");
-        restore_command_giver();
+        globalObject.restore_command_giver();
         current_object = save_current;
 #ifdef SIGNAL_FUNC_TAKES_INT
         startshutdownMudOS(1);
@@ -1939,7 +1939,7 @@ void do_message (svalue_t * lclass, svalue_t * msg, array_t * scope, array_t * e
         switch (scope->item[i].type) {
         case T_STRING:
             ob = find_object(scope->item[i].u.string);
-            if (!ob || !object_visible(ob))
+            if (!ob || !globalObject.object_visible(ob))
                 continue;
             break;
         case T_OBJECT:
@@ -1996,7 +1996,7 @@ object_t *first_inventory (svalue_t * arg)
 
     if (arg->type == T_STRING) {
         ob = find_object(arg->u.string);
-        if (ob && !object_visible(ob))
+        if (ob && !globalObject.object_visible(ob))
             ob = 0;
     } else
         ob = arg->u.ob;
@@ -2005,7 +2005,7 @@ object_t *first_inventory (svalue_t * arg)
     ob = ob->contains;
 
 #ifdef F_SET_HIDE
-    while (ob && (ob->flags & O_HIDDEN) && !object_visible(ob))
+    while (ob && (ob->flags & O_HIDDEN) && !globalObject.object_visible(ob))
         ob = ob->next_inv;
 #endif
 

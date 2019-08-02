@@ -142,7 +142,7 @@ void DumpStat::dumpstat (const char * tfn)
 #ifdef F_SET_HIDE
         if (ob->flags & O_HIDDEN) {
             if (display_hidden == -1)
-                display_hidden = valid_hide(current_object);
+                display_hidden = globalObject.valid_hide(current_object);
             if (!display_hidden)
                 continue;
         }

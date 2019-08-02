@@ -1572,10 +1572,10 @@ void Comm::get_user_data (interactive_t * ip)
 				exit(1);
 			}
 			object_t *ob = ip->ob;
-			set_command_giver(ob);
+			globalObject.set_command_giver(ob);
 			current_interactive = ob;
 			apply(APPLY_PROCESS_INPUT, ob, 1, ORIGIN_DRIVER);
-			set_command_giver(0);
+			globalObject.set_command_giver(0);
 			current_interactive = 0;
 
 			break; //they're not allowed to send the other stuff until we replied, so all data should be handshake stuff
@@ -1599,7 +1599,7 @@ void Comm::get_user_data (interactive_t * ip)
 				svalue_t value;
 
 				ip->text[ip->text_end] = 0;
-				if (restore_svalue(ip->text + 4, &value) == 0) {
+				if (globalObject.restore_svalue(ip->text + 4, &value) == 0) {
 					STACK_INC;
 					*sp = value;
 				} else {
@@ -2002,7 +2002,7 @@ void Comm::new_user_handler (int which)
 			all_users[max_users++] = 0;
 	}
 
-	set_command_giver(master_ob);
+	globalObject.set_command_giver(master_ob);
 	master_ob->interactive =
 			(interactive_t *)
 			DXALLOC(sizeof(interactive_t), TAG_INTERACTIVE,
@@ -2093,13 +2093,13 @@ void Comm::new_user_handler (int which)
 	ret = globalMaster.apply_master_ob(APPLY_CONNECT, 1);
 	/* master_ob->interactive can be zero if the master object self
        destructed in the above (don't ask) */
-	set_command_giver(0);
+	globalObject.set_command_giver(0);
 	if (ret == 0 || ret == (svalue_t *)-1 || ret->type != T_OBJECT
 			|| !master_ob->interactive) {
 		if (master_ob->interactive)
 			remove_interactive(master_ob, 0);
 		else
-			free_object(&master, "new_user");
+			globalObject.free_object(&master, "new_user");
 #ifdef IPV6
 		debug_message("Connection from %s aborted.\n", inet_ntop(AF_INET6, &addr.sin6_addr, tmp, INET6_ADDRSTRLEN));
 #else
@@ -2125,12 +2125,12 @@ void Comm::new_user_handler (int which)
 	 */
 	ob->interactive->iflags |= (HAS_WRITE_PROMPT | HAS_PROCESS_INPUT);
 
-	free_object(&master, "new_user");
+	globalObject.free_object(&master, "new_user");
 
 	master_ob->flags &= ~O_ONCE_INTERACTIVE;
 	master_ob->interactive = 0;
 	add_ref(ob, "new_user");
-	set_command_giver(ob);
+	globalObject.set_command_giver(ob);
 	if (addr_server_fd >= 0) {
 		query_addr_name(ob);
 	}
@@ -2158,7 +2158,7 @@ void Comm::new_user_handler (int which)
 
 	globalBackend.logon(ob);
 	debug(connections, ("new_user_handler: end\n"));
-	set_command_giver(0);
+	globalObject.set_command_giver(0);
 }                               /* new_user_handler() */
 
 	/*
@@ -2203,7 +2203,7 @@ char *Comm::get_user_command()
 
 	/* got a command - return it and set command_giver */
 	debug(connections, ("get_user_command: user_command = (%s)\n", user_command));
-	save_command_giver(ip->ob);
+	globalObject.save_command_giver(ip->ob);
 
 #ifndef GET_CHAR_IS_BUFFERED
 	if (ip->iflags & NOECHO) {
@@ -2359,7 +2359,7 @@ char *Comm::get_user_command()
 			print_prompt(ip);
 
 		current_interactive = 0;
-		restore_command_giver();
+		globalObject.restore_command_giver();
 		return 1;
 	}
 
@@ -2483,9 +2483,9 @@ char *Comm::get_user_command()
 			/*
 			 * auto-notification of net death
 			 */
-			save_command_giver(ob);
+			globalObject.save_command_giver(ob);
 			safe_apply(APPLY_NET_DEAD, ob, 0, ORIGIN_DRIVER);
-			restore_command_giver();
+			globalObject.restore_command_giver();
 		}
 
 #ifndef NO_SNOOP
@@ -2513,7 +2513,7 @@ char *Comm::get_user_command()
 		clear_notify(ip->ob);
 #if defined(F_INPUT_TO) || defined(F_GET_CHAR)
 		if (ip->input_to) {
-			free_object(&ip->input_to->ob, "remove_interactive");
+			globalObject.free_object(&ip->input_to->ob, "remove_interactive");
 			free_sentence(ip->input_to);
 			if (ip->num_carry > 0)
 				free_some_svalues(ip->carryover, ip->num_carry);
@@ -2529,7 +2529,7 @@ char *Comm::get_user_command()
 		FREE(ip);
 		ob->interactive = 0;
 		all_users[idx] = 0;
-		free_object(&ob, "remove_interactive");
+		globalObject.free_object(&ob, "remove_interactive");
 		return;
 	}                               /* remove_interactive() */
 
@@ -2557,7 +2557,7 @@ char *Comm::get_user_command()
 		 */
 		if (sent->ob->flags & O_DESTRUCTED) {
 			/* Sorry, the object has selfdestructed ! */
-			free_object(&sent->ob, "call_function_interactive");
+			globalObject.free_object(&sent->ob, "call_function_interactive");
 			free_sentence(sent);
 			i->input_to = 0;
 			if (i->num_carry)
@@ -2603,7 +2603,7 @@ char *Comm::get_user_command()
 		}
 		ob = sent->ob;
 
-		free_object(&sent->ob, "call_function_interactive");
+		globalObject.free_object(&sent->ob, "call_function_interactive");
 		free_sentence(sent);
 
 		/*
@@ -2706,15 +2706,15 @@ void Comm::print_prompt (interactive_t* ip)
 #endif
 		/* give user object a chance to write its own prompt */
 		if (!(ip->iflags & HAS_WRITE_PROMPT))
-			tell_object(ip->ob, ip->prompt, strlen(ip->prompt));
+			globalObject.tell_object(ip->ob, ip->prompt, strlen(ip->prompt));
 #ifdef OLD_ED
 		else if (ip->ed_buffer)
-			tell_object(ip->ob, ip->prompt, strlen(ip->prompt));
+			globalObject.tell_object(ip->ob, ip->prompt, strlen(ip->prompt));
 #endif
 		else if (!apply(APPLY_WRITE_PROMPT, ip->ob, 0, ORIGIN_DRIVER)) {
 			if (!IP_VALID(ip, ob)) return;
 			ip->iflags &= ~HAS_WRITE_PROMPT;
-			tell_object(ip->ob, ip->prompt, strlen(ip->prompt));
+			globalObject.tell_object(ip->ob, ip->prompt, strlen(ip->prompt));
 		}
 #if defined(F_INPUT_TO) || defined(F_GET_CHAR)
 	}
@@ -2938,7 +2938,7 @@ static void got_addr_number (char * number, char * name)
 				&& ipnumbertable[i].ob_to_call->flags & O_DESTRUCTED) {
 			free_svalue(&ipnumbertable[i].call_back, "got_addr_number");
 			free_string(ipnumbertable[i].name);
-			free_object(&ipnumbertable[i].ob_to_call, "got_addr_number: ");
+			globalObject.free_object(&ipnumbertable[i].ob_to_call, "got_addr_number: ");
 			ipnumbertable[i].name = NULL;
 		}
 	for (i = 0; i < IPSIZE; i++) {
@@ -2973,7 +2973,7 @@ static void got_addr_number (char * number, char * name)
 				globalFunction.safe_call_function_pointer(ipnumbertable[i].call_back.u.fp, 3);
 			free_svalue(&ipnumbertable[i].call_back, "got_addr_number");
 			free_string(ipnumbertable[i].name);
-			free_object(&ipnumbertable[i].ob_to_call, "got_addr_number: ");
+			globalObject.free_object(&ipnumbertable[i].ob_to_call, "got_addr_number: ");
 			ipnumbertable[i].name = NULL;
 		}
 	}
@@ -3158,10 +3158,10 @@ ob->flags |= O_ONCE_INTERACTIVE;
 obfrom->flags &= ~O_ONCE_INTERACTIVE;
 add_ref(ob, "exec");
 if (obfrom == command_giver) {
-	set_command_giver(ob);
+	globalObject.set_command_giver(ob);
 }
 
-free_object(&obfrom, "exec");
+globalObject.free_object(&obfrom, "exec");
 return (1);
 }                               /* replace_interactive() */
 #endif
