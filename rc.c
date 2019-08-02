@@ -12,6 +12,8 @@
 #include "include/runtime_config.h"
 #include "main.h"
 
+RC globalRC;
+
 #define MAX_LINE_LENGTH 120
 
 char *config_str[NUM_CONFIG_STRS];
@@ -138,7 +140,7 @@ static char *process_config_string(char *str) {
 }
 #endif
 
-void set_defaults (char * filename)
+void RC::set_defaults (char * filename)
 {
 	FILE *def;
 	char defaults[SMALL_STRING_SIZE];
@@ -359,7 +361,7 @@ void set_defaults (char * filename)
 	config_int[__LIVING_HASH_TABLE_SIZE__ - BASE_CONFIG_INT] = CFG_LIVING_HASH_SIZE;
 }
 
-int get_config_item (svalue_t * res, svalue_t * arg)
+int RC::get_config_item (svalue_t * res, svalue_t * arg)
 {
 	int num;
 

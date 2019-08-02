@@ -7,9 +7,13 @@
  * rc.c
  */
 
+class RC {
+public:
 void set_defaults (char *);
 int get_config_int (int);
 char *get_config_str (int);
 int get_config_item (svalue_t *, svalue_t *);
+};
 
+extern RC globalRC;
 #endif

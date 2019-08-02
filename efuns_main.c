@@ -1103,7 +1103,7 @@ f_get_char (void)
 void
 f_get_config (void)
 {
-    if (!get_config_item(sp, sp))
+    if (!globalRC.get_config_item(sp, sp))
         error("Bad argument to get_config()\n");
 }
 #endif

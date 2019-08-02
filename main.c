@@ -187,7 +187,7 @@ int main (int argc, char ** argv)
 	got_defaults = 0;
 	for (i = 1; (i < argc) && !got_defaults; i++) {
 		if (argv[i][0] != '-') {
-			set_defaults(argv[i]);
+			globalRC.set_defaults(argv[i]);
 			got_defaults = 1;
 		}
 	}
