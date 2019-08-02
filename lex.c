@@ -1717,7 +1717,7 @@ int yylex()
                         /*
                          * make string token and clean up
                          */
-                        yylval.string = scratch_copy_string(outp);
+                        yylval.string = globalScratchP.scratch_copy_string(outp);
 
                         n = strlen(outp) + 1;
                         outp += n;
@@ -1747,7 +1747,7 @@ int yylex()
                     case '"':
                         *to++ = 0;
                         if (!l && (to == scratch_end)) {
-                            char *res = scratch_large_alloc(to - scr_tail - 1);
+                            char *res = globalScratchP.scratch_large_alloc(to - scr_tail - 1);
                             strcpy(res, (char *) (scr_tail + 1));
                             yylval.string = res;
                             return L_STRING;
@@ -1839,7 +1839,7 @@ int yylex()
                         {
                             char *res;
                             *yyp++ = '\0';
-                            res = scratch_large_alloc((yyp - yytext) + (to - scr_tail) - 1);
+                            res = globalScratchP.scratch_large_alloc((yyp - yytext) + (to - scr_tail) - 1);
                             strncpy(res, (char *) (scr_tail + 1), (to - scr_tail) - 1);
                             strcpy(res + (to - scr_tail) - 1, yytext);
                             yylval.string = res;
@@ -1917,7 +1917,7 @@ int yylex()
                 *yyp++ = '\0';
                 {
                     char *res;
-                    res = scratch_large_alloc((yyp - yytext) + (to - scr_tail) - 1);
+                    res = globalScratchP.scratch_large_alloc((yyp - yytext) + (to - scr_tail) - 1);
                     strncpy(res, (char *) (scr_tail + 1), (to - scr_tail) - 1);
                     strcpy(res + (to - scr_tail) - 1, yytext);
                     yylval.string = res;
@@ -2064,7 +2064,7 @@ parse_identifier:
                             yylval.ihe = ihe;
                             return L_DEFINED_NAME;
                         }
-                        yylval.string = scratch_copy(yytext);
+                        yylval.string = globalScratchP.scratch_copy(yytext);
                         return L_IDENTIFIER;
                     }
                     if (function_flag) {

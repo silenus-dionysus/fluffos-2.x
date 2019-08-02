@@ -40,6 +40,8 @@ extern unsigned char *scratch_end;
 /*
  *  scratchpad.c
  */
+class ScratchPad {
+public:
 void scratch_destroy (void);
 char *scratch_copy (const char *);
 char *scratch_alloc (int);
@@ -49,6 +51,8 @@ char *scratch_join2 (char *, char *);
 char *scratch_realloc (char *, int);
 char *scratch_copy_string (char *);
 char *scratch_large_alloc (int);
+};
 
+extern ScratchPad globalScratchP;
 #endif
 

@@ -4,6 +4,8 @@
 #include "scratchpad.h"
 #include "compiler.h"
 
+ScratchPad globalScratchP;
+
 /*
  * This is a first attempt at beating malloc() for allocation of strings
  * during compilation.  It's pretty general, and could probably be done
@@ -86,7 +88,7 @@ static void scratch_summary() {
 }
 #endif
 
-void scratch_destroy() {
+void ScratchPad::scratch_destroy() {
     sp_block_t *next, *thisb = scratch_head.next;
 
     SDEBUG(printf("scratch_destroy\n"));
@@ -102,7 +104,7 @@ void scratch_destroy() {
 }
 
 
-char *scratch_copy (const char * str) {
+char *ScratchPad::scratch_copy (const char * str) {
     unsigned char *from, *to, *end;
 
     SDEBUG2(printf("scratch_copy(%s):", str));
@@ -131,7 +133,7 @@ char *scratch_copy (const char * str) {
     return (char *)to;
 }
 
-void scratch_free (char * ptr) {
+void ScratchPad::scratch_free (char * ptr) {
     /* how do we know what this is?  first we check if it's the last string
        we made.  Otherwise, take advantage of the fact that things on the
        scratchpad have a zero two before them.  Things not on it wont
@@ -159,7 +161,7 @@ void scratch_free (char * ptr) {
     }
 }
 
-char *scratch_large_alloc (int size) {
+char *ScratchPad::scratch_large_alloc (int size) {
     sp_block_t *spt;
 
     SDEBUG(printf("scratch_large_alloc(%i)\n", size));
@@ -174,7 +176,7 @@ char *scratch_large_alloc (int size) {
 }
 
 /* warning: unlike REALLOC(), this one only allows increases */
-char *scratch_realloc (char * ptr, int size) {
+char *ScratchPad::scratch_realloc (char * ptr, int size) {
     SDEBUG(printf("scratch_realloc(%s): ", ptr));
 
      if (Ptr == scr_last) {
@@ -226,7 +228,7 @@ char *scratch_realloc (char * ptr, int size) {
 }
 
 /* the routines above are better than this */
-char *scratch_alloc (int size) {
+char *ScratchPad::scratch_alloc (int size) {
     SDEBUG(printf("scratch_alloc(%i)\n", size));
     if (size < 256 && (scr_tail + size + 1) < scratch_end) {
         scr_last = scr_tail + 1;
@@ -237,7 +239,7 @@ char *scratch_alloc (int size) {
         return scratch_large_alloc(size);
 }
 
-char *scratch_join (char * s1, char * s2) {
+char *ScratchPad::scratch_join (char * s1, char * s2) {
     char *res;
     int tmp;
 
@@ -277,7 +279,7 @@ char *scratch_join (char * s1, char * s2) {
     }
 }
 
-char *scratch_copy_string (char *s) {
+char *ScratchPad::scratch_copy_string (char *s) {
     int l;
     register unsigned char *to = scr_tail + 1;
     char *res;

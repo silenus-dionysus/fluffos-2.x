@@ -444,7 +444,7 @@ parse_node_t *reorder_class_values (int which, parse_node_t * node) {
                 tmp[i] = node->v.expr;
             }
         }
-        scratch_free((char *) node->l.expr);
+        globalScratchP.scratch_free((char *) node->l.expr);
 
         node = node->r.expr;
     }
@@ -2479,7 +2479,7 @@ static program_t *epilog (void) {
     }
     release_tree();
     uninitialize_parser();
-    scratch_destroy();
+    globalScratchP.scratch_destroy();
     clean_up_locals();
     free_unused_identifiers();
     end_new_file();
@@ -2576,7 +2576,7 @@ static void clean_parser() {
     release_tree();
     uninitialize_parser();
     clean_up_locals();
-    scratch_destroy();
+    globalScratchP.scratch_destroy();
     free_unused_identifiers();
 }
 
