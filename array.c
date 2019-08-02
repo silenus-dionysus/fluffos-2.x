@@ -1970,9 +1970,9 @@ int Array::match_single_regexp (const char * str, const char * pattern) {
     int ret;
 
     regexp_user = EFUN_REGEXP;
-    reg = regcomp((unsigned char *)pattern, 0);
+    reg = globalRegExp.regcomp((unsigned char *)pattern, 0);
     if (!reg) error(regexp_error);
-    ret = regexec(reg, str);
+    ret = globalRegExp.regexec(reg, str);
     FREE(reg);
     return ret;
 }
@@ -1986,13 +1986,13 @@ array_t *Array::match_regexp (array_t * v, const char * pattern, int flag) {
 
     regexp_user = EFUN_REGEXP;
     if (!(size = v->size)) return &the_null_array;
-    reg = regcomp((unsigned char *)pattern, 0);
+    reg = globalRegExp.regcomp((unsigned char *)pattern, 0);
     if (!reg) error(regexp_error);
     res = (char *)DMALLOC(size, TAG_TEMPORARY, "match_regexp: res");
     sv1 = v->item + size;
     num_match = 0;
     while (size--) {
-        if (!((--sv1)->type == T_STRING) || (regexec(reg, sv1->u.string) != match)) {
+        if (!((--sv1)->type == T_STRING) || (globalRegExp.regexec(reg, sv1->u.string) != match)) {
             res[size] = 0;
         } else {
             res[size] = 1;
@@ -2219,7 +2219,7 @@ array_t *Array::reg_assoc (svalue_t *str, array_t *pat, array_t *tok, svalue_t *
 
         rgpp = CALLOCATE(size, struct regexp *, TAG_TEMPORARY, "reg_assoc : rgpp");
         for (i = 0; i < size; i++) {
-             if (!(rgpp[i] = regcomp((unsigned char *)pat->item[i].u.string, 0))) {
+             if (!(rgpp[i] = globalRegExp.regcomp((unsigned char *)pat->item[i].u.string, 0))) {
                  while (i--)
                      FREE((char *)rgpp[i]);
                  FREE((char *) rgpp);
@@ -2239,7 +2239,7 @@ array_t *Array::reg_assoc (svalue_t *str, array_t *pat, array_t *tok, svalue_t *
             regindex = -1;
 
             for (i = 0; i < size; i++) {
-                if (regexec(tmpreg = rgpp[i], tmp)) {
+                if (globalRegExp.regexec(tmpreg = rgpp[i], tmp)) {
                     currstart = tmpreg->startp[0];
                     if (tmp == currstart) {
                         regindex = i;

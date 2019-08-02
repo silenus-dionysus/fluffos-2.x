@@ -26,9 +26,13 @@ extern int regnarrate;
 extern int regexp_user;
 extern const char *regexp_error;
 
+class RegExp {
+public:
 void regdump (regexp *);
 regexp *regcomp (unsigned char *, int);
 int regexec (regexp *, const char *);
 char *regsub (regexp *, char *, char *, int);
+};
 
+extern RegExp globalRegExp;
 #endif

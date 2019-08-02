@@ -373,7 +373,7 @@ static int ckglob()
              */
             if (glbpat) {
                 lin = gettxtl(ptr);
-                if (regexec(glbpat, lin)) {
+                if (globalRegExp.regexec(glbpat, lin)) {
                     if (c == 'g')
                         ptr->l_stat |= LGLOB;
                 } else {
@@ -810,7 +810,7 @@ static int find (regexp * pat, int dir)
     num = P_CURLN;
     lin = P_CURPTR;
     for (i = 0; i < P_LASTLN; i++) {
-        if (regexec(pat, gettxtl(lin)))
+        if (globalRegExp.regexec(pat, gettxtl(lin)))
             return (num);
         if (EdErr) {
             EdErr = 0;
@@ -1226,7 +1226,7 @@ static regexp *optpat()
         return (P_OLDPAT);
     if (P_OLDPAT)
         FREE((char *) P_OLDPAT);
-    return P_OLDPAT = regcomp((unsigned char *)str, P_EXCOMPAT);
+    return P_OLDPAT = globalRegExp.regcomp((unsigned char *)str, P_EXCOMPAT);
 }
 
 static int set()
@@ -1332,7 +1332,7 @@ static int subst (regexp * pat, char * sub, int gflg, int pflag)
         space = ED_MAXLINE;     /* amylaar */
         if (P_CURPTR == lastline)
             still_running = 0;
-        if (regexec(pat, txtptr = gettxtl(P_CURPTR))) {
+        if (globalRegExp.regexec(pat, txtptr = gettxtl(P_CURPTR))) {
             do {
                 /* Copy leading text */
                 int diff = pat->startp[0] - txtptr;
@@ -1343,7 +1343,7 @@ static int subst (regexp * pat, char * sub, int gflg, int pflag)
                 newc += diff;
                 /* Do substitution */
                 old = newc;
-                newc = regsub(pat, sub, newc, space);
+                newc = globalRegExp.regsub(pat, sub, newc, space);
                 if (!newc || (space -= newc - old) < 0)   /* amylaar */
                     return SUB_FAIL;
                 if (txtptr == pat->endp[0]) {   /* amylaar : prevent infinite
@@ -1356,7 +1356,7 @@ static int subst (regexp * pat, char * sub, int gflg, int pflag)
                 } else
                     txtptr = pat->endp[0];
             }
-            while (gflg && !pat->reganch && regexec(pat, txtptr));
+            while (gflg && !pat->reganch && globalRegExp.regexec(pat, txtptr));
 
             /* Copy trailing chars */
             /*

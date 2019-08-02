@@ -5309,10 +5309,10 @@ int inter_sscanf (svalue_t * arg, svalue_t * s0, svalue_t * s1, int num_arg)
             memcpy(buf, fmt, n);
             buf[n] = 0;
             regexp_user = EFUN_REGEXP;
-            reg = regcomp((unsigned char *)buf, 0);
+            reg = globalRegExp.regcomp((unsigned char *)buf, 0);
             FREE(buf);
             if (!reg) error(regexp_error);
-            if (!regexec(reg, in_string) || (in_string != reg->startp[0])) {
+            if (!globalRegExp.regexec(reg, in_string) || (in_string != reg->startp[0])) {
               FREE(reg);
               return number_of_matches;
             }
@@ -5424,10 +5424,10 @@ int inter_sscanf (svalue_t * arg, svalue_t * s0, svalue_t * s1, int num_arg)
               memcpy(buf, fmt, n);
               buf[n] = 0;
               regexp_user = EFUN_REGEXP;
-              reg = regcomp((unsigned char *)buf, 0);
+              reg = globalRegExp.regcomp((unsigned char *)buf, 0);
               FREE(buf);
               if (!reg) error(regexp_error);
-              if (!regexec(reg, in_string)) {
+              if (!globalRegExp.regexec(reg, in_string)) {
                 if (!skipme) {
                   SSCANF_ASSIGN_SVALUE_STRING(string_copy(in_string, "sscanf"));
                 }

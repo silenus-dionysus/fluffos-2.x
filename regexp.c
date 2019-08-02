@@ -61,6 +61,8 @@
 #include "comm.h"
 #include "ed.h"
 
+RegExp globalRegExp;
+
 /*
  * The "internal use only" fields in regexp.h are present to pass info from
  * compile to execute that permits the execute phase to run lots faster on
@@ -280,7 +282,7 @@ STATIC void regerror (const char * s) {
  * Beware that the optimization-preparation code in here knows about some
  * of the structure of the compiled regexp.
  */
-regexp *regcomp (unsigned char * exp,
+regexp *RegExp::regcomp (unsigned char * exp,
                    int excompat)       /* \( \) operators like in unix ex */
 {
     register regexp *r;
@@ -840,7 +842,7 @@ STATIC char *regprop (char *);
 /*
  - regexec - match a regexp against a string
  */
-int regexec (register regexp * prog, register const char * string)
+int RegExp::regexec (register regexp * prog, register const char * string)
 {
     register const char *s;
 
@@ -1359,7 +1361,7 @@ static int strcspn (char * s1, char * s2)
 /*
  - regsub - perform substitutions after a regexp match
  */
-char *regsub (regexp * prog, char * source, char * dest, int n)
+char *RegExp::regsub (regexp * prog, char * source, char * dest, int n)
 {
     register char *src;
     register char *dst;
