@@ -4,6 +4,11 @@
 /*
  * reclaim.c
  */
-int reclaim_objects (void);
 
+class Reclaim {
+public:
+int reclaim_objects (void);
+};
+
+extern Reclaim globalReclaim;
 #endif

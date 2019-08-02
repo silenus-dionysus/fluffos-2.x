@@ -10,6 +10,8 @@
 #include "reclaim.h"
 #include "call_out.h"
 
+Reclaim globalReclaim;
+
 #define MAX_RECURSION 25
 
 static void gc_mapping (mapping_t *);
@@ -108,7 +110,7 @@ gc_mapping (mapping_t * m)
     } while (j--);
 }
 
-int reclaim_objects()
+int Reclaim::reclaim_objects()
 {
     int i;
     object_t *ob;
