@@ -17,6 +17,8 @@
 #include "object.h"
 #include "dumpstat.h"
 
+Console globalConsole;
+
 #define NAME_LEN 50
 
 typedef struct {

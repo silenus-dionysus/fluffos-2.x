@@ -9,7 +9,13 @@
 #include "options_incl.h"
 
 #ifdef HAS_CONSOLE
-extern void console_command(char *);
+
+class Console {
+public:
+  void console_command(char *);
+};
+
+extern Console globalConsole;
 #endif
 
 #endif

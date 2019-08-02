@@ -1914,7 +1914,7 @@ INLINE void Comm::process_io()
 
 		if((sz = read(STDIN_FILENO, s, 1023)) > 0) {
 			s[sz-1] = '\0';
-			console_command(s);
+			globalConsole.console_command(s);
 		}
 		else if(sz == 0) {
 			printf("Console exiting.  The MUD remains.\n");
