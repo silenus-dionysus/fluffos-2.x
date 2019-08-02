@@ -1,3 +1,0 @@
-macros.h:#  define DXALLOC(x, t, d)        xalloc(x)
-macros.h:#    define DXALLOC(x, t, d)        debugmalloc(x, t, d)
-preprocess.c:#define DXALLOC(x, y, z) malloc(x)
