@@ -3,8 +3,13 @@
 
 #include "lpc_incl.h"
 
+class ReplaceProgram {
+public:
 int replace_program_pending (object_t *);
 void replace_programs (void);
+};
+
+extern ReplaceProgram globalReplaceP;
 
 typedef struct replace_ob_s {
     object_t *ob;

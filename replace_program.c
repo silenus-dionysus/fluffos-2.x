@@ -10,12 +10,14 @@
  * Ported from Amylaars LP 3.2 driver
  */
 
+ReplaceProgram globalReplaceP;
+
 replace_ob_t *obj_list_replace = 0;
 
 static program_t *search_inherited (char *, program_t *, int *);
 static replace_ob_t *retrieve_replace_program_entry (void);
 
-int replace_program_pending (object_t * ob)
+int ReplaceProgram::replace_program_pending (object_t * ob)
 {
     replace_ob_t *r_ob;
 
@@ -27,7 +29,7 @@ int replace_program_pending (object_t * ob)
     return 0;
 }
 
-void replace_programs (void)
+void ReplaceProgram::replace_programs (void)
 {
     replace_ob_t *r_ob, *r_next;
     int i, num_fewer, offset;

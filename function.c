@@ -126,7 +126,7 @@ Function::make_lfun_funp (int index, svalue_t * args)
     funptr_t *fp;
     int newindex;
 
-    if (replace_program_pending(current_object))
+    if (globalReplaceP.replace_program_pending(current_object))
         error("cannot bind an lfun fp to an object with a pending replace_program()\n");
 
     fp = (funptr_t *)DXALLOC(sizeof(funptr_hdr_t) + sizeof(local_ptr_t),
@@ -183,7 +183,7 @@ Function::make_functional_funp (short num_arg, short num_local, short len, svalu
 {
     funptr_t *fp;
 
-    if (replace_program_pending(current_object))
+    if (globalReplaceP.replace_program_pending(current_object))
         error("cannot bind a functional to an object with a pending replace_program()\n");
     
     fp = (funptr_t *)DXALLOC(sizeof(funptr_hdr_t) + sizeof(functional_t), 

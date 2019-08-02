@@ -573,7 +573,7 @@ INLINE void Backend::remove_destructed_objects()
 	object_t *ob, *next;
 
 	if (obj_list_replace)
-		replace_programs();
+		globalReplaceP.replace_programs();
 	for (ob = obj_list_destruct; ob; ob = next) {
 		next = ob->next_all;
 		destruct2(ob);
