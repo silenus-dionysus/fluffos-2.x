@@ -1123,7 +1123,7 @@ static function_to_call_t *sort_array_ftc;
 
 array_t *Array::builtin_sort_array (array_t * inlist, int dir)
 {
-    quickSort((char *) inlist->item, inlist->size, sizeof(inlist->item),
+    globalQuickS.quickSort((char *) inlist->item, inlist->size, sizeof(inlist->item),
               (dir<0) ? builtin_sort_array_cmp_rev : builtin_sort_array_cmp_fwd);
 
     return inlist;
@@ -1294,7 +1294,7 @@ f_sort_array (void)
 
             tmp = globalArray.copy_array(tmp);
             push_refed_array(tmp);
-            quickSort((char *) tmp->item, tmp->size, sizeof(tmp->item), sort_array_cmp);
+            globalQuickS.quickSort((char *) tmp->item, tmp->size, sizeof(tmp->item), sort_array_cmp);
             sort_array_ftc = old_ptr;
             sp--;//remove tmp from stack, but we don't want to free it!
             break;

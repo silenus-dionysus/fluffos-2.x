@@ -2145,7 +2145,7 @@ static void handle_functions() {
         i = num_func;
         while (i--) func_index_map[i] = i;
 
-        quickSort(func_index_map, num_func, sizeof(unsigned short),
+        globalQuickS.quickSort(func_index_map, num_func, sizeof(unsigned short),
                   compare_funcs);
 
         i = num_func;
@@ -2645,10 +2645,10 @@ void prepare_cases (parse_node_t * pn, int start) {
     }
 
     if (pn->kind == NODE_SWITCH_STRINGS)
-        quickSort((char *)ce_start, ce_end - ce_start, sizeof(parse_node_t *),
+        globalQuickS.quickSort((char *)ce_start, ce_end - ce_start, sizeof(parse_node_t *),
                   string_case_compare);
     else
-        quickSort((char *)ce_start, ce_end - ce_start, sizeof(parse_node_t *),
+        globalQuickS.quickSort((char *)ce_start, ce_end - ce_start, sizeof(parse_node_t *),
                   case_compare);
 
     ce = ce_start;

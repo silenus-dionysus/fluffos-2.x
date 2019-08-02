@@ -10,6 +10,8 @@
 #include "std.h"
 #include "qsort.h"
 
+QuickSort globalQuickS;
+
 #define LEN sizeof(svalue_t)
 #define MAX_LEN 1000
 
@@ -50,7 +52,7 @@ static void qSort(void *v, int left, int right, int size, int rightmost, int (*c
     qSort(v, last + 1, right, size, rightmost, compar);
 }
 
-void quickSort(void *a, int nmemb, int size, int (*compar) (void *, void *))
+void QuickSort::quickSort(void *a, int nmemb, int size, int (*compar) (void *, void *))
 {
     if (nmemb < 2) {
 	return;
