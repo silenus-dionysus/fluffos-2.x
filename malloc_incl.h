@@ -14,9 +14,6 @@ void outbuf_fix (outbuffer_t *);
 void outbuf_push (outbuffer_t *);
 int outbuf_extend (outbuffer_t *, int);
 
-#include "wrappedmalloc.h"
-#include "debugmalloc.h"
-
 #ifdef DEBUGMALLOC
 /* tags */
 #define TAG_TEMPORARY       (1 << 8)
