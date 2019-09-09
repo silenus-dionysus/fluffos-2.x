@@ -597,7 +597,8 @@ object_t *clone_object (const char * str1, int num_arg)
     new_ob->flags |= (O_CLONE | (ob->flags & (O_WILL_CLEAN_UP | O_WILL_RESET)));
     new_ob->load_time = ob->load_time;
     new_ob->prog = ob->prog;
-    globalProgram.reference_prog(ob->prog, "clone_object");
+    
+    (ob->prog)->reference("clone object");
     DEBUG_CHECK(!current_object, "clone_object() from no current_object !\n");
 
     new_ob->next_all = obj_list;

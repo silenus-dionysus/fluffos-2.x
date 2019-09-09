@@ -33,7 +33,7 @@ Function::dealloc_funp (funptr_t * fp)
         debug(d_flag, ("subtr func ref /%s: now %i\n",
                     prog->filename, prog->func_ref));
         if (!prog->func_ref && !prog->ref)
-            globalProgram.deallocate_program(prog);
+            prog->deallocate();
     }
 
     FREE(fp);

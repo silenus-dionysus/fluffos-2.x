@@ -5,47 +5,50 @@ Program globalProgram;
 
 int total_num_prog_blocks, total_prog_block_size;
 
-void Program::reference_prog (program_t * progp, const char * from)
+
+
+void program_s::reference(const char * from)
 {
-    progp->ref++;
+    ref++;
     debug(d_flag, ("reference_prog: /%s ref %d (%s)\n",
-               progp->filename, progp->ref, from));
+               filename, ref, from));
 }
 
-void Program::deallocate_program (program_t * progp)
+// this is destructor? 
+void program_s::deallocate()
 {
     int i;
 
-    debug(d_flag, ("free_prog: /%s\n", progp->filename));
+    debug(d_flag, ("free_prog: /%s\n", filename));
     
-    total_prog_block_size -= progp->total_size;
+    total_prog_block_size -= total_size;
     total_num_prog_blocks -= 1;
 
     /* Free all function names. */
-    for (i = 0; i < progp->num_functions_defined; i++)
-        if (progp->function_table[i].funcname)
-            free_string(progp->function_table[i].funcname);
+    for (i = 0; i < num_functions_defined; i++)
+        if (function_table[i].funcname)
+            free_string(function_table[i].funcname);
     /* Free all strings */
-    for (i = 0; i < progp->num_strings; i++)
-        free_string(progp->strings[i]);
+    for (i = 0; i < num_strings; i++)
+        free_string(strings[i]);
     /* Free all variable names */
-    for (i = 0; i < progp->num_variables_defined; i++)
-        free_string(progp->variable_table[i]);
+    for (i = 0; i < num_variables_defined; i++)
+        free_string(variable_table[i]);
     /* Free all inherited objects */
-    for (i = 0; i < progp->num_inherited; i++){
-    	program_t *tmp = progp->inherit[i].prog;
-    	free_prog(&tmp); //don't want to mess up the prog pointer in the inherited ob
+    for (i = 0; i < num_inherited; i++){
+    	program_t *tmp = inherit[i].prog;
+    	globalProgram.free_prog(&tmp); //don't want to mess up the prog pointer in the inherited ob
     }
-    free_string(progp->filename);
+    free_string(filename);
 
     /*
      * We're going away for good, not just being swapped, so free up
      * line_number stuff.
      */
-    if (progp->file_info)
-        FREE(progp->file_info);
+    if (file_info)
+        FREE(file_info);
     
-    FREE((char *) progp);
+    // FREE((char *) progp);
 }
 
 /*
@@ -67,37 +70,39 @@ void Program::free_prog (program_t **progp)
         return;
     }
 
-    deallocate_program(*progp);
+    (*progp)->deallocate();
+    FREE( (char*)*progp );
     *progp = (program_t *)4;//NULL;
 }
 
-char *Program::variable_name (program_t * prog, int idx) {
-    int i = prog->num_inherited - 1;
+char *program_s::variable_name (int idx) {
+    int i = num_inherited - 1;
     int first;
 
     if (i > -1)
-        first = prog->inherit[i].variable_index_offset + prog->inherit[i].prog->num_variables_total;
+        first = inherit[i].variable_index_offset + inherit[i].prog->num_variables_total;
     else
-        return prog->variable_table[idx];
+        return variable_table[idx];
     if (idx >= first)
-        return prog->variable_table[idx - first];
-    while (idx < prog->inherit[i].variable_index_offset)
+        return variable_table[idx - first];
+    while (idx < inherit[i].variable_index_offset)
         i--;
-    return variable_name(prog->inherit[i].prog, idx - prog->inherit[i].variable_index_offset);
+    return (inherit[i].prog)->variable_name(idx - inherit[i].variable_index_offset);
 }
 
-function_t *Program::find_func_entry (program_t * prog, int index) {
+function_t *program_s::find_func_entry (int index) {
     register int low, mid, high;
     
 
     /* Walk up the inheritance tree to the real definition */   
-    if (prog->function_flags[index] & FUNC_ALIAS) {
-        index = prog->function_flags[index] & ~FUNC_ALIAS;
+    if (function_flags[index] & FUNC_ALIAS) {
+        index = function_flags[index] & ~FUNC_ALIAS;
     }
     
+    program_s* prog = this;
     while (prog->function_flags[index] & FUNC_INHERITED) {
         low = 0;
-        high = prog->num_inherited -1;
+        high = num_inherited -1;
         
         while (high > low) {
             mid = (low + high + 1) >> 1;

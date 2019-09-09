@@ -195,7 +195,13 @@ typedef struct {
     unsigned short type_mod;
 } inherit_t;
 
-typedef struct program_s {
+struct program_s {
+public:
+    void reference(const char *);
+    void deallocate();
+    char *variable_name (int);
+    function_t *find_func_entry (int);
+    
     const char *filename;                 /* Name of file that defined prog */
     unsigned short flags;
     unsigned short last_inherited;
@@ -243,7 +249,9 @@ typedef struct program_s {
     unsigned short num_variables_total;
     unsigned short num_variables_defined;
     unsigned short num_inherited;
-} program_t;
+};
+
+typedef program_s program_t;
 
 extern int total_num_prog_blocks;
 extern int total_prog_block_size;
@@ -251,11 +259,8 @@ extern int total_prog_block_size;
 
 class Program {
 public:
-void reference_prog (program_t *, const char *);
 void free_prog (program_t **);
-void deallocate_program (program_t *);
-char *variable_name (program_t *, int);
-function_t *find_func_entry (program_t *, int);
+
 };
 
 extern Program globalProgram;

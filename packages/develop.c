@@ -124,7 +124,7 @@ f_debug_info (void)
             ob = arg[1].u.ob;
             for (i=0; i<ob->prog->num_variables_total; i++) {
                 /* inefficient, but: */
-                outbuf_addv(&out, "%s: ", globalProgram.variable_name(ob->prog, i));
+                outbuf_addv(&out, "%s: ", (ob->prog)->variable_name(i));
                 globalSPrintF.svalue_to_string(&ob->variables[i], &out, 2, 0, 0);
                 outbuf_add(&out, "\n");
             }

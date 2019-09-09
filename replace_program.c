@@ -74,7 +74,8 @@ void ReplaceProgram::replace_programs (void)
         }
         r_ob->ob->replaced_program = string_copy(r_ob->new_prog->filename, "replace_programs");
 
-        globalProgram.reference_prog(r_ob->new_prog, "replace_programs");
+        
+        (r_ob->new_prog)->reference("replace_programs");
         old_prog = r_ob->ob->prog;
         r_ob->ob->prog = r_ob->new_prog;
         r_next = r_ob->next;
