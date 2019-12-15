@@ -34,7 +34,7 @@
 #  include <sys/rusage.h>
 #endif
 #ifdef INCL_CRYPT_H
-#  include <crypt.h>
+#  include "crypt.h"
 #endif
 
 #ifdef WIN32

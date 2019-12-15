@@ -1,50 +1,63 @@
+#include <atomic>
+#include <chrono>
+#include <thread>
 #include "std.h"
 #include "main.h"
 #include "comm.h"
-#include "uvalarm.h"
 #include <time.h>
 #include "backend.h"
-#include "posix_timers.h"
 
-int outoftime = 0;
-struct timeval tv;
+
+//need to figure out how to set the next time timePoint based on the current timepoint and the current time.
+std::atomic<bool> outoftime;
 int lasttime;
 LPC_INT max_cost;
 
-void set_eval(LPC_INT etime){
-#ifndef WIN32
-	long diff;
-	gettimeofday(&tv, NULL);
-	if((diff = tv.tv_sec-current_time) > 1){
-		diff *= 1000000;
-		if(diff > max_cost*100L){
-			//put some hard limit to eval times
-			debug(d_flag, ("difft:%ld, max_cost:%d", diff, max_cost));
-			outoftime = 1;
-			return;
-		}
-	}
-#ifdef POSIX_TIMERS
-	posix_eval_timer_set(etime);
-#else
-	signal(SIGVTALRM, sigalrm_handler);
-	uvalarm(etime, 0);
-#endif
-#endif
-	outoftime = 0;
+struct EvalTimer {
+    EvalTimer()
+        : th_([this]() { this->runThread(); })
+    {
+        outoftime = false;
+    }
+
+    ~EvalTimer() {
+        {
+            std::lock_guard<std::mutex> l(m_);
+            stop_ = true;
+            outoftime = true;
+        }
+        c_.notify_one();
+        th_.join();
+    }
+
+    void runThread() {
+        while(this->wait_for(std::chrono::nanoseconds(max_cost*1000000)))
+        {
+            outoftime = true;
+        }
+            
+    }
+
+    // Returns false if stop_ == true.
+    template<class Duration>
+    bool wait_for(Duration duration) {
+        std::unique_lock<std::mutex> l(m_);
+        return !c_.wait_for(l, duration, [this]() { return stop_; });
+    }
+
+    std::condition_variable c_;
+    std::mutex m_;
+    bool stop_ = false;
+    std::thread th_;
+};
+
+EvalTimer timer;
+
+void set_eval(LPC_INT){
+	outoftime = false;
 }
 
 LPC_INT get_eval(){
-#ifndef WIN32
-#ifdef POSIX_TIMERS
-	return posix_eval_timer_get();
-#else
-	struct timeval now;
-	gettimeofday(&now, NULL);
-	return max_cost - (1000000*(now.tv_sec - tv.tv_sec))-(now.tv_usec - tv.tv_usec);
-#endif
-#else
-	return 100;
-#endif
+	return outoftime;
 }
 

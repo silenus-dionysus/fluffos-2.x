@@ -1274,7 +1274,7 @@ void pop_control_stack()
 	  function_to_call_t ftc;
 	  memset(&ftc, 0, sizeof ftc);
 	  ftc.f.fp = stuff->func.u.fp;
-	  int s = outoftime;
+	  bool b = outoftime;
 	  if(outoftime)
 		  set_eval(max_cost);
 	  globalObject.save_command_giver(stuff->tp.u.ob);
@@ -1285,7 +1285,7 @@ void pop_control_stack()
 	  globalObject.restore_command_giver();
 	  if(playerchanged)
 		  globalObject.set_command_giver(cgo);
-	  outoftime = s;
+	  outoftime = b;
 	  free_svalue(&(stuff->func), "pop_stack");
 	  free_svalue(&(stuff->tp), "pop_stack");
 

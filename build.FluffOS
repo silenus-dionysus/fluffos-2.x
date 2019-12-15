@@ -143,7 +143,7 @@ else
     gcc comptest.c
     if test $? -eq 0; then
         CC="clang++"
-        CXX="clang++ -Wno-everything"
+        CXX="clang++ -std=c++17 -Wno-everything"
         if test "${DEBUG-x}" = "x"; then
             OPTIMIZE=${OPTIMIZE-"-O3"}
         fi

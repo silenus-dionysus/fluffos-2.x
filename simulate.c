@@ -1720,7 +1720,7 @@ void error_handler (char * err)
             num_mudlib_error = 0;
         } else {
     	    if(max_eval_error)
-	        outoftime = 0;
+	        outoftime = false;
 
             if (!too_deep_error) {
                 num_mudlib_error++;
@@ -1731,7 +1731,7 @@ void error_handler (char * err)
 #endif
 #endif
         if(max_eval_error)
-	    outoftime = 1;
+	    outoftime = true;
         free_svalue(&catch_value, "caught error");
         catch_value.type = T_STRING;
         catch_value.subtype = STRING_MALLOC;
@@ -1764,10 +1764,10 @@ void error_handler (char * err)
         } else {
             num_mudlib_error++;
             num_error--;
-	    outoftime = 0;
+	    outoftime = false;
             mudlib_error_handler(err, 0);
 	    if(max_eval_error)
-	      outoftime = 1;
+	      outoftime = true;
             num_mudlib_error--;
             num_error++;
         }

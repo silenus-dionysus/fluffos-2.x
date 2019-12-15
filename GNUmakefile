@@ -9,7 +9,7 @@ INSTALL_DIR=../bin
 OPTIMIZE=-O3
 CPP=clang++ -m64 -flto -E
 CFLAGS=-D__USE_FIXED_PROTOTYPES__
-CXX=clang++ -Wno-everything
+CXX=clang++ -std=c++17 -Wno-everything
 YACC=bison -d -y
 RANLIB=ranlib
 A=a
@@ -75,8 +75,7 @@ SRC=grammar.tab.c lex.c main.c rc.c interpret.c simulate.c file.c object.c \
   socket_efuns.c socket_ctrl.c qsort.c eoperators.c socket_err.c md.c \
   disassembler.c uvalarm.c $(STRFUNCS) \
   replace_program.c master.c function.c \
-  debug.c crypt.c applies_table.c add_action.c eval.c fliconv.c console.c \
-  posix_timers.c
+  debug.c crypt.c applies_table.c add_action.c eval.c fliconv.c console.c
 
 all: $(OBJDIR) cc.h main_build
 main_build2: $(DRIVER_BIN) addr_server portbind

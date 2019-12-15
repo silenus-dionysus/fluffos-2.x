@@ -39,7 +39,7 @@
 #  include <sys/crypt.h>
 #endif
 #ifdef INCL_CRYPT_H
-#  include <crypt.h>
+#  include "crypt.h"
 #endif
 #ifdef INCL_VALUES_H
 #  include <values.h>

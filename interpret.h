@@ -296,7 +296,7 @@ INLINE void int_free_svalue (svalue_t *);
 INLINE void free_string_svalue (svalue_t *);
 INLINE void free_some_svalues (svalue_t *, int);
 INLINE void push_object (object_t *);
-INLINE void push_number (long);
+INLINE void push_number (LPC_INT);
 INLINE void push_real (double);
 INLINE void push_undefined (void);
 INLINE void copy_and_push_string (const char *);
