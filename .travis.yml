@@ -6,7 +6,6 @@ addons:
   apt:
     packages:
     - build-essential
-    - clang-8.0
     - bison
     - libevent-dev
     - libmysqlclient-dev
