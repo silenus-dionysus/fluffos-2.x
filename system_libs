@@ -1,2 +1,2 @@
- -lresolv -ly -lm -lz -lpthread -lpcre -lmysqlclient
+ -lresolv -ly -lm -lz -lpthread -lpcre -lcrypt
 
