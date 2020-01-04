@@ -26,7 +26,7 @@
 #  include "telnet.h"
 #endif
 #ifdef INCL_SYS_SOCKETVAR_H
-#    include <sys/socketvar.h>
+#    include <sys/socket.h>
 #endif
 #ifdef INCL_SOCKET_H
 #  include <socket.h>
