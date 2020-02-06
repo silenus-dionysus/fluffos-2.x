@@ -68,16 +68,16 @@ main_build: files
 
 VPATH = $(OBJDIR)
 
-OBJ=$(addprefix $(OBJDIR)/,$(subst .c,.o,$(SRC)))
+OBJ=$(addprefix $(OBJDIR)/,$(subst .c,.bc,$(SRC)))
 
-$(OBJDIR)/%.o: %.c 
-	$(CXX) $(CFLAGS) $(OPTIMIZE) -o $@ -c $<
+$(OBJDIR)/%.bc: %.c 
+	$(CXX) $(CFLAGS) $(OPTIMIZE) -c -emit-llvm $< -o $@
 
-$(OBJDIR)/lex.o: lex.c preprocess.c cc.h grammar.tab.c
-	$(CXX) $(CFLAGS) $(OPTIMIZE) -o $@ -c $<
+$(OBJDIR)/lex.bc: lex.c preprocess.c cc.h grammar.tab.c
+	$(CXX) $(CFLAGS) $(OPTIMIZE)  -c -emit-llvm $< -o $@
 
-$(OBJDIR)/grammar.tab.o: grammar.tab.c opcodes.h
-	$(CXX) $(CFLAGS) $(OPTIMIZE) -o $@ -c $<
+$(OBJDIR)/grammar.tab.bc: grammar.tab.c opcodes.h
+	$(CXX) $(CFLAGS) $(OPTIMIZE)  -c -emit-llvm $< -o $@
 
 $(OBJDIR):
 	mkdir -p $(OBJDIR)
@@ -96,17 +96,19 @@ packages/packages.a: packages/*.c
 
 $(DRIVER_BIN): packages/packages.a $(OBJ) dtrace_compile
 	-mv -f $(DRIVER_BIN) $(DRIVER_BIN).old
-	$(PROOF) $(CXX) $(CFLAGS) $(OPTIMIZE) $(OBJ) `./dtrace_compile` -o $(DRIVER_BIN) packages/packages.a $(EXTRALIBS) `cat system_libs`
+	llvm-link $(OBJ) -o combined.bc
+	$(PROOF) $(CXX) $(CFLAGS) $(OPTIMIZE) combined.bc `./dtrace_compile` -o $(DRIVER_BIN) packages/packages.a $(EXTRALIBS) `cat system_libs`
 
 dtrace_compile: dtrace_compile.c local_options
 	$(CXX) dtrace_compile.c -o dtrace_compile
 
-addr_server: files $(OBJDIR)/addr_server.o $(OBJDIR)/socket_ctrl.o $(OBJDIR)/port.o addr_server.h
-	$(CXX) $(CFLAGS) $(OPTIMIZE) $(OBJDIR)/socket_ctrl.o $(OBJDIR)/addr_server.o $(OBJDIR)/port.o \
-	-o addr_server `cat system_libs`
+addr_server: files $(OBJDIR)/addr_server.bc $(OBJDIR)/socket_ctrl.bc $(OBJDIR)/port.bc addr_server.h
+	llvm-link $(OBJDIR)/socket_ctrl.bc $(OBJDIR)/addr_server.bc $(OBJDIR)/port.bc \
+	-o combined.bc
+	$(CXX) $(CFLAGS) $(OPTIMIZE) combined.bc -o addr_server `cat system_libs`
 
-portbind: $(OBJDIR)/portbind.o
-	$(CXX) $(CFLAGS) $(OPTIMIZE) $(OBJDIR)/portbind.o -o portbind `cat system_libs`
+portbind: $(OBJDIR)/portbind.bc
+	$(CXX) $(CFLAGS) $(OPTIMIZE) $(OBJDIR)/portbind.bc -o portbind `cat system_libs`
 
 
 remake: neat all
@@ -159,17 +161,18 @@ configure.h: edit_source build.FluffOS
 	    echo "Machine `uname -a` Configure version 5" > configuration; \
 	fi
 
-$(OBJDIR)/edit_source.o: edit_source.c preprocess.c cc.h
+$(OBJDIR)/edit_source.bc: edit_source.c preprocess.c cc.h
 
-edit_source: $(OBJDIR)/edit_source.o $(OBJDIR)/hash.o $(OBJDIR)/make_func.tab.o
-	$(CXX) $(CFLAGS) $(OBJDIR)/edit_source.o $(OBJDIR)/hash.o $(OBJDIR)/make_func.tab.o -o edit_source
+edit_source: $(OBJDIR)/edit_source.bc $(OBJDIR)/hash.bc $(OBJDIR)/make_func.tab.bc
+	llvm-link $(OBJDIR)/edit_source.bc $(OBJDIR)/hash.bc $(OBJDIR)/make_func.tab.bc -o combined.bc
+	$(CXX) combined.bc -o edit_source
 
 # don't optimize these two
-$(OBJDIR)/edit_source.o: edit_source.c
-	$(CXX) $(CFLAGS) -o $@ -c $<
-
-$(OBJDIR)/make_func.tab.o: make_func.tab.c
-	$(CXX) $(CFLAGS) -o $@ -c $<
+$(OBJDIR)/edit_source.bc: edit_source.c
+	$(CXX) $(CFLAGS) -c -emit-llvm $< -o $@
+	
+$(OBJDIR)/make_func.tab.bc: make_func.tab.c
+	$(CXX) $(CFLAGS) -c -emit-llvm $< -o $@
 
 tags: $(SRC)
 	ctags $(SRC)
